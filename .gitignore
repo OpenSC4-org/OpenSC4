@@ -20,5 +20,23 @@ addons/*
 
 #Simcity4 data
 Regions/*
+EULA/*
+fontconfig/*
+Fonts/*
+Plugins/*
+Radio/*
+ReadMe/*
+Sku_Data/*
+Support/*
+*.vdf
+*filelist.txt
+*.exe
+*.ico
+*.dat
+readme.txt
+*.sgr
+*.dll
+*.ini
+
 
 .github
