@@ -2,7 +2,7 @@ extends Node2D
 
 var REGION_NAME = "Timbuktu"
 var cities = {}
-var SaveFileLoader = load("res://SaveFileLoader.gd")
+var SaveFileLoader = load("res://DBPFLoader.gd")
 var INILoader = load("res://INILoader.gd")
 
 func _init():
