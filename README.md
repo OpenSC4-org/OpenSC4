@@ -1,6 +1,12 @@
 # OpenSC4
 Godot clone of SimCity4
 
+## Setup
+
+1. Acquire Godot
+2. Acquire and install Simcity 4 (preferably the Deluxe Edition)
+3. Drop all the contents of the Simcity 4 install into the main project directory
+
 ## Roadmap
 
 - [ ] Clone the region screen
