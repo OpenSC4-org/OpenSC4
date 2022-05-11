@@ -37,6 +37,7 @@ readme.txt
 *.sgr
 *.dll
 *.ini
+*.DAT
 
 
 .github
