@@ -3,8 +3,11 @@ extends Node2D
 var REGION_NAME = "Timbuktu"
 var cities = {}
 var SaveFileLoader = load("res://SaveFileLoader.gd")
+var INILoader = load("res://INILoader.gd")
 
 func _init():
+	# Open the region INI file
+	var ini = INILoader.new("res://Regions/%s/region.ini" % REGION_NAME)
 	# Count the city files in the region folder
 	# City files end in .sc4
 	var files = []
@@ -21,7 +24,6 @@ func _init():
 		if file.ends_with('.sc4'):
 			files.append(file)
 	dir.list_dir_end()
-	print('City files: %s' % len(files))
 	self.read_config_bmp()
 	for f in files:
 		var city = SaveFileLoader.new('res://Regions/%s/%s' % [REGION_NAME, f])
@@ -64,8 +66,3 @@ func read_config_bmp():
 						if k == 0 and l == 0:
 							continue
 						region_config.set_pixel(i + k, j + l, Color(0, 0, 0, 0))
-	print('Small cities: %d' % small_cities)
-	print('Medium cities: %d' % medium_cities)
-	print('Large cities: %d' % large_cities)
-	print('TOTAL: %d cities' % (small_cities + medium_cities + large_cities))
-	print('Region size: %d %d' % [region_config.get_width(), region_config.get_height()])

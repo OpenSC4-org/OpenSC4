@@ -94,8 +94,6 @@ func display():
 	# Adjust the tile placement
 	pos_on_grid.y -= (city_sprite.texture.get_height() - expected_height)
 	pos_on_grid.x -= 28 * (city_info.size[0]-1)
-	print('City at %d %d' % [city_info.location[0], city_info.location[1]])
-#	print('Size %d, expected height %d, extra height %d' % [city_info.size[0], expected_height, city_sprite.texture.get_height() - expected_height])
 	$"../BaseGrid".add_child(city_sprite)
 	city_sprite.translate(pos_on_grid)
 
