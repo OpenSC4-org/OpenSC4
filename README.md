@@ -9,6 +9,7 @@ Godot clone of SimCity4
 
 ## Roadmap
 
+- [ ] Load proprietary assets from the game data
 - [ ] Clone the region screen
     - [ ] Load all files in a region folder
     - [ ] Display the city thumbnails
