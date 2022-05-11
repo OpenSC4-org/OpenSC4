@@ -4,16 +4,13 @@ var SC4ReadRegionalCity = load("res://SC4ReadRegionalCity.gd");
 var SC4City__WriteRegionViewThumbnail = load("res://SC4City__WriteRegionViewThumbnail.gd")
 var SC4Subfile = load("res://SC4Subfile.gd")
 var SubfileIndex = load("res://SubfileIndex.gd")
+var SubfileTGI = load("res://SubfileTGI.gd")
 var DBDF = load("res://DBDF.gd");
 var subfiles = {}
 var compressed_files = {}
 var indices = {}
-
+var all_types = {}
 var file
-
-# Size, in pixels, of the tile base
-var TILE_BASE_HEIGHT = 18
-var TILE_BASE_WIDTH = 90
 
 func _init(filepath):
 	# Open the file
@@ -45,8 +42,6 @@ func _init(filepath):
 	var _unknown = self.file.get_32()
 	self.file.seek(index_first_offset)
 
-	var _regional_views = {}
-
 	for _i in range(index_entry_count):
 		var index = SubfileIndex.new(file)
 		indices[[index.type_id, index.group_id, index.instance_id]] = index
@@ -57,6 +52,20 @@ func _init(filepath):
 			dbdf.load(file, index.location, index.size)
 			for compressed_file in dbdf.entries:
 				compressed_files[[compressed_file.type_id, compressed_file.group_id, compressed_file.instance_id]] = compressed_file 
+
+
+func dbg_subfile_types():
+	for index in indices.values():
+		var subfile_type = SubfileTGI.get_file_type(index.type_id)
+		if subfile_type == null:
+			subfile_type = "%08x" % index.type_id
+		if all_types.has(subfile_type):
+			all_types[subfile_type] += 1
+		else:
+			all_types[subfile_type] = 1
+	print("All types found:")
+	for type in all_types:
+		print("%s: %d" % [type, all_types[type]])
 
 func get_subfile(type_id, group_id, instance_id):
 	if not self.indices.has([type_id, group_id, instance_id]):

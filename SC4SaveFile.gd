@@ -2,6 +2,12 @@ extends "res://DBPFLoader.gd"
 
 var region_view_thumbnails = []
 
+# Size, in pixels, of the tile base
+
+var TILE_BASE_HEIGHT = 18
+var TILE_BASE_WIDTH = 90
+
+
 func _init(filepath).(filepath):
 	# Load the thumbnails
 	for instance_id in [0, 2, 4, 6]:

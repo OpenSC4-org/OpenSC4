@@ -7,7 +7,7 @@ var INILoader = load("res://INILoader.gd")
 
 func _init():
 	# Open the region INI file
-	var ini = INILoader.new("res://Regions/%s/region.ini" % REGION_NAME)
+	var _ini = INILoader.new("res://Regions/%s/region.ini" % REGION_NAME)
 	# Count the city files in the region folder
 	# City files end in .sc4
 	var files = []
@@ -41,25 +41,19 @@ func read_config_bmp():
 		print('Error loading region config: %s' % err)
 		return
 	# Iterate over the pixels
-	var small_cities = 0;
-	var large_cities = 0;
-	var medium_cities = 0;
 	region_config.lock()
 	for i in range(region_config.get_width()):
 		for j in range(region_config.get_height()):
 			# Get the pixel at i,j
 			var pixel = region_config.get_pixel(i, j)
 			if pixel[0] == 1:
-				small_cities += 1
 				self.cities[[i, j]] = true
 			elif pixel[1] == 1:
-				medium_cities += 1
 				self.cities[[i, j]] = true
 				for k in range(2):
 					for l in range(2):
 						region_config.set_pixel(i + k, j + l, Color(0, 0, 0, 0))
 			elif pixel[2] == 1:
-				large_cities += 1
 				self.cities[[i, j]] = true
 				for k in range(4):
 					for l in range(4):
