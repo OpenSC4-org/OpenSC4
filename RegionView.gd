@@ -1,6 +1,6 @@
 extends Node2D
 
-var REGION_NAME = "San Francisco"
+var REGION_NAME = "Timbuktu"
 var cities = {}
 var SaveFileLoader = load("res://SaveFileLoader.gd")
 
@@ -68,7 +68,4 @@ func read_config_bmp():
 	print('Medium cities: %d' % medium_cities)
 	print('Large cities: %d' % large_cities)
 	print('TOTAL: %d cities' % (small_cities + medium_cities + large_cities))
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+	print('Region size: %d %d' % [region_config.get_width(), region_config.get_height()])

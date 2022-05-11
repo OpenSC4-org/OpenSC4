@@ -87,14 +87,20 @@ func display():
 	# Get the regional city info
 	var city_info = self.subfiles[[0xca027edb, 0xca027ee1, 0]]
 	var city_sprite = self.region_view_thumbnails[0].sprite
-	print('City position and size : %d %d ; %d %d' % [city_info.location[0], city_info.location[1], city_info.size[0], city_info.size[1]])
 	var grid = $"../BaseGrid"
 	var pos_on_grid = grid.map_to_world(Vector2(city_info.location[0], city_info.location[1] ))
-	pos_on_grid.y -= (45 * city_info.size[1] - city_sprite.texture.get_height())
-	pos_on_grid.x -= (128 * city_info.size[0] - city_sprite.texture.get_width())
-	city_sprite.translate(pos_on_grid)
+	# The height of a tile if it were completely flat
+	var expected_height = 65 * city_info.size[1]
+	# Adjust the tile placement
+	pos_on_grid.y -= (city_sprite.texture.get_height() - expected_height)
+	pos_on_grid.x -= 28 * (city_info.size[0]-1)
+	print('City at %d %d' % [city_info.location[0], city_info.location[1]])
+#	print('Size %d, expected height %d, extra height %d' % [city_info.size[0], expected_height, city_sprite.texture.get_height() - expected_height])
 	$"../BaseGrid".add_child(city_sprite)
+	city_sprite.translate(pos_on_grid)
 
+func _on_press():
+	print("Hello")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

@@ -1,6 +1,8 @@
 extends "res://SC4Subfile.gd" 
 
-var sprite:Sprite
+var RegionViewCityThumbnail = load("res://RegionViewCityThumbnail.gd")
+
+var sprite:RegionViewCityThumbnail
 
 func _init(index).(index):
 	pass
@@ -14,7 +16,7 @@ func load(file, dbdf=null):
 	var err = img.load_png_from_buffer(raw_data)
 	if err != OK:
 		return err
-	sprite = Sprite.new()
+	sprite = RegionViewCityThumbnail.new()
 	sprite.texture = ImageTexture.new()
 	sprite.texture.create_from_image(img)
 	return OK
