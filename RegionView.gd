@@ -2,7 +2,7 @@ extends Node2D
 
 var REGION_NAME = "Timbuktu"
 var cities = {}
-var SaveFileLoader = load("res://DBPFLoader.gd")
+var SC4SaveFile = load("res://SC4SaveFile.gd")
 var INILoader = load("res://INILoader.gd")
 
 func _init():
@@ -26,12 +26,12 @@ func _init():
 	dir.list_dir_end()
 	self.read_config_bmp()
 	for f in files:
-		var city = SaveFileLoader.new('res://Regions/%s/%s' % [REGION_NAME, f])
+		var city = SC4SaveFile.new('res://Regions/%s/%s' % [REGION_NAME, f])
 		self.add_child(city)
 
 func _ready():
 	for city in self.get_children():
-		if city is SaveFileLoader:
+		if city is SC4SaveFile:
 			city.display()
 
 func read_config_bmp():
