@@ -3,6 +3,7 @@ extends Node
 var INILoader = load("res://INILoader.gd")
 var DBPFLoader = load("res://DBPFLoader.gd")
 var SubfileTGI = load("res://SubfileTGI.gd")
+var SC4City__WriteRegionViewThumbnail = load("res://SC4City__WriteRegionViewThumbnail.gd")
 
 # Read the INI file
 var INI_location = "./Apps/SimCity 4.ini"
@@ -15,6 +16,14 @@ var ep1_file
 func _init():
 	# Read the INI file
 	var _ini = INILoader.new(INI_location)
+	# Load the intro
+	intro_file = DBPFLoader.new("Intro.dat")
+	print("=== Intro.dat === ")
+	intro_file.dbg_subfile_types()
+	var png = intro_file.get_subfile(SubfileTGI.TYPE_PNG, SubfileTGI.GROUP_UI_IMAGE, 0xea7f0eae)
+	add_child(png.sprite)
+
+func _ready():
 	# Open the .dat files
 	for i in range(1,6):
 		simcity_dat_files.append(DBPFLoader.new("SimCity_%d.dat" % i))
@@ -28,6 +37,3 @@ func _init():
 	ep1_file = DBPFLoader.new("EP1.dat")
 	print("=== EP1.dat === ")
 	ep1_file.dbg_subfile_types()
-	intro_file = DBPFLoader.new("Intro.dat")
-	print("=== Intro.dat === ")
-	intro_file.dbg_subfile_types()

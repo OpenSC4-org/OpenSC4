@@ -2,6 +2,9 @@ extends Node
 
 # TODO: id to class mapping loaded only once?
 
+const TYPE_PNG = 0x856ddbac
+const GROUP_UI_IMAGE = 0x46a006b0
+
 static func get_file_type(type_id):
 	var dict = {
 		0x6534284a: "LTEXT",

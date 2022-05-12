@@ -9,6 +9,8 @@ var DBDF = load("res://DBDF.gd");
 var subfiles = {}
 var compressed_files = {}
 var indices = {}
+var indices_by_type = {}
+var indices_by_type_and_group = {}
 var all_types = {}
 var file
 
@@ -45,6 +47,15 @@ func _init(filepath):
 	for _i in range(index_entry_count):
 		var index = SubfileIndex.new(file)
 		indices[[index.type_id, index.group_id, index.instance_id]] = index
+		if not index.type_id in indices_by_type:
+			indices_by_type[index.type_id] = [index]
+		else:
+			indices_by_type[index.type_id].append(index)
+
+		if not [index.type_id, index.group_id] in indices_by_type_and_group:
+			indices_by_type_and_group[[index.type_id, index.group_id]] = [index]
+		else:
+			indices_by_type_and_group[[index.type_id, index.group_id]].append(index)
 
 	for index in indices.values():
 		if index.type_id == 0xe86b1eef:
@@ -52,7 +63,6 @@ func _init(filepath):
 			dbdf.load(file, index.location, index.size)
 			for compressed_file in dbdf.entries:
 				compressed_files[[compressed_file.type_id, compressed_file.group_id, compressed_file.instance_id]] = compressed_file 
-
 
 func dbg_subfile_types():
 	for index in indices.values():
