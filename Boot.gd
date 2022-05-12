@@ -24,6 +24,8 @@ func _init():
 	add_child(png.sprite)
 
 func _ready():
+	if true:
+		return
 	# Open the .dat files
 	for i in range(1,6):
 		simcity_dat_files.append(DBPFLoader.new("SimCity_%d.dat" % i))

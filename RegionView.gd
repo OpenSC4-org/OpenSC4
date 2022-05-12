@@ -4,8 +4,12 @@ var REGION_NAME = "Timbuktu"
 var cities = {}
 var SC4SaveFile = load("res://SC4SaveFile.gd")
 var INILoader = load("res://INILoader.gd")
+var radio = []
+var current_music 
+var rng = RandomNumberGenerator.new()
 
 func _init():
+	rng.randomize()
 	# Open the region INI file
 	var _ini = INILoader.new("res://Regions/%s/region.ini" % REGION_NAME)
 	# Count the city files in the region folder
@@ -29,7 +33,33 @@ func _init():
 		var city = SC4SaveFile.new('res://Regions/%s/%s' % [REGION_NAME, f])
 		self.add_child(city)
 
+	# Open a random music file
+	err = dir.open('res://Radio/Stations/Region/Music')
+	if err != OK:
+		print('Error opening radio directory: %s' % err)
+		return
+	dir.list_dir_begin()
+	while true:
+		var file = dir.get_next()
+		if file == "":
+			break
+		if file.ends_with('.mp3'):
+			self.radio.append(file)
+	dir.list_dir_end()
+
+func play_new_random_music():
+	self.current_music = self.radio[rng.randi_range(0, len(self.radio)- 1)]
+	var file = File.new()
+	file.open('res://Radio/Stations/Region/Music/%s' % self.current_music, File.READ)
+
+	var audiostream = AudioStreamMP3.new()
+	audiostream.set_data(file.get_buffer(file.get_len()))
+	$RadioPlayer.set_stream(audiostream)
+	$RadioPlayer.play()
+
+
 func _ready():
+	play_new_random_music()
 	for city in self.get_children():
 		if city is SC4SaveFile:
 			city.display()

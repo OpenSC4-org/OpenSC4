@@ -10,7 +10,8 @@ var TILE_BASE_WIDTH = 90
 
 func _init(filepath).(filepath):
 	# Load the thumbnails
-	for instance_id in [0, 2, 4, 6]:
+	# Note: should be 0, 2, 4, 6, but for some reason only 2 and 4 are ever present
+	for instance_id in [0, 2]:
 		region_view_thumbnails.append(self.get_subfile(0x8a2482b9, 0x4a2482bb, instance_id))
 
 func _ready():

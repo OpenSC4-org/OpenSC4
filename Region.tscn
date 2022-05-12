@@ -26,3 +26,5 @@ drag_margin_right = 0.8
 drag_margin_bottom = 0.8
 editor_draw_drag_margin = true
 script = ExtResource( 1 )
+
+[node name="RadioPlayer" type="AudioStreamPlayer" parent="RegionView"]

@@ -5,6 +5,7 @@ var SC4City__WriteRegionViewThumbnail = load("res://SC4City__WriteRegionViewThum
 var SC4Subfile = load("res://SC4Subfile.gd")
 var SubfileIndex = load("res://SubfileIndex.gd")
 var SubfileTGI = load("res://SubfileTGI.gd")
+var SpriteSubfile = load("res://SpriteSubfile.gd")
 var DBDF = load("res://DBDF.gd");
 var subfiles = {}
 var compressed_files = {}
@@ -78,8 +79,8 @@ func dbg_subfile_types():
 		print("%s: %d" % [type, all_types[type]])
 
 func get_subfile(type_id, group_id, instance_id):
-	if not self.indices.has([type_id, group_id, instance_id]):
-		return null
+	assert(self.indices.has([type_id, group_id, instance_id]), "Subfile not found (%08x %08x %08x)" % [type_id, group_id, instance_id])
+
 	if subfiles.has([type_id, group_id, instance_id]):
 		return subfiles[[type_id, group_id, instance_id]]
 
@@ -98,9 +99,11 @@ func get_subfile(type_id, group_id, instance_id):
 		subfile.load(self.file, dbdf)
 	elif index.type_id == 0x8a2482b9:
 		subfile = SC4City__WriteRegionViewThumbnail.new(index)
-		if subfile.load(self.file, dbdf) != OK:
-			print('Error')
-			return
+		var err = subfile.load(self.file, dbdf)
+		assert(err == OK, "Reading SC4City__WriteRegionViewThumbnail failed")
+	elif index.type_id == SubfileTGI.TYPE_PNG:
+		subfile = SpriteSubfile.new(index)
+		subfile.load(self.file, dbdf)
 	subfiles[[index.type_id, index.group_id, index.instance_id]] = subfile
 	return subfile
 
