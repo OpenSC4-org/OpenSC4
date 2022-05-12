@@ -47,6 +47,7 @@ func _init():
 			self.radio.append(file)
 	dir.list_dir_end()
 
+
 func play_new_random_music():
 	self.current_music = self.radio[rng.randi_range(0, len(self.radio)- 1)]
 	var file = File.new()
@@ -59,6 +60,7 @@ func play_new_random_music():
 
 
 func _ready():
+	$RadioPlayer.connect("finished", self, "play_new_random_music")
 	play_new_random_music()
 	for city in self.get_children():
 		if city is SC4SaveFile:
