@@ -25,8 +25,6 @@ func _init():
 	add_child(png.sprite, true)
 	print("=== Sounds.dat ===")
 	sounds_file = DBPFLoader.new("Sounds.dat")
-
-func _ready():
 	# Get the sounds file
 	sounds_file = DBPFLoader.new("Sound.dat")
 	print("=== Sound.dat === ")
@@ -43,3 +41,6 @@ func _ready():
 	for i in range(5):
 		print(" === Simcity_%d.dat === " % [i+1])
 		#simcity_dat_files[i].dbg_subfile_types()
+
+func _ready():
+	pass
