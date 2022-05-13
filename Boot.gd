@@ -19,12 +19,22 @@ func _init():
 	# Load the intro
 	intro_file = DBPFLoader.new("Intro.dat")
 	print("=== Intro.dat === ")
-	intro_file.dbg_subfile_types()
+	#intro_file.dbg_subfile_types()
 	var png = intro_file.get_subfile(SubfileTGI.TYPE_PNG, SubfileTGI.GROUP_UI_IMAGE, 0xea7f0eae)
 	png.sprite.name = "intro_png"
 	add_child(png.sprite, true)
+	print("=== Sounds.dat ===")
+	sounds_file = DBPFLoader.new("Sounds.dat")
 
 func _ready():
+	# Get the sounds file
+	sounds_file = DBPFLoader.new("Sound.dat")
+	print("=== Sound.dat === ")
+	sounds_file.dbg_show_all_subfiles()
+	ep1_file = DBPFLoader.new("EP1.dat")
+	print("=== EP1.dat === ")
+	ep1_file.dbg_show_all_subfiles()
+
 	if true:
 		return
 	# Open the .dat files
@@ -32,11 +42,4 @@ func _ready():
 		simcity_dat_files.append(DBPFLoader.new("SimCity_%d.dat" % i))
 	for i in range(5):
 		print(" === Simcity_%d.dat === " % [i+1])
-		simcity_dat_files[i].dbg_subfile_types()
-	# Get the sounds file
-	sounds_file = DBPFLoader.new("Sound.dat")
-	print("=== Sound.dat === ")
-	sounds_file.dbg_subfile_types()
-	ep1_file = DBPFLoader.new("EP1.dat")
-	print("=== EP1.dat === ")
-	ep1_file.dbg_subfile_types()
+		#simcity_dat_files[i].dbg_subfile_types()

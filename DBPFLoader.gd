@@ -67,7 +67,7 @@ func _init(filepath):
 
 func dbg_subfile_types():
 	for index in indices.values():
-		var subfile_type = SubfileTGI.get_file_type(index.type_id)
+		var subfile_type = SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id).split("\t")[0]
 		if subfile_type == null:
 			subfile_type = "%08x" % index.type_id
 		if all_types.has(subfile_type):
@@ -77,6 +77,12 @@ func dbg_subfile_types():
 	print("All types found:")
 	for type in all_types:
 		print("%s: %d" % [type, all_types[type]])
+
+func dbg_show_all_subfiles():
+	print("=== ALL SUBFILES ===")
+	for index in indices.values():
+		print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])
+	print("====================")
 
 func get_subfile(type_id, group_id, instance_id):
 	assert(self.indices.has([type_id, group_id, instance_id]), "Subfile not found (%08x %08x %08x)" % [type_id, group_id, instance_id])
