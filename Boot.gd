@@ -21,7 +21,8 @@ func _init():
 	print("=== Intro.dat === ")
 	intro_file.dbg_subfile_types()
 	var png = intro_file.get_subfile(SubfileTGI.TYPE_PNG, SubfileTGI.GROUP_UI_IMAGE, 0xea7f0eae)
-	add_child(png.sprite)
+	png.sprite.name = "intro_png"
+	add_child(png.sprite, true)
 
 func _ready():
 	if true:

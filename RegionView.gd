@@ -65,6 +65,7 @@ func _ready():
 	for city in self.get_children():
 		if city is SC4SaveFile:
 			city.display()
+	$"../intro_png".queue_free()
 
 func read_config_bmp():
 	var region_config = Image.new()
