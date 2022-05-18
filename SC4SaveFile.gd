@@ -30,3 +30,7 @@ func display():
 	pos_on_grid.x -= 28 * (city_info.size[0]-1)
 	$"../BaseGrid".add_child(city_sprite)
 	city_sprite.translate(pos_on_grid)
+
+func get_total_pop():
+	var city_info = self.get_subfile(0xca027edb, 0xca027ee1, 0)
+	return city_info.population_residential

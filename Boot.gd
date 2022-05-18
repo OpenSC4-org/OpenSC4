@@ -28,7 +28,6 @@ func _init():
 	# Get the sounds file
 	sounds_file = DBPFLoader.new("Sound.dat")
 	print("=== Sound.dat === ")
-	sounds_file.dbg_show_all_subfiles()
 	ep1_file = DBPFLoader.new("EP1.dat")
 	print("=== EP1.dat === ")
 	ep1_file.dbg_show_all_subfiles()
@@ -41,6 +40,7 @@ func _init():
 	for i in range(5):
 		print(" === Simcity_%d.dat === " % [i+1])
 		#simcity_dat_files[i].dbg_subfile_types()
+	simcity_dat_files[0].dbg_show_all_subfiles()
 
 func _ready():
 	pass

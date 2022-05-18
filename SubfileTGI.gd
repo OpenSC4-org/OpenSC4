@@ -23,6 +23,8 @@ static func get_file_type(type_id, group_id, instance_id):
 	var group_dict = {
 		0x00000001: "VIDEO,BW_CURSOR",
 		0x46a006b0: "UI_IMAGE",
+		0x1ABE787D: "UI_IMAGE2",
+		0x22DEC92D: "UI_TOOLSIMAGE",
 		0x8a5971c5: "UDI_SOUNDS_DATA",
 		0x2a2458f9: "PROPS_ANIM",
 		0x49a593e7: "NONPROPS_ANIM",
@@ -43,6 +45,20 @@ static func get_file_type(type_id, group_id, instance_id):
 		0x9dbdbf74: "SOUND_HITLISTS",
 		0x4a4d1946: "PLOP_BUTTON_CLICK_DECAY_WIRE_FIRE_TOOLS",
 		0xca88cc85: "ABANDONED",
+		0xCB6B7BD9: "LE_ARROW_IMAGE",
+		0x891B0E1A: "TERRAIN_FOUNDATION",
+		0x2BC2759A: "TRANSIT_NETWORK_SHADOW",
+		0x0986135E: "BASE_OVERLAY",
+		0xbadb57f1: "SIMGLIDE",
+		0x69668828: "TEXTURED_NETWORK_PATH",
+		0xa966883f: "3D_NETWORK_PATH",
+		0x6a386d26: "MENU_ICONS",
+		0x89ac5643: "EXEMPLAR_TRANSIT_PIECES",
+		0x67bddf0c: "ZONABLE_RESIDENTIAL_BUILDING_PARENTS",
+		0x690f693f: "DATA_VIEW_PARENTS",
+		0x6a297266: "MY_SIM_PARENT",
+		0x7a4a8458: "CLOUDS_PARENT",
+		0x47bddf12: "DEVELOPER_COMMERCIAL",
 	}
 	if type_dict.has(type_id):
 		type = type_dict[type_id]
