@@ -60,7 +60,7 @@ func play_new_random_music():
 
 
 func _ready():
-	$UICanvas/UI/RegionInfoUI/RegionNameLabel.text = REGION_NAME
+	$UICanvas/UI/RegionNameLabel.text = REGION_NAME
 	$RadioPlayer.connect("finished", self, "play_new_random_music")
 	play_new_random_music()
 	var total_pop = 0
@@ -68,7 +68,7 @@ func _ready():
 		if city is SC4SaveFile:
 			city.display()
 			total_pop += city.get_total_pop()
-	$UICanvas/UI/RegionInfoUI/RegionPopLabel.text = str(total_pop)
+	$UICanvas/UI/RegionPopLabel.text = str(total_pop)
 	$"../intro_png".queue_free()
 	# Count the total inhabitants of the region
 	# Iterate over each city info subfile

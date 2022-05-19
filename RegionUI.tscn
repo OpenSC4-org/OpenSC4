@@ -1,28 +1,75 @@
-[gd_scene format=2]
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://SC4Button.gd" type="Script" id=1]
+[ext_resource path="res://SC4Button.gd" type="Script" id=2]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="RegionInfoUI" type="VBoxContainer" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
-alignment = 2
 
-[node name="RegionLabel" type="Label" parent="RegionInfoUI"]
-margin_right = 81.0
-margin_bottom = 14.0
+[node name="TopUI" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopButtons" type="HBoxContainer" parent="."]
+anchor_right = 1.0
+alignment = 1
+
+[node name="RegionManagement" type="TextureButton" parent="TopButtons"]
+margin_left = 508.0
+margin_right = 508.0
+script = ExtResource( 2 )
+
+[node name="RegionPopupBackground" type="TextureRect" parent="TopButtons/RegionManagement"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="Internet" type="TextureButton" parent="TopButtons"]
+margin_left = 512.0
+margin_right = 512.0
+script = ExtResource( 2 )
+
+[node name="InternetPopupBackground" type="TextureRect" parent="TopButtons/Internet"]
+anchor_left = 0.5
+anchor_right = 0.5
+grow_horizontal = 2
+
+[node name="Exit" type="TextureButton" parent="TopButtons"]
+margin_left = 516.0
+margin_right = 516.0
+script = ExtResource( 2 )
+
+[node name="TopRight" type="TextureButton" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+script = ExtResource( 1 )
+
+[node name="RegionLabel" type="Label" parent="."]
+margin_left = 70.0
+margin_top = 512.0
+margin_right = 151.0
+margin_bottom = 526.0
 text = "Region"
 
-[node name="RegionNameLabel" type="Label" parent="RegionInfoUI"]
-margin_top = 18.0
-margin_right = 81.0
-margin_bottom = 32.0
-text = "RegionName"
-
-[node name="RegionPopLabel" type="Label" parent="RegionInfoUI"]
-margin_top = 36.0
-margin_right = 81.0
-margin_bottom = 50.0
+[node name="RegionPopLabel" type="Label" parent="."]
+margin_left = 140.0
+margin_top = 540.0
+margin_right = 148.0
+margin_bottom = 554.0
 text = "0"
+align = 2
+
+[node name="RegionNameLabel" type="Label" parent="."]
+margin_left = 23.0
+margin_top = 570.0
+margin_right = 104.0
+margin_bottom = 584.0
+text = "RegionName"

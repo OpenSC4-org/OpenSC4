@@ -84,6 +84,13 @@ func dbg_show_all_subfiles():
 		print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])
 	print("====================")
 
+func all_subfiles_by_group(group_id):
+	print("=== ALL SUBFILES BY GROUP %08x ===" % group_id)
+	for index in indices.values():
+		if index.group_id == group_id:
+			print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])
+	print("====================")
+
 func get_subfile(type_id, group_id, instance_id):
 	assert(self.indices.has([type_id, group_id, instance_id]), "Subfile not found (%08x %08x %08x)" % [type_id, group_id, instance_id])
 
