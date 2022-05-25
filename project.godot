@@ -1,0 +1,103 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "HBoxContainer",
+"class": "ContributorClass",
+"language": "GDScript",
+"path": "res://addons/github-integration/scripts/ContributorClass.gd"
+}, {
+"base": "Resource",
+"class": "DBPF",
+"language": "GDScript",
+"path": "res://addons/dbpf/DBPFResource.gd"
+}, {
+"base": "PanelContainer",
+"class": "GistItem",
+"language": "GDScript",
+"path": "res://addons/github-integration/scripts/GistItem.gd"
+}, {
+"base": "",
+"class": "GitAPI",
+"language": "NativeScript",
+"path": "res://addons/godot-git-plugin/git_api.gdns"
+}, {
+"base": "HBoxContainer",
+"class": "InvitationItem",
+"language": "GDScript",
+"path": "res://addons/github-integration/scripts/InvitationItem.gd"
+}, {
+"base": "Sprite",
+"class": "RegionViewCityThumbnail",
+"language": "GDScript",
+"path": "res://RegionViewCityThumbnail.gd"
+}, {
+"base": "PanelContainer",
+"class": "RepositoryItem",
+"language": "GDScript",
+"path": "res://addons/github-integration/scripts/RepositoryItem.gd"
+}, {
+"base": "TextureButton",
+"class": "SC4Button",
+"language": "GDScript",
+"path": "res://ui/SC4Button.gd"
+}, {
+"base": "TextureRect",
+"class": "SC4TextureRect",
+"language": "GDScript",
+"path": "res://ui/SC4TextureRect.gd"
+}, {
+"base": "Node",
+"class": "SubfileIndex",
+"language": "GDScript",
+"path": "res://addons/dbpf/SubfileIndex.gd"
+} ]
+_global_script_class_icons={
+"ContributorClass": "",
+"DBPF": "",
+"GistItem": "",
+"GitAPI": "",
+"InvitationItem": "",
+"RegionViewCityThumbnail": "",
+"RepositoryItem": "",
+"SC4Button": "",
+"SC4TextureRect": "",
+"SubfileIndex": ""
+}
+
+[application]
+
+config/name="OpenSC4"
+run/main_scene="res://Region.tscn"
+boot_splash/image="res://splash.png"
+config/icon="res://icon.png"
+
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/dbpf/plugin.cfg" )
+
+[gdnative]
+
+singletons=[ "res://addons/godot-git-plugin/git_api.gdnlib", "res://addons/godot-lua-pluginscript/lua_pluginscript.gdnlib" ]
+
+[global]
+
+import=false
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+quality/driver/driver_name="GLES2"
+vram_compression/import_etc=true
+vram_compression/import_etc2=false
+environment/default_environment="res://default_env.tres"
