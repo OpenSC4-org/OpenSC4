@@ -68,9 +68,6 @@ func _ready():
 			city.display()
 			total_pop += city.get_total_pop()
 	$UICanvas/UI/RegionPopLabel.text = str(total_pop)
-	#$"../intro_png".queue_free()
-	# Count the total inhabitants of the region
-	# Iterate over each city info subfile
 
 func read_config_bmp():
 	var region_config = Image.new()
