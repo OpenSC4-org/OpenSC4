@@ -1,6 +1,6 @@
 extends Node2D
 
-var REGION_NAME = "Timbuktu"
+var REGION_NAME = "Berlin"
 var cities = {}
 var radio = []
 var current_music 
@@ -10,30 +10,10 @@ func _init():
 	rng.randomize()
 	# Open the region INI file
 	var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
-	# Count the city files in the region folder
-	# City files end in .sc4
-	var files = []
-	var dir = Directory.new()
-	var err = dir.open('res://Regions/%s/' % REGION_NAME)
-	if err != OK:
-		print('Error opening region directory: %s' % err)
-		return
-	dir.list_dir_begin()
-	while true:
-		var file = dir.get_next()
-		if file == "":
-			break
-		if file.ends_with('.sc4'):
-			files.append(file)
-	dir.list_dir_end()
-	self.read_config_bmp()
-	for f in files:
-		var city = load("res://RegionUI/RegionCityView.tscn").instance()
-		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
-		self.add_child(city)
 
 	# Load the music list
-	err = dir.open('res://Radio/Stations/Region/Music')
+	var dir = Directory.new()
+	var err = dir.open('res://Radio/Stations/Region/Music')
 	if err != OK:
 		print('Error opening radio directory: %s' % err)
 		return
@@ -45,7 +25,6 @@ func _init():
 		if file.ends_with('.mp3'):
 			self.radio.append(file)
 	dir.list_dir_end()
-
 
 func play_new_random_music():
 	self.current_music = self.radio[rng.randi_range(0, len(self.radio)- 1)]
@@ -68,6 +47,27 @@ func _ready():
 			city.display()
 			total_pop += city.get_total_pop()
 	$UICanvas/UI/RegionPopLabel.text = str(total_pop)
+	# Count the city files in the region folder
+	# City files end in .sc4
+	var files = []
+	var dir = Directory.new()
+	var err = dir.open('res://Regions/%s/' % REGION_NAME)
+	if err != OK:
+		print('Error opening region directory: %s' % err)
+		return
+	dir.list_dir_begin()
+	while true:
+		var file = dir.get_next()
+		if file == "":
+			break
+		if file.ends_with('.sc4'):
+			files.append(file)
+	dir.list_dir_end()
+	self.read_config_bmp()
+	for f in files:
+		var city = load("res://RegionUI/RegionCityView.tscn").instance()
+		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
+		$BaseGrid.add_child(city)
 
 func read_config_bmp():
 	var region_config = Image.new()
@@ -94,8 +94,8 @@ func read_config_bmp():
 						region_config.set_pixel(i + k, j + l, Color(0, 0, 0, 0))
 
 func close_all_prompts():
-	for city in self.get_children():
+	for city in $BaseGrid.get_children():
 		if city is RegionCityView:
-			var prompt = city.get_node("UnincorporatedCityPrompt")
+			var prompt = city.get_node_or_null("UnincorporatedCityPrompt")
 			if prompt != null:
 				prompt.queue_free()

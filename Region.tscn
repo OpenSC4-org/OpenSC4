@@ -39,8 +39,9 @@ drag_margin_bottom = 0.8
 motion_mirroring = Vector2( 128, 128 )
 
 [node name="Grid" type="TextureRect" parent="RegionView/ParallaxBackground/ParallaxLayer"]
-margin_right = 1241.0
-margin_bottom = 698.0
+margin_right = 5739.0
+margin_bottom = 3234.0
+mouse_filter = 2
 texture = ExtResource( 6 )
 stretch_mode = 2
 

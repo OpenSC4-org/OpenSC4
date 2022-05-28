@@ -11,3 +11,4 @@ script = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="Thumbnail" type="Sprite" parent="."]
+centered = false
