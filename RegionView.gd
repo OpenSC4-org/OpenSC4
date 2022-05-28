@@ -2,8 +2,6 @@ extends Node2D
 
 var REGION_NAME = "Timbuktu"
 var cities = {}
-var SC4SaveFile = load("res://SC4SaveFile.gd")
-var INILoader = load("res://INILoader.gd")
 var radio = []
 var current_music 
 var rng = RandomNumberGenerator.new()
@@ -11,7 +9,7 @@ var rng = RandomNumberGenerator.new()
 func _init():
 	rng.randomize()
 	# Open the region INI file
-	var _ini = INILoader.new("res://Regions/%s/region.ini" % REGION_NAME)
+	var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
 	# Count the city files in the region folder
 	# City files end in .sc4
 	var files = []
@@ -30,10 +28,11 @@ func _init():
 	dir.list_dir_end()
 	self.read_config_bmp()
 	for f in files:
-		var city = SC4SaveFile.new('res://Regions/%s/%s' % [REGION_NAME, f])
+		var city = load("res://RegionUI/RegionCityView.tscn").instance()
+		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
 		self.add_child(city)
 
-	# Open a random music file
+	# Load the music list
 	err = dir.open('res://Radio/Stations/Region/Music')
 	if err != OK:
 		print('Error opening radio directory: %s' % err)
@@ -65,20 +64,17 @@ func _ready():
 	play_new_random_music()
 	var total_pop = 0
 	for city in self.get_children():
-		if city is SC4SaveFile:
+		if city is RegionCityView:
 			city.display()
 			total_pop += city.get_total_pop()
 	$UICanvas/UI/RegionPopLabel.text = str(total_pop)
-	$"../intro_png".queue_free()
+	#$"../intro_png".queue_free()
 	# Count the total inhabitants of the region
 	# Iterate over each city info subfile
 
 func read_config_bmp():
 	var region_config = Image.new()
-	var err = region_config.load('res://Regions/%s/config.bmp' % REGION_NAME)
-	if err != OK:
-		print('Error loading region config: %s' % err)
-		return
+	region_config.load("res://Regions/%s/config.bmp" % REGION_NAME)
 	# Iterate over the pixels
 	region_config.lock()
 	for i in range(region_config.get_width()):
@@ -99,3 +95,10 @@ func read_config_bmp():
 						if k == 0 and l == 0:
 							continue
 						region_config.set_pixel(i + k, j + l, Color(0, 0, 0, 0))
+
+func close_all_prompts():
+	for city in self.get_children():
+		if city is RegionCityView:
+			var prompt = city.get_node("UnincorporatedCityPrompt")
+			if prompt != null:
+				prompt.queue_free()

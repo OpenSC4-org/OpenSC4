@@ -1,4 +1,5 @@
-extends "res://SC4Subfile.gd"
+extends DBPFSubfile
+class_name SC4ReadRegionalCity
 
 var version = [0,0]
 var location = [0,0]

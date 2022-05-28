@@ -1,52 +1,33 @@
-extends Node
-
-var INILoader = load("res://INILoader.gd")
-var DBPFLoader = load("res://DBPFLoader.gd")
-var SubfileTGI = load("res://SubfileTGI.gd")
-var SC4City__WriteRegionViewThumbnail = load("res://SC4City__WriteRegionViewThumbnail.gd")
+extends Node2D
+class_name Boot
 
 # Read the INI file
 var INI_location = "./Apps/SimCity 4.ini"
 
-var simcity_dat_files = []
-var sounds_file
-var intro_file
-var ep1_file 
+var simcity_dat_1 : DBPF
+var simcity_dat_2 : DBPF
+var simcity_dat_3 : DBPF
+var simcity_dat_4 : DBPF
+var simcity_dat_5 : DBPF
+var sounds_file : DBPF
+var intro_file : DBPF
+var ep1_file : DBPF
 
 
 # UI resources
 
 func _init():
 	# Read the INI file
-	var _ini = INILoader.new(INI_location)
-	# Load the intro
-	intro_file = DBPFLoader.new("Intro.dat")
-	print("=== Intro.dat === ")
-	#intro_file.dbg_subfile_types()
-	var png = intro_file.get_subfile(SubfileTGI.TYPE_PNG, SubfileTGI.GROUP_UI_IMAGE, 0xea7f0eae)
-	png.sprite.name = "intro_png"
-	add_child(png.sprite, true)
-	print("=== Sounds.dat ===")
-	sounds_file = DBPFLoader.new("Sounds.dat")
-	# Get the sounds file
-	sounds_file = DBPFLoader.new("Sound.dat")
-	print("=== Sound.dat === ")
-	ep1_file = DBPFLoader.new("EP1.dat")
-	print("=== EP1.dat === ")
-	ep1_file.dbg_show_all_subfiles()
+	var _ini = INISubfile.new(INI_location)
+	simcity_dat_1 = DBPF.new("res://SimCity_1.dat")
+	simcity_dat_2 = DBPF.new("res://SimCity_2.dat")
+	simcity_dat_3 = DBPF.new("res://SimCity_3.dat")
+	simcity_dat_4 = DBPF.new("res://SimCity_4.dat")
+	simcity_dat_5 = DBPF.new("res://SimCity_5.dat")
+	sounds_file = DBPF.new("res://Sound.dat")
+	intro_file = DBPF.new("res://Intro.dat")
+	ep1_file = DBPF.new("res://EP1.dat")
 
-	# Open the .dat files
-	for i in range(1,6):
-		simcity_dat_files.append(DBPFLoader.new("SimCity_%d.dat" % i))
-	for i in range(5):
-		print(" === Simcity_%d.dat === " % [i+1])
-
-func img_info(index):
-	# Interpret the ID
-	var main_group = (0xff000000 & index.instance_id) >> 24
-	var family =     (0x00fff000 & index.instance_id) >> 12
-	var img_id =     (0x00000fff & index.instance_id)
-	return '%02x %03x %03x' % [main_group, family, img_id]
 
 func load_ui_images():
 	var REGION_VIEW_UI = 0x14416300
@@ -70,29 +51,16 @@ func load_ui_images():
 	var REGION_DELETE_CITY = REGION_VIEW_UI | 0x24
 	var REGION_IMPORT_CITY = REGION_VIEW_UI | 0x25
 	var REGION_OPEN_CITY = REGION_VIEW_UI | 0x26
-	print("== UI images ==")
-	var ui_indices = simcity_dat_files[0].indices_by_type_and_group[[SubfileTGI.TYPE_PNG, SubfileTGI.GROUP_UI_IMAGE]]
-	for img_index in ui_indices:
-		pass
-	ui_indices = simcity_dat_files[0].indices_by_type_and_group[[SubfileTGI.TYPE_PNG, 0x1ABE787D]]
-	var region_info_ui_sprite = simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_INFO_BASE)
-	$RegionView/UICanvas/UI/Background.texture = region_info_ui_sprite.sprite.texture
-	$RegionView/UICanvas/UI/TopUI.texture = simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_UI).sprite.texture
-	$RegionView/UICanvas/UI/TopButtons/RegionManagement.set_texture(simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_REGIONS).sprite.texture)
-	$RegionView/UICanvas/UI/TopButtons/RegionManagement/RegionPopupBackground.texture = simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_REGIONS_POPUP_BG).sprite.texture
-	$RegionView/UICanvas/UI/TopButtons/Internet.set_texture(simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_INTERNET).sprite.texture)
-	$RegionView/UICanvas/UI/TopButtons/Internet/InternetPopupBackground.texture = simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_INTERNET_POPUP_BG).sprite.texture
-	$RegionView/UICanvas/UI/TopButtons/Exit.set_texture(simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_EXIT).sprite.texture)
-	$RegionView/UICanvas/UI/TopRight.set_texture(simcity_dat_files[0].get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_RIGHT).sprite.texture)
-	if true:
-		$RegionView/UICanvas/SpritesDBG.set_visible(false)
-		return
-	else:
-		$RegionView/UICanvas/UI.set_visible(false)
-	for img_index in ui_indices:
-		if (img_index.instance_id & 0xffffff00) == 0x14416300:
-			var sprite = simcity_dat_files[0].get_subfile(img_index.type_id, img_index.group_id, img_index.instance_id)
-			$RegionView/UICanvas/SpritesDBG.add_item(img_info(img_index), sprite.sprite.texture)
+	var region_info_ui_sprite = simcity_dat_1.get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_INFO_BASE, ImageSubfile)
+	$RegionView/UICanvas/UI/Background.texture = region_info_ui_sprite.get_as_texture()
+	$RegionView/UICanvas/UI/TopUI.texture = simcity_dat_1.get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_UI, ImageSubfile).get_as_texture()
+	$RegionView/UICanvas/UI/RegionManagement.from_dbpf(simcity_dat_1, SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_REGIONS)
+	$RegionView/UICanvas/UI/Internet.from_dbpf(simcity_dat_1, SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_INTERNET)
+	$RegionView/UICanvas/UI/Exit.from_dbpf(simcity_dat_1, SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_EXIT)
+	$RegionView/UICanvas/UI/TopRight.from_dbpf(simcity_dat_1, SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_RIGHT)
+	$RegionView/UICanvas/UI/RegionPopupBackground.texture = simcity_dat_1.get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_REGIONS_POPUP_BG, ImageSubfile).get_as_texture()
+	$RegionView/UICanvas/UI/InternetPopupBackground.texture = simcity_dat_1.get_subfile(SubfileTGI.TYPE_PNG, 0x1ABE787D, REGION_TOP_INTERNET_POPUP_BG, ImageSubfile).get_as_texture()
+	$RegionView/UICanvas/SpritesDBG.set_visible(false)
 
 func _ready():
 	load_ui_images()

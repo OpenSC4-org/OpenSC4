@@ -1,7 +1,8 @@
-extends Node
+extends Reference
+
+class_name DBDF
 
 var entries = []
-var DBDFEntry = load("res://DBDFEntry.gd")
 
 func load(file, location, size):
 	file.seek(location)

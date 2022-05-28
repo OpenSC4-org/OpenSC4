@@ -1,11 +1,12 @@
 extends Node
+class_name SubfileTGI
 
 # TODO: id to class mapping loaded only once?
 
 const TYPE_PNG = 0x856ddbac
 const GROUP_UI_IMAGE = 0x46a006b0
 
-static func get_file_type(type_id, group_id, instance_id):
+static func get_file_type(type_id : int, group_id : int, instance_id : int) -> String:
 	var type = "0x%08x" % type_id
 	var group = "0x%08x" % group_id
 	var type_dict = {

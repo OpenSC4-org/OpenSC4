@@ -1,7 +1,5 @@
-extends Node
-
-var SubfileIndex = load("res://SubfileIndex.gd")
-var DBDFEntry = load("res://DBDFEntry.gd")
+extends Reference 
+class_name DBPFSubfile
 
 var index:SubfileIndex
 var raw_data:PoolByteArray
@@ -9,14 +7,14 @@ var raw_data:PoolByteArray
 func _init(idx:SubfileIndex):
 	self.index = idx
 
-func load(file, dbdf=null):
+func load(file:File, dbdf:DBDFEntry=null):
 	file.seek(index.location)
 	if dbdf != null:
 		raw_data = decompress(file, index.size - 9, dbdf)
 	else:
 		raw_data = file.get_buffer(index.size)
 
-func decompress(file, length, dbdf):
+func decompress(file : File, length : int, dbdf : DBDFEntry) -> PoolByteArray:
 	var buf:PoolByteArray
 	var answer:PoolByteArray = PoolByteArray()
 	var numplain:int

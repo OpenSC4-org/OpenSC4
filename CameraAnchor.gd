@@ -30,5 +30,5 @@ func _input(event):
 		
 		self.velocity = Vector2(move_x * move_vel, move_y * move_vel)
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	self.move_and_slide(self.velocity)

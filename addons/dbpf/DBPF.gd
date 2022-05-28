@@ -1,21 +1,17 @@
-extends Node
+extends Resource
+class_name DBPF
 
-var SC4ReadRegionalCity = load("res://SC4ReadRegionalCity.gd");
-var SC4City__WriteRegionViewThumbnail = load("res://SC4City__WriteRegionViewThumbnail.gd")
-var SC4Subfile = load("res://SC4Subfile.gd")
-var SubfileIndex = load("res://SubfileIndex.gd")
-var SubfileTGI = load("res://SubfileTGI.gd")
-var SpriteSubfile = load("res://SpriteSubfile.gd")
-var DBDF = load("res://DBDF.gd");
-var subfiles = {}
-var compressed_files = {}
-var indices = {}
-var indices_by_type = {}
-var indices_by_type_and_group = {}
-var all_types = {}
-var file
+var subfiles : Dictionary
+var compressed_files : Dictionary
+var indices : Dictionary
+var indices_by_type : Dictionary
+var indices_by_type_and_group : Dictionary
+var all_types : Dictionary
+var file : File
 
-func _init(filepath):
+export (Dictionary) var ui_region_textures: Dictionary = {}
+
+func _init(filepath : String):
 	# Open the file
 	self.file = File.new()
 	var err = file.open(filepath, File.READ)
@@ -43,8 +39,8 @@ func _init(filepath):
 	var _index_minor_version = self.file.get_32()
 	var _index_offset = self.file.get_32()
 	var _unknown = self.file.get_32()
-	self.file.seek(index_first_offset)
 
+	self.file.seek(index_first_offset)
 	for _i in range(index_entry_count):
 		var index = SubfileIndex.new(file)
 		indices[[index.type_id, index.group_id, index.instance_id]] = index
@@ -84,45 +80,27 @@ func dbg_show_all_subfiles():
 		print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])
 	print("====================")
 
-func all_subfiles_by_group(group_id):
+func all_subfiles_by_group(group_id : int):
 	print("=== ALL SUBFILES BY GROUP %08x ===" % group_id)
 	for index in indices.values():
 		if index.group_id == group_id:
 			print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])
 	print("====================")
 
-func get_subfile(type_id, group_id, instance_id):
+func get_subfile(type_id : int, group_id : int, instance_id : int, subfile_class) -> DBPFSubfile: 
 	assert(self.indices.has([type_id, group_id, instance_id]), "Subfile not found (%08x %08x %08x)" % [type_id, group_id, instance_id])
 
-	if subfiles.has([type_id, group_id, instance_id]):
+	if subfiles.has([type_id, group_id, instance_id]) and subfiles[[type_id, group_id, instance_id]] != null:
 		return subfiles[[type_id, group_id, instance_id]]
 
-	var index = self.indices[[type_id, group_id, instance_id]]
-	var subfile
-	var dbdf
+	var index  : SubfileIndex = self.indices[[type_id, group_id, instance_id]]
 
 	# If the file is in the DBDF, then it's compressed
+	var dbdf : DBDFEntry = null
 	if [index.type_id, index.group_id, index.instance_id] in self.compressed_files:
 		dbdf = compressed_files[[index.type_id, index.group_id, index.instance_id]]
-	else:
-		dbdf = null
 
-	if index.type_id == 0xca027edb:
-		subfile = SC4ReadRegionalCity.new(index)	
-		subfile.load(self.file, dbdf)
-	elif index.type_id == 0x8a2482b9:
-		subfile = SC4City__WriteRegionViewThumbnail.new(index)
-		var err = subfile.load(self.file, dbdf)
-		assert(err == OK, "Reading SC4City__WriteRegionViewThumbnail failed")
-	elif index.type_id == SubfileTGI.TYPE_PNG:
-		subfile = SpriteSubfile.new(index)
-		subfile.load(self.file, dbdf)
+	var subfile : DBPFSubfile = subfile_class.new(index)
 	subfiles[[index.type_id, index.group_id, index.instance_id]] = subfile
+	subfile.load(self.file, dbdf)
 	return subfile
-
-func _on_press():
-	print("Hello")
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass

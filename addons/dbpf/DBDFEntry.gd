@@ -1,4 +1,5 @@
 extends Node
+class_name DBDFEntry
 
 var type_id
 var	group_id 

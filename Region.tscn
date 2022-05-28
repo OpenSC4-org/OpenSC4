@@ -6,7 +6,7 @@
 [ext_resource path="res://CameraAnchor.gd" type="Script" id=4]
 [ext_resource path="res://SpritesDBG.gd" type="Script" id=5]
 
-[node name="Boot" type="Node"]
+[node name="Boot" type="Node2D"]
 script = ExtResource( 3 )
 
 [node name="RegionView" type="Node2D" parent="."]
@@ -15,7 +15,7 @@ script = ExtResource( 2 )
 [node name="BaseGrid" type="TileMap" parent="RegionView"]
 position = Vector2( 1, 1 )
 mode = 2
-cell_custom_transform = Transform2D( 92, 18, -36, 46, 0, 0 )
+cell_custom_transform = Transform2D( 90, 18, -38, 45, 0, 0 )
 cell_y_sort = true
 format = 1
 

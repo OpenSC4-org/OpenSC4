@@ -9,45 +9,70 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "HBoxContainer",
-"class": "ContributorClass",
+"base": "Node2D",
+"class": "Boot",
 "language": "GDScript",
-"path": "res://addons/github-integration/scripts/ContributorClass.gd"
+"path": "res://Boot.gd"
+}, {
+"base": "Reference",
+"class": "DBDF",
+"language": "GDScript",
+"path": "res://addons/dbpf/DBDF.gd"
+}, {
+"base": "Node",
+"class": "DBDFEntry",
+"language": "GDScript",
+"path": "res://addons/dbpf/DBDFEntry.gd"
 }, {
 "base": "Resource",
 "class": "DBPF",
 "language": "GDScript",
-"path": "res://addons/dbpf/DBPFResource.gd"
+"path": "res://addons/dbpf/DBPF.gd"
 }, {
-"base": "PanelContainer",
-"class": "GistItem",
+"base": "ResourceFormatLoader",
+"class": "DBPFLoader",
 "language": "GDScript",
-"path": "res://addons/github-integration/scripts/GistItem.gd"
+"path": "res://addons/dbpf/DBPFLoader.gd"
 }, {
-"base": "",
-"class": "GitAPI",
-"language": "NativeScript",
-"path": "res://addons/godot-git-plugin/git_api.gdns"
-}, {
-"base": "HBoxContainer",
-"class": "InvitationItem",
+"base": "EditorPlugin",
+"class": "DBPFPlugin",
 "language": "GDScript",
-"path": "res://addons/github-integration/scripts/InvitationItem.gd"
+"path": "res://addons/dbpf/DBPFPlugin.gd"
+}, {
+"base": "Reference",
+"class": "DBPFSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/DBPFSubfile.gd"
+}, {
+"base": "Node",
+"class": "INISubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/INISubfile.gd"
+}, {
+"base": "DBPFSubfile",
+"class": "ImageSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/ImageSubfile.gd"
+}, {
+"base": "Area2D",
+"class": "RegionCityView",
+"language": "GDScript",
+"path": "res://RegionUI/RegionCityView.gd"
 }, {
 "base": "Sprite",
 "class": "RegionViewCityThumbnail",
 "language": "GDScript",
 "path": "res://RegionViewCityThumbnail.gd"
 }, {
-"base": "PanelContainer",
-"class": "RepositoryItem",
-"language": "GDScript",
-"path": "res://addons/github-integration/scripts/RepositoryItem.gd"
-}, {
 "base": "TextureButton",
 "class": "SC4Button",
 "language": "GDScript",
 "path": "res://ui/SC4Button.gd"
+}, {
+"base": "DBPFSubfile",
+"class": "SC4ReadRegionalCity",
+"language": "GDScript",
+"path": "res://SC4ReadRegionalCity.gd"
 }, {
 "base": "TextureRect",
 "class": "SC4TextureRect",
@@ -58,18 +83,29 @@ _global_script_classes=[ {
 "class": "SubfileIndex",
 "language": "GDScript",
 "path": "res://addons/dbpf/SubfileIndex.gd"
+}, {
+"base": "Node",
+"class": "SubfileTGI",
+"language": "GDScript",
+"path": "res://addons/dbpf/SubfileTGI.gd"
 } ]
 _global_script_class_icons={
-"ContributorClass": "",
+"Boot": "",
+"DBDF": "",
+"DBDFEntry": "",
 "DBPF": "",
-"GistItem": "",
-"GitAPI": "",
-"InvitationItem": "",
+"DBPFLoader": "",
+"DBPFPlugin": "",
+"DBPFSubfile": "",
+"INISubfile": "",
+"ImageSubfile": "",
+"RegionCityView": "",
 "RegionViewCityThumbnail": "",
-"RepositoryItem": "",
 "SC4Button": "",
+"SC4ReadRegionalCity": "",
 "SC4TextureRect": "",
-"SubfileIndex": ""
+"SubfileIndex": "",
+"SubfileTGI": ""
 }
 
 [application]
@@ -85,7 +121,7 @@ enabled=PoolStringArray( "res://addons/dbpf/plugin.cfg" )
 
 [gdnative]
 
-singletons=[ "res://addons/godot-git-plugin/git_api.gdnlib", "res://addons/godot-lua-pluginscript/lua_pluginscript.gdnlib" ]
+singletons=[  ]
 
 [global]
 
