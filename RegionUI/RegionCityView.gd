@@ -37,7 +37,6 @@ func display():
 	$CollisionShape.shape.extents = Vector2(thumbnail_texture.get_width() / 2, thumbnail_texture.get_height() / 2)
 
 func get_total_pop():
-	var city_info = savefile.get_subfile(0xca027edb, 0xca027ee1, 0, SC4ReadRegionalCity)
 	return city_info.population_residential
 
 func _input_event(_viewport: Object, event: InputEvent, _shape_idx : int) -> void:

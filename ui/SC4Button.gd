@@ -14,8 +14,8 @@ func get_cropped_texture(texture : Texture, region : Rect2):
 	return atlas_texture
 
 func set_texture(main_texture : Texture):
-	var width = main_texture.get_width() / 4
-	var height = main_texture.get_height()
+	var width : int = main_texture.get_width() / 4
+	var height : int = main_texture.get_height()
 	self.texture_disabled = get_cropped_texture(main_texture, Rect2(0, 0, width, height))
 	self.texture_normal = get_cropped_texture(main_texture, Rect2(width, 0, width, height))
 	self.texture_pressed =  get_cropped_texture(main_texture, Rect2(2*width, 0, width, height))

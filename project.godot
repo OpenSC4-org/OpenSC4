@@ -9,11 +9,6 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Node2D",
-"class": "Boot",
-"language": "GDScript",
-"path": "res://Boot.gd"
-}, {
 "base": "Reference",
 "class": "DBDF",
 "language": "GDScript",
@@ -90,7 +85,6 @@ _global_script_classes=[ {
 "path": "res://addons/dbpf/SubfileTGI.gd"
 } ]
 _global_script_class_icons={
-"Boot": "",
 "DBDF": "",
 "DBDFEntry": "",
 "DBPF": "",
@@ -111,9 +105,13 @@ _global_script_class_icons={
 [application]
 
 config/name="OpenSC4"
-run/main_scene="res://Region.tscn"
+run/main_scene="res://BootScreen.tscn"
 boot_splash/image="res://splash.png"
 config/icon="res://icon.png"
+
+[autoload]
+
+Boot="*res://Boot.gd"
 
 [editor_plugins]
 
@@ -126,6 +124,7 @@ singletons=[  ]
 [global]
 
 import=false
+scene=false
 
 [physics]
 
