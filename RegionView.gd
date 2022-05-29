@@ -1,6 +1,6 @@
 extends Node2D
 
-var REGION_NAME = "Berlin"
+var REGION_NAME = "Timbuktu"
 var cities = {}
 var radio = []
 var current_music 
@@ -96,6 +96,7 @@ func read_config_bmp():
 func close_all_prompts():
 	for city in $BaseGrid.get_children():
 		if city is RegionCityView:
+			city.visible = true
 			var prompt = city.get_node_or_null("UnincorporatedCityPrompt")
 			if prompt != null:
 				prompt.queue_free()
