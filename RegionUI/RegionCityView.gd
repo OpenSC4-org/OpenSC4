@@ -50,17 +50,8 @@ func _input_event(_viewport: Object, event: InputEvent, _shape_idx : int) -> voi
 		if pixel_clicked.a < 1:
 			return
 		img.unlock()
-		if event.doubleclick:
-			self.save_thumbnail()
-			# Print city size and position
-			print("----")
-			print("Size %d %d" % [city_info.size[0], city_info.size[1]])
-			print("Position %d %d" % [city_info.location[0], city_info.location[1]])
-			print("Image size %d %d" % [img.get_width(), img.get_height()])
-			print("Image position %d %d" % [self.position.x, self.position.y])
-		else:
-			self.on_click()
-			self.visible = false
+		self.on_click()
+		self.visible = false
 
 func save_thumbnail():
 	region_view_thumbnails[0].get_data().save_png("region_view_thumbnail.png")
