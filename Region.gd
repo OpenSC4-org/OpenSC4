@@ -69,12 +69,20 @@ func _ready():
 	for f in files:
 		var city = load("res://RegionUI/RegionCityView.tscn").instance()
 		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
+		var x : int = city.city_info.location[0]
+		var y : int = city.city_info.location[1]
+		var width : int = city.city_info.size[0]
+		var height : int = city.city_info.size[1]
+		for i in range(x, x+width):
+			for j in range(y, y+height):
+				$BaseGrid.cities[i][j] = city
 		$BaseGrid.add_child(city)
 	load_ui_images()
 
 func read_config_bmp():
 	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
 	# Iterate over the pixels
+	$BaseGrid.init_cities_array(region_config.get_width(), region_config.get_height())
 	region_config.lock()
 	for i in range(region_config.get_width()):
 		for j in range(region_config.get_height()):

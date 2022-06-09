@@ -83,6 +83,11 @@ _global_script_classes=[ {
 "class": "SubfileTGI",
 "language": "GDScript",
 "path": "res://addons/dbpf/SubfileTGI.gd"
+}, {
+"base": "DBPFSubfile",
+"class": "cSTETerrain__SaveAltitudes",
+"language": "GDScript",
+"path": "res://cSTETerrain__SaveAltitudes.gd"
 } ]
 _global_script_class_icons={
 "DBDF": "",
@@ -99,7 +104,8 @@ _global_script_class_icons={
 "SC4ReadRegionalCity": "",
 "SC4TextureRect": "",
 "SubfileIndex": "",
-"SubfileTGI": ""
+"SubfileTGI": "",
+"cSTETerrain__SaveAltitudes": ""
 }
 
 [application]

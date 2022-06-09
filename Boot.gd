@@ -12,3 +12,4 @@ var sounds_file : DBPF
 var intro_file : DBPF
 var ep1_file : DBPF
 
+var current_city : DBPF

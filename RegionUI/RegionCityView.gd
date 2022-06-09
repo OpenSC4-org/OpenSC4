@@ -17,9 +17,9 @@ func init(filepath : String):
 	# Note: should be 0, 2, 4, 6, but for some reason only 2 and 4 are ever present
 	for instance_id in [0, 2]:
 		region_view_thumbnails.append(savefile.get_subfile(0x8a2482b9, 0x4a2482bb, instance_id, ImageSubfile).get_as_texture())
+	city_info = savefile.get_subfile(0xca027edb, 0xca027ee1, 0, SC4ReadRegionalCity)
 
 func _ready():
-	city_info = savefile.get_subfile(0xca027edb, 0xca027ee1, 0, SC4ReadRegionalCity)
 	display()
 
 func display():
@@ -39,25 +39,11 @@ func display():
 func get_total_pop():
 	return city_info.population_residential
 
-func _input_event(_viewport: Object, event: InputEvent, _shape_idx : int) -> void:
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.is_pressed():
-		# get the texture's pixel
-		var img = $Thumbnail.texture.get_data()
-		img.lock()
-		var relative_position = event.get_global_position() - self.position
-		var pixel_clicked = img.get_pixel(relative_position.x, relative_position.y)
-		if pixel_clicked.a < 1:
-			return
-		img.unlock()
-		self.on_click()
-		self.visible = false
-
 func save_thumbnail():
 	region_view_thumbnails[0].get_data().save_png("region_view_thumbnail.png")
 
-func on_click():
-	var region = get_parent().get_parent()
-	region.close_all_prompts()
-	var prompt = preload("res://RegionUI/UnincorporatedCityPrompt.tscn").instance()
-	add_child(prompt)
-	pass
+func open_city():
+	Boot.current_city = savefile
+	var err = get_tree().change_scene("res://City.tscn")
+	if err != OK:
+		print("Error trying to change the scene to the city")
