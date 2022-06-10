@@ -19,3 +19,7 @@ margin_top = 240.0
 margin_right = 572.0
 margin_bottom = 254.0
 text = "Loading OpenSC4..."
+
+[node name="CurrentFileLabel" type="Label" parent="."]
+margin_right = 40.0
+margin_bottom = 14.0
