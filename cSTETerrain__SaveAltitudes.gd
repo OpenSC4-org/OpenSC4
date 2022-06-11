@@ -16,7 +16,7 @@ func load(file, dbpf=null):
 	print("major: %08x" % major)
 	print("size: %d" % stream.get_size())
 	for i in stream.get_size() / 4:
-		altitudes.append(stream.get_float() / 100)
+		altitudes.append(stream.get_float())
 
 func set_dimensions(width, height):
 	self.width = width

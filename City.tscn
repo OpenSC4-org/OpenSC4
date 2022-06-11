@@ -1,7 +1,21 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://City.gd" type="Script" id=1]
 [ext_resource path="res://CameraAnchor3D.gd" type="Script" id=2]
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0.556863, 0.737255, 0.545098, 1 )
+
+[sub_resource type="NoiseTexture" id=2]
+
+[sub_resource type="SpatialMaterial" id=3]
+albedo_color = Color( 0.745098, 0.905882, 1, 1 )
+roughness_texture = SubResource( 2 )
+refraction_enabled = true
+refraction_scale = 0.05
+refraction_texture_channel = 0
+
+[sub_resource type="Environment" id=1]
 
 [node name="City" type="Spatial"]
 script = ExtResource( 1 )
@@ -10,14 +24,26 @@ script = ExtResource( 1 )
 script = ExtResource( 2 )
 
 [node name="Camera" type="Camera" parent="KinematicBody"]
-transform = Transform( -0.643178, 0.555353, -0.527167, 0.0522705, 0.7187, 0.693353, 0.76393, 0.418394, -0.491281, 0, 50, 0 )
+transform = Transform( -0.934566, 0.279885, -0.219661, 0.0522705, 0.7187, 0.693353, 0.351929, 0.636502, -0.686302, 0, 200, 0 )
 projection = 1
 current = true
 size = 50.0
+far = 700.0
 
 [node name="Terrain" type="MeshInstance" parent="."]
+material_override = SubResource( 4 )
+cast_shadow = 0
 
 [node name="WaterPlane" type="MeshInstance" parent="."]
+material_override = SubResource( 3 )
 
-[node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 243.095, 325.04 )
+[node name="Sun" type="DirectionalLight" parent="."]
+transform = Transform( 0.707107, 0.707107, 0, -0.5, 0.5, 0.707107, 0.5, -0.5, 0.707107, 0, 20, 0 )
+light_color = Color( 1, 1, 0.952941, 1 )
+directional_shadow_mode = 0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 1 )
+__meta__ = {
+"_editor_description_": "Default environment"
+}
