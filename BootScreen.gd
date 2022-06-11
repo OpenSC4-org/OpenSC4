@@ -10,6 +10,9 @@ func _ready():
 		print("Error starting thread: " % err)
 		return
 
+func _exit_tree():
+	loading_thread.wait_to_finish()
+
 func load_DATs():
 	print("Loading DAT files...")
 	$LoadProgress.value = 0
