@@ -24,11 +24,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/DBPF.gd"
 }, {
-"base": "ResourceFormatLoader",
-"class": "DBPFLoader",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBPFLoader.gd"
-}, {
 "base": "EditorPlugin",
 "class": "DBPFPlugin",
 "language": "GDScript",
@@ -93,7 +88,6 @@ _global_script_class_icons={
 "DBDF": "",
 "DBDFEntry": "",
 "DBPF": "",
-"DBPFLoader": "",
 "DBPFPlugin": "",
 "DBPFSubfile": "",
 "INISubfile": "",
@@ -142,4 +136,3 @@ quality/driver/driver_name="GLES2"
 threads/thread_model=2
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
-environment/default_environment="res://default_env.tres"

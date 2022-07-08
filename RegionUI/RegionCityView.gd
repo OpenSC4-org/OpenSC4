@@ -22,9 +22,9 @@ func init(filepath : String):
 func _ready():
 	display()
 
-func display():
+func display(): # TODO city edges override other cities causing glitches, can be solved by controlling the draw order or by adding a z value
 	# Print city size
-	var pos_on_grid = get_parent().map_to_world(Vector2(city_info.location[0], city_info.location[1] ))
+	var pos_on_grid = get_parent().map_to_world(Vector2(city_info.location[0], city_info.location[1]))
 	var thumbnail_texture : Texture = region_view_thumbnails[0]
 	# The height of a tile if it were completely flat
 	var expected_height = 63 * city_info.size[1]
