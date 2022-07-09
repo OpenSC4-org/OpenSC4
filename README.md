@@ -16,6 +16,7 @@ Godot clone of SimCity4
     - [ ] Display all city information when clicking on their thumbnail
     - [ ] Decoration (clouds and background grid)
     - [x] Play music
+    - [ ] Add functionality to buttons
 - [ ] Clone the city screen
     - [ ] Render the terrain
     - [ ] Render the flora, fauna and buildings
