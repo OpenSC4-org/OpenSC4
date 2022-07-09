@@ -73,6 +73,11 @@ func play_new_random_music():
 	$RadioPlayer.set_stream(audiostream)
 	#$RadioPlayer.play()
 
+func anchror_sort(a, b):
+	if a[0] != b[0]: # non draw
+		return a[0] < b[0]
+	else: # bigger tile first
+		return a[2] > b[2]
 
 func _ready():
 	print("Region node is ready")
@@ -102,8 +107,7 @@ func _ready():
 			files.append(file)
 	dir.list_dir_end()
 	self.read_config_bmp()
-	var t_dict = {}
-	var ready_dict = {}
+	var anchor = []
 	for f in files:
 		var city = load("res://RegionUI/RegionCityView.tscn").instance()
 		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
@@ -111,62 +115,22 @@ func _ready():
 		var y : int = city.city_info.location[1]
 		var width : int = city.city_info.size[0]
 		var height : int = city.city_info.size[1]
-		var tile_curr = Tile_c.new(x, y, width, city)
-		if len(tile_curr.edges) < 1:
-			ready_dict[[x, y]] = tile_curr
-		else:
-			t_dict[[x, y]] = tile_curr
-	while true:
-		var new_r_dict = {}
-		var cleared = []
-		for tile_c in ready_dict.keys():
-			var tile = ready_dict[tile_c]
-			for i in range(tile.x, tile.x+tile.size):
-					for j in range(tile.y, tile.y+tile.size):
-						$BaseGrid.cities[i][j] = tile.city
-			$BaseGrid.add_child(tile.city)
-			for c_clear in tile.cleared:
-				if not cleared.has(c_clear):
-					cleared.append(c_clear)
-		if len(t_dict) < 1: 
-			break
-		for t_tile_c in t_dict.keys():
-			var t_tile = t_dict[t_tile_c]
-			var to_pop = []
-			for e_ind in range(len(t_tile.edges)):
-				for clear in cleared:
-					if t_tile.edges[e_ind] == clear:
-						to_pop.append(e_ind)
-			for pop in range(len(to_pop)-1, -1, -1):
-				t_tile.edges.pop_at(to_pop[pop])
-			if len(t_tile.edges) < 1:
-				new_r_dict[t_tile_c] = t_dict[t_tile_c]
-				t_dict.erase(t_tile_c)
-		print('old', ready_dict, '\n new', new_r_dict, '\n todo', len(t_dict))
-		ready_dict = new_r_dict
-	"""			
-	var dict_sorter = {}
-	for coords in t_dict.keys():
-		var city = t_dict[coords]
+		var vert_comp = (x+width) + (y+height)
+		anchor.append([vert_comp, city, width])
+	anchor.sort_custom(self, "anchror_sort")
+	for anch in anchor:
+		var city = anch[1]
+		var x : int = city.city_info.location[0]
+		var y : int = city.city_info.location[1]
 		var width : int = city.city_info.size[0]
 		var height : int = city.city_info.size[1]
-		var nearest_pt = [coords[0] + width, coords[1] + height] #bottom right corner
-		dict_sorter[nearest_pt] = coords
-	
-	for diag in range(region_h+region_w+1):
-		for x_s in range(diag+1, -1, -1):
-			var y_s = diag - x_s
-			if [x_s, y_s] in dict_sorter.keys():
-				var x = dict_sorter[[x_s, y_s]][0]
-				var y = dict_sorter[[x_s, y_s]][1]
-				var city = t_dict[[x, y]]
-				var width : int = city.city_info.size[0]
-				var height : int = city.city_info.size[1]
-				for i in range(x, x+width):
-					for j in range(y, y+height):
-						$BaseGrid.cities[i][j] = city
-				$BaseGrid.add_child(city)"""
+		for i in range(x, x+width):
+			for j in range(y, y+height): 
+				$BaseGrid.cities[i][j] = city
+		$BaseGrid.add_child(city)
 	load_ui_images()
+	
+
 
 func read_config_bmp():
 	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
