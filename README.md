@@ -11,11 +11,12 @@ Godot clone of SimCity4
 
 - [ ] Load proprietary assets from the game data
 - [ ] Clone the region screen
-    - [ ] Load all files in a region folder
-    - [ ] Display the city thumbnails
+    - [x] Load all files in a region folder
+    - [x] Display the city thumbnails
     - [ ] Display all city information when clicking on their thumbnail
     - [ ] Decoration (clouds and background grid)
     - [x] Play music
+    - [ ] Add functionality to buttons
 - [ ] Clone the city screen
     - [ ] Render the terrain
     - [ ] Render the flora, fauna and buildings
