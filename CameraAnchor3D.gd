@@ -1,5 +1,6 @@
 extends KinematicBody
 
+var zoom = 1
 var velocity = Vector3(0, 0, 0)
 
 func _ready():
@@ -26,12 +27,21 @@ func _input(event):
 			move -= camera_forward
 		
 		self.velocity = move.normalized() * move_vel
+		print($Camera.project_position(Vector2(0.5, 0.5), 0.5))
 	elif event is InputEventMouseButton:
 		if event.is_pressed():
 			if event.button_index == BUTTON_WHEEL_UP:
-				$Camera.size /= 2
+				self.zoom += 1
+				if self.zoom > 5:
+					self.zoom = 5
+				$Camera.size = pow(2, (6 - self.zoom))*5
+				get_parent().set_view(self.zoom)
 			elif event.button_index == BUTTON_WHEEL_DOWN:
-				$Camera.size *= 2
+				self.zoom -= 1
+				if self.zoom < 1:
+					self.zoom = 1
+				$Camera.size = pow(2, (6 - self.zoom))*5
+				get_parent().set_view(self.zoom)
 
 func _physics_process(_delta):
 	self.move_and_slide(self.velocity)
