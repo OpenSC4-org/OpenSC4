@@ -4,7 +4,10 @@ var size_w : int = 4
 var size_h : int = 4
 var rng : RandomNumberGenerator = RandomNumberGenerator.new()
 var savefile
-var uv_dict
+var ind_layer
+var width
+var height
+var layer_arr = []
 const TILE_SIZE : int = 16
 const WATER_HEIGHT : int = 250 / TILE_SIZE
 
@@ -36,8 +39,16 @@ func load_city_terrain(svfile : DBPF):
 	var terrain_info = svfile.get_subfile(0xa9dd6ff4, 0xe98f9525, 00000001, cSTETerrain__SaveAltitudes)
 	size_w = city_info.size[0]
 	size_h = city_info.size[1]
-	var width = size_w * 64 + 1
-	var height = size_h * 64 + 1
+	width = size_w * 64 + 1
+	height = size_h * 64 + 1
+	self.layer_arr.resize(width)
+	var row = []
+	row.resize(height)
+	for coll in range(len(self.layer_arr)):
+		self.layer_arr[coll] = []
+		for cell in range(len(self.layer_arr)):
+			self.layer_arr[coll].append(null)
+		
 	terrain_info.set_dimensions(width, height)
 	for i in range(width):
 		heightmap.append([])
@@ -46,75 +57,87 @@ func load_city_terrain(svfile : DBPF):
 	return heightmap
 
 #(0, 0)       (1, 0)
-#	    1 - 4
+#	    0 - 3
 #	    | \ |
-#       2 - 3
+#       1 - 2
 #(0, 1)       (1, 1)
-func create_face(v1 : Vector3, v2 : Vector3, v3 : Vector3, v4 : Vector3):
+func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightmap):
 	"""
 	TODO:
-		Pick diagonal based on least steepness
+		swap from surface normals to verex normals to make godot smoothen out edges
+		
 	"""
-	var height = int((v1.y + v2.y+v3.y+v4.y)/4)
-	var v : Vector3 = v2 - v1
-	var u1 : Vector3 = v3 - v1
-	var u2 : Vector3 = v4 - v2
-	var w1 : Vector3 = v4 - v1
-	var w2 : Vector3 = v4 - v3
+	var v : Vector3 = v1 - v0
+	var u1 : Vector3 = v2 - v0
+	var u2 : Vector3 = v3 - v1
+	var w1 : Vector3 = v3 - v0
+	var w2 : Vector3 = v3 - v2
 	var normal1 : Vector3 = v.cross(u1).normalized()
 	var normal2 : Vector3 = u1.cross(w1).normalized()
 	var normal3 : Vector3 = v.cross(u2).normalized()
 	var normal4 : Vector3 = u2.cross(w2).normalized()
-	var uv_arr = height_to_uv(height, min(max(normal1.y, normal2.y), max(normal3.y, normal4.y)))
-	print(uv_arr)
-	var UV1 = uv_arr[0]
-	var UV2 = uv_arr[1]
-	var UV3 = uv_arr[2]
-	var UV4 = uv_arr[3]
+	var uvs = []
+	var layers = []
+	var normalz = []
+	for vert in [v0, v1, v2, v3]:
+		var res = coord_to_uv(vert.x, vert.y, vert.z)
+		uvs.append(res[0])
+		self.layer_arr[vert.z][vert.x] = res[1]
+		if heightmap:
+			var normal = PoolVector3Array([
+				((v1 - v0).cross(v2 - v0) + (v3 - v2).cross(v0 - v2)).normalized()
+				])
+			normalz.append(get_normal(vert, heightmap))
+		else:
+			normalz.append(Vector3(0.0, 1.0, 0.0))
 	
 	var vertices = PoolVector3Array()
 	var normals = PoolVector3Array()
 	var UVs = PoolVector2Array()
 	
 	if min(normal1.y, normal2.y) >= min(normal3.y, normal4.y):
-		vertices.append(v1)
-		UVs.append(UV1)
-		vertices.append(v3)
-		UVs.append(UV3)
+		vertices.append(v0)
+		UVs.append(uvs[0])
+		normals.append(normalz[0])
 		vertices.append(v2)
-		UVs.append(UV2)
+		UVs.append(uvs[2])
+		normals.append(normalz[2])
 		vertices.append(v1)
-		UVs.append(UV1)
-		vertices.append(v4)
-		UVs.append(UV4)
+		UVs.append(uvs[1])
+		normals.append(normalz[1])
+		vertices.append(v0)
+		UVs.append(uvs[0])
+		normals.append(normalz[0])
 		vertices.append(v3)
-		UVs.append(UV3)
-		for _k in range(3):
-			normals.append(normal1)
-		for _k in range(3):
-			normals.append(normal2)
+		UVs.append(uvs[3])
+		normals.append(normalz[3])
+		vertices.append(v2)
+		UVs.append(uvs[2])
+		normals.append(normalz[2])
 	else:
-		vertices.append(v1)
-		UVs.append(UV1)
-		vertices.append(v4)
-		UVs.append(UV4)
-		vertices.append(v2)
-		UVs.append(UV2)
-		vertices.append(v4)
-		UVs.append(UV4)
+		vertices.append(v0)
+		UVs.append(uvs[0])
+		normals.append(normalz[0])
 		vertices.append(v3)
-		UVs.append(UV3)
+		UVs.append(uvs[3])
+		normals.append(normalz[3])
+		vertices.append(v1)
+		UVs.append(uvs[1])
+		normals.append(normalz[1])
+		vertices.append(v3)
+		UVs.append(uvs[3])
+		normals.append(normalz[3])
 		vertices.append(v2)
-		UVs.append(UV2)
-		for _k in range(3):
-			normals.append(normal3)
-		for _k in range(3):
-			normals.append(normal4)
+		UVs.append(uvs[2])
+		normals.append(normalz[2])
+		vertices.append(v1)
+		UVs.append(uvs[1])
+		normals.append(normalz[1])
 
 	return [vertices, normals, UVs]
 
 func create_terrain():
-	self.uv_dict = $Terrain.load_textures_to_uv_dict()
+	self.ind_layer = $Terrain.load_textures_to_uv_dict()
 	var vertices : PoolVector3Array = PoolVector3Array()
 	var normals : PoolVector3Array = PoolVector3Array()
 	var UVs : PoolVector2Array = PoolVector2Array()
@@ -138,7 +161,7 @@ func create_terrain():
 			v2 = Vector3(i,   heightmap[i  ][j+1] / TILE_SIZE, j+1)
 			v3 = Vector3(i+1, heightmap[i+1][j+1] / TILE_SIZE, j+1)
 			v4 = Vector3(i+1, heightmap[i+1][j  ] / TILE_SIZE, j  )
-			var r = create_face(v1, v2, v3, v4)
+			var r = create_face(v1, v2, v3, v4, heightmap)
 			vertices.append_array(r[0])
 			normals.append_array(r[1])
 			UVs.append_array(r[2])
@@ -150,7 +173,7 @@ func create_terrain():
 		v2 = Vector3(i, 0, 0)
 		v3 = Vector3(i+1, 0, 0)
 		v4 = Vector3(i+1, heightmap[i+1][0] / TILE_SIZE, 0)
-		var r = create_face(v3, v2, v1, v4)
+		var r = create_face(v3, v2, v1, v4, heightmap)
 		vertices.append_array(r[0])
 		normals.append_array(r[1])
 		UVs.append_array(r[2])
@@ -159,7 +182,7 @@ func create_terrain():
 		v2 = Vector3(i, heightmap[i][tiles_h-1] / TILE_SIZE, tiles_h-1)
 		v3 = Vector3(i+1, heightmap[i+1][tiles_h-1] / TILE_SIZE, tiles_h-1)
 		v4 = Vector3(i+1, 0, tiles_h-1)
-		r = create_face(v1, v2, v3, v4)
+		r = create_face(v1, v2, v3, v4, heightmap)
 		vertices.append_array(r[0])
 		normals.append_array(r[1])
 		UVs.append_array(r[2])
@@ -170,7 +193,7 @@ func create_terrain():
 		v2 = Vector3(0, 0, i+1)
 		v3 = Vector3(0, heightmap[0][i+1] / TILE_SIZE, i+1)
 		v4 = Vector3(0, heightmap[0][i] / TILE_SIZE, i)
-		var r = create_face(v1, v2, v3, v4)
+		var r = create_face(v1, v2, v3, v4, heightmap)
 		vertices.append_array(r[0])
 		normals.append_array(r[1])
 		UVs.append_array(r[2])
@@ -179,7 +202,7 @@ func create_terrain():
 		v2 = Vector3(tiles_w-1, heightmap[tiles_w-1][i+1] / TILE_SIZE, i+1)
 		v3 = Vector3(tiles_w-1, 0, i+1)
 		v4 = Vector3(tiles_w-1, 0, i)
-		r = create_face(v1, v2, v3, v4)
+		r = create_face(v1, v2, v3, v4, heightmap)
 		vertices.append_array(r[0])
 		normals.append_array(r[1])
 		UVs.append_array(r[2])
@@ -193,6 +216,17 @@ func create_terrain():
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	$Terrain.mesh = array_mesh
+	
+	var layer_img = Image.new()
+	var layer_flat = PoolByteArray([])
+	for row in self.layer_arr:
+		layer_flat.append_array(row)
+	layer_img.create_from_data(width, height, false, Image.FORMAT_R8, layer_flat)
+	var layer_tex = ImageTexture.new()
+	layer_tex.create_from_image(layer_img, 2) 
+	var mat = $Terrain.get_material_override()
+	mat.set_shader_param("layer", layer_tex)
+	$Terrain.set_material_override(mat)
 	print("Terrain vertices: %d" % vertices.size())
 
 func create_water_mesh():
@@ -202,7 +236,7 @@ func create_water_mesh():
 	var v2 = Vector3(0, WATER_HEIGHT, size_h * 64)
 	var v3 = Vector3(size_w * 64, WATER_HEIGHT, size_h * 64)
 	var v4 = Vector3(size_w * 64, WATER_HEIGHT, 0)
-	var r = create_face(v1, v2, v3, v4)
+	var r = create_face(v1, v2, v3, v4, null)
 	vertices.append_array(r[0])
 	normals.append_array(r[1])
 
@@ -234,16 +268,51 @@ func set_view(zoom):
 	trans.origin = Vector3(-64.0, 200.0, -64.0)
 	
 	$KinematicBody/Camera.transform = trans
-	trans.origin = Vector3(-96.0, 200.0, -64.0)
-	$Sun.transform = trans
-	$Terrain.material_override.set_shader_param("zoom", zoom)
+	trans.origin = Vector3(-128.0, 2000.0, -128.0)
+	#$Sun.transform = trans
+	var mat = $Terrain.get_material_override()
+	mat.set_shader_param("zoom", zoom)
+	$Terrain.set_material_override(mat)
 	
-func height_to_uv(height, flatness):
-	var inst_key
-	if flatness > 0.8:
-		var temp = min(int((height) * 1.312), 31)
-		var moist = 10
-		inst_key = $Terrain.tm_table[temp][moist]
-	else:
-		inst_key = 68
-	return self.uv_dict[inst_key]
+func coord_to_uv(x, y, z):
+	var TerrainTexTilingFactor = 0.2 # 0x6534284a,0x88cd66e9,0x00000001 describes this as 100m of terrain corresponds to this fraction of texture in farthest zoom
+	var zoomTilingFactor = float(pow(2, $KinematicBody.zoom))
+	var x_factored = (float(x)*16.0/100.0) * TerrainTexTilingFactor * zoomTilingFactor
+	var y_factored = (float(z)*16.0/100.0) * TerrainTexTilingFactor * zoomTilingFactor
+	var temp = min(int((y) * 1.312), 31) # 0x6534284a,0x7a4a8458,0x1a2fdb6b describes AltitudeTemperatureFactor of 0.082, i multiplied this by 16
+	
+	var moist = 9
+	var inst_key = $Terrain.tm_table[temp][moist]
+	return [Vector2(x_factored, y_factored), self.ind_layer[inst_key]]
+	
+func get_normal(vert : Vector3, heightmap):
+	var min_x = 0.0
+	if vert.x > 0:
+		min_x = -1.0
+	var max_x = 0.0
+	if vert.x < (len(heightmap)-1):
+		max_x = 1.0
+	var min_z = 0.0
+	if vert.z > 0:
+		min_z = -1.0
+	var max_z = 0.0
+	if vert.z < (len(heightmap)-1):
+		max_z = 1.0
+	var vert_c = [[0.0, 1.0], [1.0, 0.0], [0.0, -1.0], [-1.0, 0.0]]
+	var vertices = []
+	for coord in vert_c:
+		var vert_curr = Vector3(vert.x + coord[0], 
+		(heightmap[vert.x + min(max(coord[0], min_x), max_x)][vert.z + min(max(coord[1], min_z), max_z)])/16.0, 
+		vert.z + coord[1])
+		vertices.append(vert_curr)
+	var s_normals = Vector3(0.0, 0.0, 0.0)
+	for v_i in range(len(vertices)):
+		var v1 = vert
+		var v2 = vertices[v_i]
+		var v3 = vertices[(v_i + 1)%(len(vertices)-1)]
+		var v : Vector3 = v2 - v1
+		var u : Vector3 = v3 - v1
+		var normal : Vector3 = v.cross(u).normalized()
+		s_normals = s_normals + normal
+	var norm = (s_normals/len(vertices)).normalized()
+	return norm

@@ -21,7 +21,7 @@ func _ready():
 	UVs.push_back(Vector2(1,0))
 
 	#mat.albedo_color = color
-
+	st.add_smooth_group(true)
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_FAN)
 	for v in vertices.size(): 
 		#st.add_color(color)
@@ -67,6 +67,7 @@ func load_textures_to_uv_dict():
 				if not textures.has(val):
 					textures.append(val)
 		tm_table.append(line_r)
+		print(line_r)
 	var type_tex = 0x7ab50e44
 	var group_tex = 0x891B0E1A
 	var img_dict = {}
@@ -122,10 +123,33 @@ func load_textures_to_uv_dict():
 	"so I should keep a PoolByteArray per row, add padding where needed"
 	"and append the rows together in the end"
 	var format_decomp
+	var textarr = TextureArray.new()
+	textarr.create (width, height, len(textures) * 5, formats[0], 2)
+	var layer = 0
+	var ind_to_layer = {}
+	for im_ind in img_dict.keys():
+		var image = img_dict[im_ind].img
+		textarr.set_layer_data(image, layer)
+		if im_ind < 256:
+			ind_to_layer[im_ind] = layer
+		var test = textarr.get_layer_data(layer)
+		if len(test.data["data"]) == 0:
+			print("failed to load layer", layer, "with image", im_ind)
+		layer += 1
+	"""var t_img_in = img_dict[67].img
+	textarr.set_layer_data(t_img_in, 0)
+	var test_img = textarr.get_layer_data(0)
+	t_img_in.decompress()
+	print("in", len(t_img_in.data["data"]), "/n out", len(test_img.data["data"]))
 	for b_index in textures:
 		for zoom in range(4, -1, -1):
 			var key = b_index + (zoom * 256)
-			for line in range(height):
+			for line in range(height): 
+				"it iters each line once for every image drawn to that line, in this case 11"
+				"so I could speed this up by accessing the images I'm planning to draw in parallel"
+				
+				"should switch to mipmaps along width, iter over height once and prebundle the mipmaps to avoid itter in itter"
+				"that way I only iter height once and just append the data together"
 				var row_n = ((i_vert + zoom) * height) + line
 				var rect = Rect2(Vector2(0, line), Vector2(width, 1))
 				img_dict[key].img.decompress()
@@ -141,11 +165,16 @@ func load_textures_to_uv_dict():
 		var f_t_h = float(tot_h)
 		var f_width = float(width)
 		var f_height = float(height)
+		""
+		var step_w = (f_height-1.2) / f_t_w
+		var step_h = (f_width-1.2) / f_t_h
+		var b_w = ((((f_hori+1) * f_width)) / f_t_w)
+		var b_h = ((((f_vert+1) * f_height)) / f_t_h)
 		uv_dict[b_index] = [
-			Vector2(((f_hori * f_width) / f_t_w), ((f_vert * f_height) / f_t_h)),
-			Vector2(((f_hori * f_width) / f_t_w), (((f_vert+1) * f_height) / f_t_h)),
-			Vector2((((f_hori+1) * f_width) / f_t_w), (((f_vert+1) * f_height) / f_t_h)),
-			Vector2((((f_hori+1) * f_width) / f_t_w), ((f_vert * f_height) / f_t_h))
+			Vector2(b_w - step_w, b_h - step_h),
+			Vector2(b_w - step_w, b_h),
+			Vector2(b_w, b_h),
+			Vector2(b_w, b_h - step_h)
 			]
 		i_hori += 1
 		if i_hori > int(16384/width):
@@ -166,11 +195,10 @@ func load_textures_to_uv_dict():
 			arr_final.append_array(row)
 	image_map.create_from_data(tot_w, tot_h, false, format_decomp, arr_final)
 	var texture_map = ImageTexture.new()
-	texture_map.create_from_image(image_map)
-	self.mat.set_shader_param("terrain", texture_map)
-	self.mat.set_shader_param("mipmap_offset", uv_mipmap_offset)
+	texture_map.create_from_image(image_map)"""
+	self.mat.set_shader_param("terrain", textarr)
 	self.set_material_override(self.mat)
-	return uv_dict
+	return ind_to_layer
 		
 		
 	
