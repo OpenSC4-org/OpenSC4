@@ -16,7 +16,7 @@ func _ready():
 	savefile = Boot.current_city
 	create_terrain()
 	create_water_mesh()
-	set_view(1)
+	#set_view(1)
 	pass
 
 func gen_random_terrain(width : int, height : int) -> Array:
@@ -137,7 +137,7 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 	return [vertices, normals, UVs]
 
 func create_terrain():
-	self.ind_layer = $Terrain.load_textures_to_uv_dict()
+	self.ind_layer = $Spatial/Terrain.load_textures_to_uv_dict()
 	var vertices : PoolVector3Array = PoolVector3Array()
 	var normals : PoolVector3Array = PoolVector3Array()
 	var UVs : PoolVector2Array = PoolVector2Array()
@@ -165,7 +165,7 @@ func create_terrain():
 			vertices.append_array(r[0])
 			normals.append_array(r[1])
 			UVs.append_array(r[2])
-
+	"""
 	# Generate the borders
 	for i in range(tiles_w - 1):
 		# border with Z = 0
@@ -205,7 +205,7 @@ func create_terrain():
 		r = create_face(v1, v2, v3, v4, heightmap)
 		vertices.append_array(r[0])
 		normals.append_array(r[1])
-		UVs.append_array(r[2])
+		UVs.append_array(r[2])"""
 
 	var array_mesh : ArrayMesh = ArrayMesh.new()
 	var arrays : Array = []
@@ -215,7 +215,7 @@ func create_terrain():
 	arrays[ArrayMesh.ARRAY_TEX_UV] = UVs 
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	$Terrain.mesh = array_mesh
+	$Spatial/Terrain.mesh = array_mesh
 	
 	var layer_img = Image.new()
 	var layer_flat = PoolByteArray([])
@@ -224,9 +224,9 @@ func create_terrain():
 	layer_img.create_from_data(width, height, false, Image.FORMAT_R8, layer_flat)
 	var layer_tex = ImageTexture.new()
 	layer_tex.create_from_image(layer_img, 2) 
-	var mat = $Terrain.get_material_override()
+	var mat = $Spatial/Terrain.get_material_override()
 	mat.set_shader_param("layer", layer_tex)
-	$Terrain.set_material_override(mat)
+	$Spatial/Terrain.set_material_override(mat)
 	print("Terrain vertices: %d" % vertices.size())
 
 func create_water_mesh():
@@ -246,43 +246,47 @@ func create_water_mesh():
 	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
 	arrays[ArrayMesh.ARRAY_NORMAL] = normals
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	$WaterPlane.mesh = array_mesh
-
+	$Spatial/WaterPlane.mesh = array_mesh
+"""
 func set_view(zoom):
-	var values = [[[29.919, -74.68, 26.682], [-0.929, -0.185, -0.320]],
-				[[26.51, -66.452, 40.662], [-0.918, -0.183, -0.351]],
-				[[22.649, -57.13, 53.812], [-0.905, -0.180, -0.386]],
-				[[18.364, -46.784, 66.033], [-0.887, -0.176, -0.426]],
-				[[18.364, -46.784, 66.033], [-0.887, -0.176, -0.426]]]
+	var values = [[[29.919, 74.68, 26.682], [-(90-51.931), -72.579, 4.64], [1.0, 1.0, 1.0]],
+				[[29.919, 74.68, 26.682], [-(90-51.931), -72.579, 4.64], [1.0, 1.0, 1.0]],
+				[[26.51, 66.452, 40.662], [-(90-51.768), -73.006, 6.503], [.999, .996, .996]],
+				[[22.649, 57.13, 53.812], [-(90-51.517), -73.471, 8.804], [.997, .99, .989]],
+				[[18.364, 46.784, 66.033], [-51.26, -74.112, 11.469], [.997, .983, .98]],
+				[[18.364, 46.784, 66.033], [-30.26, -73.112, 11.0], [.997, .983, .98]]]
 	var value = values[zoom-1]
 	var trans = transform
-	trans.basis.x =  -transform.basis.x
-	trans.basis.y =  transform.basis.z
-	trans.basis.z =  transform.basis.y
-	trans = trans.translated(Vector3(value[0][0], value[0][1], value[0][2]))
-	trans = trans.rotated(Vector3(1.00, 0.00, 0.00), value[1][0])
-	trans = trans.rotated(Vector3(0.00, 1.00, 0.00), value[1][2])
-	trans = trans.rotated(Vector3(0.00, 0.00, 1.00), value[1][1])
-	#trans = trans.scaled(Vector3(0.1, 0.1, 0.1))
-	var trans_corr = transform
-	trans.origin = Vector3(-64.0, 200.0, -64.0)
+	trans.basis.x =  transform.basis.x
+	trans.basis.y =  transform.basis.y
+	trans.basis.z =  transform.basis.z
+	var r = 1.0
+	trans = trans.rotated(Vector3(1.00, 0.00, 0.00), deg2rad(value[1][0]))
+	trans = trans.rotated(Vector3(0.00, 1.00, 0.00), deg2rad(value[1][1]))
+	trans = trans.rotated(Vector3(0.00, 0.00, 1.00), deg2rad(value[1][2]*1.5))
+	trans = trans.scaled(Vector3(1.777778, 1.0, 1.0))
+	#trans = trans.rotated(Vector3(0.00, 1.00, 0.00), r * 1.5707963268)
+	#trans.origin = Vector3(-64.0, 200.0, -64.0)
+	trans.origin = Vector3(value[0][0], value[0][1], value[0][2])
+	#$KinematicBody/Camera.transform = trans
+	$Sun.transform.origin = Vector3(-474, 575, -352)
+	print($Sun.transform)
+	$Sun.look_at(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
+	print($Sun.transform)
 	
-	$KinematicBody/Camera.transform = trans
-	trans.origin = Vector3(-128.0, 2000.0, -128.0)
-	#$Sun.transform = trans
 	var mat = $Terrain.get_material_override()
 	mat.set_shader_param("zoom", zoom)
-	$Terrain.set_material_override(mat)
+	$Terrain.set_material_override(mat)"""
 	
 func coord_to_uv(x, y, z):
 	var TerrainTexTilingFactor = 0.2 # 0x6534284a,0x88cd66e9,0x00000001 describes this as 100m of terrain corresponds to this fraction of texture in farthest zoom
-	var zoomTilingFactor = float(pow(2, $KinematicBody.zoom))
+	var zoomTilingFactor = 160.0/float($KinematicBody.zoom_list[6-$KinematicBody.zoom])
 	var x_factored = (float(x)*16.0/100.0) * TerrainTexTilingFactor * zoomTilingFactor
 	var y_factored = (float(z)*16.0/100.0) * TerrainTexTilingFactor * zoomTilingFactor
-	var temp = min(int((y) * 1.312), 31) # 0x6534284a,0x7a4a8458,0x1a2fdb6b describes AltitudeTemperatureFactor of 0.082, i multiplied this by 16
+	var temp = max(min(32-int((y-15.0) * 1.312), 31),0) # 0x6534284a,0x7a4a8458,0x1a2fdb6b describes AltitudeTemperatureFactor of 0.082, i multiplied this by 16
 	
-	var moist = 9
-	var inst_key = $Terrain.tm_table[temp][moist]
+	var moist = 6
+	var inst_key = $Spatial/Terrain.tm_table[temp][moist]
 	return [Vector2(x_factored, y_factored), self.ind_layer[inst_key]]
 	
 func get_normal(vert : Vector3, heightmap):
@@ -298,13 +302,14 @@ func get_normal(vert : Vector3, heightmap):
 	var max_z = 0.0
 	if vert.z < (len(heightmap)-1):
 		max_z = 1.0
-	var vert_c = [[0.0, 1.0], [1.0, 0.0], [0.0, -1.0], [-1.0, 0.0]]
+	var vert_c = [[1.0, 1.0], [1.0, -1.0], [-1.0, -1.0], [-1.0, 1.0]]
 	var vertices = []
 	for coord in vert_c:
-		var vert_curr = Vector3(vert.x + coord[0], 
-		(heightmap[vert.x + min(max(coord[0], min_x), max_x)][vert.z + min(max(coord[1], min_z), max_z)])/16.0, 
-		vert.z + coord[1])
-		vertices.append(vert_curr)
+		vertices.append(
+			Vector3(vert.x + coord[0], 
+			(heightmap[vert.x + min(max(coord[0], min_x), max_x)][vert.z + min(max(coord[1], min_z), max_z)])/16.0, 
+			vert.z + coord[1])
+		)
 	var s_normals = Vector3(0.0, 0.0, 0.0)
 	for v_i in range(len(vertices)):
 		var v1 = vert

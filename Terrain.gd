@@ -55,9 +55,16 @@ func load_textures_to_uv_dict():
 			ini[current_section][key] = value
 	var textures = []
 	var tm_dict = ini["TropicalTextureMapTable"]
+	var cliff_index
+	var beach_index
 	tm_table = []
 	for line in ini["TropicalMiscTextures"].keys():
-		textures.append((ini["TropicalMiscTextures"][line]).hex_to_int())
+		if line == "LowCliff":
+			textures.append((ini["TropicalMiscTextures"][line]).hex_to_int())
+			cliff_index = (ini["TropicalMiscTextures"][line]).hex_to_int()
+		elif line == "Beach":
+			textures.append((ini["TropicalMiscTextures"][line]).hex_to_int())
+			beach_index = (ini["TropicalMiscTextures"][line]).hex_to_int()
 	for line in tm_dict.keys():
 		var line_r = []
 		for val_i in range(len(tm_dict[line].split(','))):
@@ -67,7 +74,6 @@ func load_textures_to_uv_dict():
 				if not textures.has(val):
 					textures.append(val)
 		tm_table.append(line_r)
-		print(line_r)
 	var type_tex = 0x7ab50e44
 	var group_tex = 0x891B0E1A
 	var img_dict = {}
@@ -132,6 +138,8 @@ func load_textures_to_uv_dict():
 		textarr.set_layer_data(image, layer)
 		if im_ind < 256:
 			ind_to_layer[im_ind] = layer
+			if im_ind == cliff_index:
+				cliff_index = layer
 		var test = textarr.get_layer_data(layer)
 		if len(test.data["data"]) == 0:
 			print("failed to load layer", layer, "with image", im_ind)
@@ -196,6 +204,7 @@ func load_textures_to_uv_dict():
 	image_map.create_from_data(tot_w, tot_h, false, format_decomp, arr_final)
 	var texture_map = ImageTexture.new()
 	texture_map.create_from_image(image_map)"""
+	self.mat.set_shader_param("cliff_ind", float(cliff_index))
 	self.mat.set_shader_param("terrain", textarr)
 	self.set_material_override(self.mat)
 	return ind_to_layer
