@@ -1,10 +1,46 @@
 extends Node2D
 
 var REGION_NAME = "Timbuktu"
+var region_w = 0
+var region_h = 0
 var cities = {}
 var radio = []
 var current_music 
 var rng = RandomNumberGenerator.new()
+
+class Tile_c:
+	"class used to bundle tile data"
+	var x
+	var y
+	var size
+	var city
+	var edges
+	var cleared
+	func _init(x_in, y_in, size_in, city_in):
+		self.x = x_in
+		self.y = y_in
+		self.size = size_in
+		self.city = city_in
+		self.edges = edges_to_free(x, y, size)
+		self.cleared = edges_cleared(x, y, size)
+	
+	func edges_to_free(x, y, size):
+		"edges to free generates edges that need to be drawn before this tile object to prevent overlapping"
+		var edges = []
+		for c_it in range(size):
+			if y > 0:
+				edges.append([true, c_it+x, y])
+			if x > 0:
+				edges.append([false, x, c_it + y])
+		return edges
+		
+	func edges_cleared(x, y, size):
+		"edges cleared generates edges are drawn and clear other tiles to be drawn"
+		var edges = []
+		for c_it in range(size):
+			edges.append([true, c_it+x, y+size])
+			edges.append([false, x+size, c_it + y])
+		return edges
 
 func _init():
 	print("Initializing the region view")
@@ -35,8 +71,13 @@ func play_new_random_music():
 	var audiostream = AudioStreamMP3.new()
 	audiostream.set_data(file.get_buffer(file.get_len()))
 	$RadioPlayer.set_stream(audiostream)
-	$RadioPlayer.play()
+	#$RadioPlayer.play()
 
+func anchror_sort(a, b):
+	if a[0] != b[0]: # non draw
+		return a[0] < b[0]
+	else: # bigger tile first
+		return a[2] > b[2]
 
 func _ready():
 	print("Region node is ready")
@@ -64,6 +105,7 @@ func _ready():
 			files.append(file)
 	dir.list_dir_end()
 	self.read_config_bmp()
+	var anchor = []
 	for f in files:
 		var city = load("res://RegionUI/RegionCityView.tscn").instance()
 		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
@@ -71,8 +113,17 @@ func _ready():
 		var y : int = city.city_info.location[1]
 		var width : int = city.city_info.size[0]
 		var height : int = city.city_info.size[1]
+		var vert_comp = (x+width) + (y+height)
+		anchor.append([vert_comp, city, width])
+	anchor.sort_custom(self, "anchror_sort")
+	for anch in anchor:
+		var city = anch[1]
+		var x : int = city.city_info.location[0]
+		var y : int = city.city_info.location[1]
+		var width : int = city.city_info.size[0]
+		var height : int = city.city_info.size[1]
 		for i in range(x, x+width):
-			for j in range(y, y+height):
+			for j in range(y, y+height): 
 				$BaseGrid.cities[i][j] = city
 		$BaseGrid.add_child(city)
 	load_ui()
@@ -81,25 +132,28 @@ func read_config_bmp():
 	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
 	# Iterate over the pixels
 	$BaseGrid.init_cities_array(region_config.get_width(), region_config.get_height())
-	region_config.lock()
+	region_w = region_config.get_width()
+	region_h = region_config.get_height()
+	region_config.lock()	
 	for i in range(region_config.get_width()):
 		for j in range(region_config.get_height()):
 			# Get the pixel at i,j
 			var pixel = region_config.get_pixel(i, j)
-			if pixel[0] == 1:
+			if pixel[0] == 1: # small tile
 				self.cities[[i, j]] = true
-			elif pixel[1] == 1:
+			elif pixel[1] == 1: # medium tile
 				self.cities[[i, j]] = true
 				for k in range(2):
 					for l in range(2):
 						region_config.set_pixel(i + k, j + l, Color(0, 0, 0, 0))
-			elif pixel[2] == 1:
+			elif pixel[2] == 1: # large tile
 				self.cities[[i, j]] = true
 				for k in range(4):
 					for l in range(4):
 						if k == 0 and l == 0:
 							continue
 						region_config.set_pixel(i + k, j + l, Color(0, 0, 0, 0))
+	
 
 func close_all_prompts():
 	for city in $BaseGrid.get_children():

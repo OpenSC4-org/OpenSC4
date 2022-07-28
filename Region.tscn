@@ -13,7 +13,6 @@ script = ExtResource( 2 )
 position = Vector2( 1, 1 )
 mode = 2
 cell_custom_transform = Transform2D( 90, 18, -38, 45, 0, 0 )
-cell_y_sort = true
 format = 1
 script = ExtResource( 3 )
 
@@ -39,7 +38,6 @@ motion_mirroring = Vector2( 128, 128 )
 margin_right = 5433.0
 margin_bottom = 3155.0
 mouse_filter = 2
-texture = ExtResource( 6 )
 stretch_mode = 2
 
 [node name="UICanvas" type="CanvasLayer" parent="."]
