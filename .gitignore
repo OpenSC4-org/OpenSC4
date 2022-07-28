@@ -35,5 +35,7 @@ readme.txt
 *.ini
 *.DAT
 
+# Development files
+.dev/*
 
 .github

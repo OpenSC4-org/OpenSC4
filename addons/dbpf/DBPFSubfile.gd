@@ -3,6 +3,7 @@ class_name DBPFSubfile
 
 var index:SubfileIndex
 var raw_data:PoolByteArray
+var stream:StreamPeerBuffer
 
 func _init(idx:SubfileIndex):
 	self.index = idx
@@ -13,6 +14,8 @@ func load(file:File, dbdf:DBDFEntry=null):
 		raw_data = decompress(file, index.size - 9, dbdf)
 	else:
 		raw_data = file.get_buffer(index.size)
+	stream = StreamPeerBuffer.new()
+	stream.data_array = raw_data
 
 func decompress(file : File, length : int, dbdf : DBDFEntry) -> PoolByteArray:
 	var buf:PoolByteArray

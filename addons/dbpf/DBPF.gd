@@ -8,10 +8,12 @@ var indices_by_type : Dictionary
 var indices_by_type_and_group : Dictionary
 var all_types : Dictionary
 var file : File
+var path : String
 
 export (Dictionary) var ui_region_textures: Dictionary = {}
 
 func _init(filepath : String):
+	self.path = filepath
 	# Open the file
 	self.file = File.new()
 	var err = file.open(filepath, File.READ)
@@ -42,7 +44,7 @@ func _init(filepath : String):
 
 	self.file.seek(index_first_offset)
 	for _i in range(index_entry_count):
-		var index = SubfileIndex.new(file)
+		var index = SubfileIndex.new(self)
 		indices[[index.type_id, index.group_id, index.instance_id]] = index
 		if not index.type_id in indices_by_type:
 			indices_by_type[index.type_id] = [index]
@@ -75,6 +77,7 @@ func dbg_subfile_types():
 		print("%s: %d" % [type, all_types[type]])
 
 func dbg_show_all_subfiles():
+	print("=== %s" % self.path)
 	print("=== ALL SUBFILES ===")
 	for index in indices.values():
 		print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])

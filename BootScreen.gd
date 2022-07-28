@@ -1,6 +1,16 @@
 extends Control
 
 var loading_thread : Thread
+var dat_files : Array = [
+						 Boot.INI_location,
+						 "res://Sound.dat",
+						 "res://Intro.dat",
+						 "res://SimCity_1.dat",
+						 "res://SimCity_2.dat",
+						 "res://SimCity_3.dat",
+						 "res://SimCity_4.dat",
+						 "res://SimCity_5.dat",
+						 "res://EP1.dat",]
 
 func _ready():
 	loading_thread = Thread.new()
@@ -16,15 +26,8 @@ func _exit_tree():
 func load_DATs():
 	print("Loading DAT files...")
 	$LoadProgress.value = 0
-	load_single_DAT("simcity_dat_1", "res://SimCity_1.dat")
-	load_single_DAT("simcity_dat_2", "res://SimCity_2.dat")
-	load_single_DAT("simcity_dat_3", "res://SimCity_3.dat")
-	load_single_DAT("simcity_dat_4", "res://SimCity_4.dat")
-	load_single_DAT("simcity_dat_5", "res://SimCity_5.dat")
-	load_single_DAT("_init", Boot.INI_location)
-	load_single_DAT("sounds_file", "res://Sound.dat")
-	load_single_DAT("intro_file", "res://Intro.dat")
-	load_single_DAT("ep1_file", "res://EP1.dat")
+	for dat_file in dat_files :
+		load_single_DAT(dat_file)
 	finish_loading()
 
 func finish_loading():
@@ -34,7 +37,7 @@ func finish_loading():
 		print("Error: %s" % err)
 		return
 
-func load_single_DAT(dst : String, src : String):
+func load_single_DAT(src : String):
 	$CurrentFileLabel.text = "Loading: %s" % src
-	Boot.set(dst, DBPF.new(src))
-	$LoadProgress.value += 12.5
+	Core.add_dbpf(DBPF.new(src))
+	$LoadProgress.value += 100.0/len(dat_files)

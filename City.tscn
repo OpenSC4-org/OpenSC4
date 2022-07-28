@@ -24,7 +24,7 @@ script = ExtResource( 1 )
 script = ExtResource( 2 )
 
 [node name="Camera" type="Camera" parent="KinematicBody"]
-transform = Transform( -0.934566, 0.279885, -0.219661, 0.0522705, 0.7187, 0.693353, 0.351929, 0.636502, -0.686302, 0, 200, 0 )
+transform = Transform( 0.93, -0.05, -0.15, 0.31, 0.61, 0.79, -0.18, 0.79, 0.59, 0, 200, 0 )
 projection = 1
 current = true
 size = 50.0

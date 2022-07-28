@@ -19,7 +19,8 @@ static func get_file_type(type_id : int, group_id : int, instance_id : int) -> S
 		0xea5118b0: "EFFDIR",
 		0x856ddbac: "PNG",
 		0xca63e2a3: "LUA",
-		0xe86b1eef: "DBDF"
+		0xe86b1eef: "DBDF",
+		0x00000000: "TEXT"
 	}
 	var group_dict = {
 		0x00000001: "VIDEO,BW_CURSOR",
@@ -60,10 +61,12 @@ static func get_file_type(type_id : int, group_id : int, instance_id : int) -> S
 		0x6a297266: "MY_SIM_PARENT",
 		0x7a4a8458: "CLOUDS_PARENT",
 		0x47bddf12: "DEVELOPER_COMMERCIAL",
+		0x96a006b0: "UI_XML",
+		0x08000600: "UI_800x600",
 	}
 	if type_dict.has(type_id):
 		type = type_dict[type_id]
 	if group_dict.has(group_id):
 		group = group_dict[group_id]
 	
-	return "%s\t%s\t%08x" % [type, group, instance_id]
+	return "%s    %s    0x%08x" % [type, group, instance_id]

@@ -10,7 +10,6 @@ func _init(index).(index):
 
 func load(file, dbpf=null):
 	.load(file, dbpf)
-	var stream = StreamPeerBuffer.new()
 	stream.data_array = raw_data
 	var major = stream.get_16()
 	print("major: %08x" % major)

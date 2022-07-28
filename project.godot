@@ -24,11 +24,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/DBPF.gd"
 }, {
-"base": "ResourceFormatLoader",
-"class": "DBPFLoader",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBPFLoader.gd"
-}, {
 "base": "EditorPlugin",
 "class": "DBPFPlugin",
 "language": "GDScript",
@@ -74,6 +69,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://ui/SC4TextureRect.gd"
 }, {
+"base": "DBPFSubfile",
+"class": "SC4UISubfile",
+"language": "GDScript",
+"path": "res://SC4UISubfile.gd"
+}, {
 "base": "Node",
 "class": "SubfileIndex",
 "language": "GDScript",
@@ -93,7 +93,6 @@ _global_script_class_icons={
 "DBDF": "",
 "DBDFEntry": "",
 "DBPF": "",
-"DBPFLoader": "",
 "DBPFPlugin": "",
 "DBPFSubfile": "",
 "INISubfile": "",
@@ -103,6 +102,7 @@ _global_script_class_icons={
 "SC4Button": "",
 "SC4ReadRegionalCity": "",
 "SC4TextureRect": "",
+"SC4UISubfile": "",
 "SubfileIndex": "",
 "SubfileTGI": "",
 "cSTETerrain__SaveAltitudes": ""
@@ -118,6 +118,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Boot="*res://Boot.gd"
+Core="*res://Core.gd"
 
 [editor_plugins]
 
@@ -131,6 +132,7 @@ singletons=[  ]
 
 import=false
 scene=false
+class=false
 
 [physics]
 
