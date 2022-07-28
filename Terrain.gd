@@ -53,10 +53,13 @@ func load_textures_to_uv_dict():
 			var key = line.split('=')[0]
 			var value = line.split('=')[1]
 			ini[current_section][key] = value
-	var textures = []
+	var textures = [17, 16, 21]
 	var tm_dict = ini["TropicalTextureMapTable"]
 	var cliff_index
 	var beach_index
+	var top_edge
+	var mid_edge
+	var bot_edge
 	tm_table = []
 	for line in ini["TropicalMiscTextures"].keys():
 		if line == "LowCliff":
@@ -100,6 +103,8 @@ func load_textures_to_uv_dict():
 			var data_len = len(fsh_subfile.img.data["data"])
 			if data_len > d_len:
 				d_len = data_len
+			if data_len == 0:
+				print("error invalid FSH")
 			if width < fsh_subfile.width:
 				width = fsh_subfile.width
 				height = fsh_subfile.height
@@ -140,73 +145,28 @@ func load_textures_to_uv_dict():
 			ind_to_layer[im_ind] = layer
 			if im_ind == cliff_index:
 				cliff_index = layer
+			elif im_ind == beach_index:
+				beach_index = layer
+			elif im_ind == 17:
+				top_edge = layer
+			elif im_ind == 16:
+				mid_edge = layer
+			elif im_ind == 21:
+				bot_edge = layer
 		var test = textarr.get_layer_data(layer)
 		if len(test.data["data"]) == 0:
 			print("failed to load layer", layer, "with image", im_ind)
 		layer += 1
-	"""var t_img_in = img_dict[67].img
-	textarr.set_layer_data(t_img_in, 0)
-	var test_img = textarr.get_layer_data(0)
-	t_img_in.decompress()
-	print("in", len(t_img_in.data["data"]), "/n out", len(test_img.data["data"]))
-	for b_index in textures:
-		for zoom in range(4, -1, -1):
-			var key = b_index + (zoom * 256)
-			for line in range(height): 
-				"it iters each line once for every image drawn to that line, in this case 11"
-				"so I could speed this up by accessing the images I'm planning to draw in parallel"
-				
-				"should switch to mipmaps along width, iter over height once and prebundle the mipmaps to avoid itter in itter"
-				"that way I only iter height once and just append the data together"
-				var row_n = ((i_vert + zoom) * height) + line
-				var rect = Rect2(Vector2(0, line), Vector2(width, 1))
-				img_dict[key].img.decompress()
-				if not format_decomp:
-					format_decomp = img_dict[key].img.get_format()
-				var slice = PoolByteArray(img_dict[key].img.get_rect(rect).data["data"])
-				var sub_arr = arr_data[row_n]
-				sub_arr.append_array(slice)
-				arr_data[row_n] = sub_arr
-		var f_hori = float(i_hori)
-		var f_vert = float(i_vert)
-		var f_t_w = float(tot_w)
-		var f_t_h = float(tot_h)
-		var f_width = float(width)
-		var f_height = float(height)
-		""
-		var step_w = (f_height-1.2) / f_t_w
-		var step_h = (f_width-1.2) / f_t_h
-		var b_w = ((((f_hori+1) * f_width)) / f_t_w)
-		var b_h = ((((f_vert+1) * f_height)) / f_t_h)
-		uv_dict[b_index] = [
-			Vector2(b_w - step_w, b_h - step_h),
-			Vector2(b_w - step_w, b_h),
-			Vector2(b_w, b_h),
-			Vector2(b_w, b_h - step_h)
-			]
-		i_hori += 1
-		if i_hori > int(16384/width):
-			i_hori = 0
-			i_vert = 5
-	var arr_final = PoolByteArray([])
-	var b_len
-	for row in arr_data:
-		if not b_len:
-			b_len = len(row)
-		if len(row) < b_len:
-			if len(row) != 0:
-				var padding = []
-				padding.resize(b_len - len(row))
-				var pad = PoolByteArray(padding)
-				row.append_array(pad)
-		if len(row) != 0:
-			arr_final.append_array(row)
-	image_map.create_from_data(tot_w, tot_h, false, format_decomp, arr_final)
-	var texture_map = ImageTexture.new()
-	texture_map.create_from_image(image_map)"""
+	
 	self.mat.set_shader_param("cliff_ind", float(cliff_index))
+	self.mat.set_shader_param("beach_ind", float(beach_index))
 	self.mat.set_shader_param("terrain", textarr)
 	self.set_material_override(self.mat)
+	var mat_e = self.get_parent().get_node("Border").get_material_override()
+	mat_e.set_shader_param("terrain", textarr)
+	mat_e.set_shader_param("top_ind", float(top_edge))
+	mat_e.set_shader_param("mid_ind", float(mid_edge))
+	mat_e.set_shader_param("bot_ind", float(bot_edge))
 	return ind_to_layer
 		
 		

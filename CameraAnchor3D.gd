@@ -6,6 +6,7 @@ var elevations = [60, 55, 50, 45, 45, 45]
 var AZIMUTH = deg2rad(67.5)
 var boot = true
 var velocity = Vector3(0, 0, 0)
+var hold_r = []
 
 func _ready():
 	_set_view()
@@ -18,6 +19,7 @@ func _input(event):
 	var move = Vector3(0, 0, 0)
 	var camera_forward = $Camera.transform.basis.y
 	var camera_left = $Camera.transform.basis.x
+	
 	# Should move one screen width every 5 seconds
 	var move_vel = $Camera.size
 	if event is InputEventMouseMotion:
@@ -41,31 +43,24 @@ func _input(event):
 					self.zoom = 6
 				$Camera.size = zoom_list[self.zoom-1]
 				_set_view()
+			elif event.button_index == BUTTON_RIGHT:
+				if len(hold_r) == 0:
+					hold_r = [event.position.x, event.position.y]
 			elif event.button_index == BUTTON_WHEEL_DOWN:
 				self.zoom -= 1
 				if self.zoom < 1:
 					self.zoom = 1
 				$Camera.size = zoom_list[self.zoom-1]
 				_set_view()
+		if not event.is_pressed():
+			if event.button_index == BUTTON_RIGHT:
+				hold_r = []
 
 func _physics_process(_delta):
 	self.move_and_slide(self.velocity)
 
 func _set_view():
-	"""these calculations are for a left handed axis system, godot uses a right handed system
-	in order to convert from right handed to left handed you can reverse the direction of one or all axis
-	RH: y		LH: y		   0,0___1,0
-		|_x			|_x		  /	     /
-	   / 		   /		 /		/
-	  z   		 -z			0,1___1,1
-	with x,z ranging from 0,0:topleft to n,n:bottom right in rotation 0
-	it basically means their values have a reversed effect 
-	to deal with this i can set their local transforms to -1, -1
-	but with the handedness being swapped I'd only need to tranform one of them
-	
-	These calculations are set up for y=up projection
-	this is done by swapping the y and z inputs
-	"""
+	# Elevation angle, Azimuth is a class var since it doesn't change
 	var El = deg2rad(elevations[zoom-1])
 	
 	# exposure angles D and E
@@ -84,5 +79,14 @@ func _set_view():
 	v_trans.basis.z = Vector3((Sz*cos(E))/rng_d, 1.0, (Sz*sin(E))/rng_d)
 	v_trans.origin = Vector3(0.0, 0.0, 0.0)
 	self.get_parent().get_node("Spatial").transform = v_trans
-	#if elevations[zoom-1] == 45:
-	print("debug", v_trans, ",\n get:", $Camera.transform)
+	self.get_parent().get_node("Spatial/Sun").transform.origin = Vector3(500, 200, -50)
+	self.get_parent().get_node("Spatial/Sun").look_at(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+	var mat = self.get_parent().get_node("Spatial/Terrain").get_material_override()
+	mat.set_shader_param("zoom", zoom)
+	mat.set_shader_param("tiling_factor", zoom)
+	self.get_parent().get_node("Spatial/Terrain").set_material_override(mat)
+	var mat_e = self.get_parent().get_node("Spatial/Border").get_material_override()
+	mat_e.set_shader_param("zoom", zoom)
+	mat_e.set_shader_param("tiling_factor", zoom)
+	self.get_parent().get_node("Spatial/Border").set_material_override(mat_e)
+	

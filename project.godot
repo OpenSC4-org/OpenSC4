@@ -34,6 +34,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/DBPFSubfile.gd"
 }, {
+"base": "DBPFSubfile",
+"class": "FSHSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/FSHSubfile.gd"
+}, {
+"base": "Node",
+"class": "FSH_Entry",
+"language": "GDScript",
+"path": "res://addons/dbpf/FSH_Entry.gd"
+}, {
 "base": "Node",
 "class": "INISubfile",
 "language": "GDScript",
@@ -90,6 +100,8 @@ _global_script_class_icons={
 "DBPF": "",
 "DBPFPlugin": "",
 "DBPFSubfile": "",
+"FSHSubfile": "",
+"FSH_Entry": "",
 "INISubfile": "",
 "ImageSubfile": "",
 "RegionCityView": "",
@@ -113,6 +125,11 @@ config/icon="res://icon.png"
 
 Boot="*res://Boot.gd"
 
+[display]
+
+window/size/width=1440
+window/size/height=900
+
 [editor_plugins]
 
 enabled=PoolStringArray( "res://addons/dbpf/plugin.cfg" )
@@ -132,7 +149,6 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-quality/driver/driver_name="GLES2"
 threads/thread_model=2
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
