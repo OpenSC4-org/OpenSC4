@@ -3,7 +3,6 @@
 [ext_resource path="res://City.gd" type="Script" id=1]
 [ext_resource path="res://CameraAnchor3D.gd" type="Script" id=2]
 [ext_resource path="res://Terrain.gd" type="Script" id=3]
-[ext_resource path="res://SimCity perspective example.png" type="Texture" id=4]
 
 [sub_resource type="Shader" id=4]
 code = "shader_type spatial;
@@ -182,10 +181,8 @@ position = Vector2( 869.649, 515.476 )
 scale = Vector2( 0.561, 0.561 )
 z_index = 1000
 mesh = SubResource( 6 )
-texture = ExtResource( 4 )
 
 [node name="Sprite" type="Sprite" parent="Spatial/Terrain/MeshInstance2D"]
-texture = ExtResource( 4 )
 
 [node name="Border" type="MeshInstance" parent="Spatial"]
 transform = Transform( -4.37114e-08, -3.82137e-15, -1, -8.74228e-08, 1, 0, -1, -8.74228e-08, 4.37114e-08, 0, 0, 0 )

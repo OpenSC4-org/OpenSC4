@@ -132,11 +132,6 @@ config/icon="res://icon.png"
 Boot="*res://Boot.gd"
 Core="*res://Core.gd"
 
-[display]
-
-window/size/width=1440
-window/size/height=900
-
 [editor_plugins]
 
 enabled=PoolStringArray( "res://addons/dbpf/plugin.cfg" )
@@ -160,3 +155,4 @@ common/enable_pause_aware_picking=true
 threads/thread_model=2
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
+environment/default_environment="res://default_env.tres"
