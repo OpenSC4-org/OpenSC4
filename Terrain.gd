@@ -36,7 +36,7 @@ func load_textures_to_uv_dict():
 	var type_ini = 0x00000000
 	var group_ini = 0x8a5971c5
 	var instance_ini = 0xAA597172
-	var file = Boot.simcity_dat_1.get_subfile(type_ini, group_ini, instance_ini, DBPFSubfile)
+	var file = Core.subfile(type_ini, group_ini, instance_ini, DBPFSubfile)
 	var ini_str = file.raw_data.get_string_from_ascii()
 	var ini = {}
 	var current_section = ''
@@ -95,7 +95,7 @@ func load_textures_to_uv_dict():
 				break
 		for zoom in range(5):
 			var inst_z = instance + (zoom * 256)
-			var fsh_subfile = Boot.simcity_dat_2.get_subfile(
+			var fsh_subfile = Core.subfile(
 						type_tex, group_tex, inst_z, FSHSubfile
 						)
 			if not formats.has(fsh_subfile.img.get_format()):
