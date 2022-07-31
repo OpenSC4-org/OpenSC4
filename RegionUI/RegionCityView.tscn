@@ -1,8 +1,21 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://RegionUI/RegionCityView.gd" type="Script" id=1]
 
 [sub_resource type="RectangleShape2D" id=1]
+
+[sub_resource type="Shader" id=2]
+code = "shader_type canvas_item;
+
+void fragment(){
+	COLOR = texture(TEXTURE, UV);
+	if (COLOR.a < 1.0){
+		COLOR.a = 0.0;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = SubResource( 2 )
 
 [node name="RegionCityView" type="Area2D"]
 script = ExtResource( 1 )
@@ -11,4 +24,5 @@ script = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="Thumbnail" type="Sprite" parent="."]
+material = SubResource( 3 )
 centered = false

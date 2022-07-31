@@ -11,8 +11,8 @@ func _input(event):
 	var margin_h = viewport.size.y / 15
 	var move_x = 0
 	var move_y = 0
-	# Should move one screen width every 5 seconds
-	var move_vel = viewport.size.x / 5
+	# Should move one screen width every 4 seconds
+	var move_vel = viewport.size.x / 4
 	if event is InputEventMouseMotion:
 		if event.position.x < margin_w:
 			move_x = -1

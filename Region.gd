@@ -8,40 +8,6 @@ var radio = []
 var current_music 
 var rng = RandomNumberGenerator.new()
 
-class Tile_c:
-	"class used to bundle tile data"
-	var x
-	var y
-	var size
-	var city
-	var edges
-	var cleared
-	func _init(x_in, y_in, size_in, city_in):
-		self.x = x_in
-		self.y = y_in
-		self.size = size_in
-		self.city = city_in
-		self.edges = edges_to_free(x, y, size)
-		self.cleared = edges_cleared(x, y, size)
-	
-	func edges_to_free(x, y, size):
-		"edges to free generates edges that need to be drawn before this tile object to prevent overlapping"
-		var edges = []
-		for c_it in range(size):
-			if y > 0:
-				edges.append([true, c_it+x, y])
-			if x > 0:
-				edges.append([false, x, c_it + y])
-		return edges
-		
-	func edges_cleared(x, y, size):
-		"edges cleared generates edges are drawn and clear other tiles to be drawn"
-		var edges = []
-		for c_it in range(size):
-			edges.append([true, c_it+x, y+size])
-			edges.append([false, x+size, c_it + y])
-		return edges
-
 func _init():
 	print("Initializing the region view")
 	rng.randomize()
@@ -113,9 +79,10 @@ func _ready():
 		var y : int = city.city_info.location[1]
 		var width : int = city.city_info.size[0]
 		var height : int = city.city_info.size[1]
-		var vert_comp = (x+width) + (y+height)
+		var vert_comp = (x+width) + (y+height) - width
 		anchor.append([vert_comp, city, width])
 	anchor.sort_custom(self, "anchror_sort")
+	
 	for anch in anchor:
 		var city = anch[1]
 		var x : int = city.city_info.location[0]

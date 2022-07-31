@@ -11,7 +11,9 @@ script = ExtResource( 2 )
 [node name="BaseGrid" type="TileMap" parent="."]
 position = Vector2( 1, 1 )
 mode = 2
-cell_custom_transform = Transform2D( 90, 18, -38, 45, 0, 0 )
+cell_quadrant_size = 64
+cell_custom_transform = Transform2D( 90, 18.7, -37.3, 45, 0, 0 )
+cell_tile_origin = 2
 format = 1
 script = ExtResource( 3 )
 

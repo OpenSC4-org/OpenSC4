@@ -58,6 +58,7 @@ func load(file, dbdf=null):
 	var dir_ind = 0
 	# 1 byte (uint8) - entry ID  // 0x69
 	for entry in directory:
+		
 		if dir_ind != 0:
 			var prev = directory[dir_ind-1]
 			prev.size = entry.offset - prev.offset
@@ -98,25 +99,21 @@ func load(file, dbdf=null):
 	
 		
 	for entry in directory:
-		var end_ind = entry.offset + entry.size
-		var last_bytes = self.get_int_from_bytes(raw_data.subarray(end_ind-5, end_ind-1))
-		while last_bytes == 0:
-			entry.size -= 4
-			end_ind = entry.offset + entry.size
-			last_bytes = self.get_int_from_bytes(raw_data.subarray(end_ind-5, end_ind-1))
-		entry.size = int(entry.size / 16) * 16
+		
 		var start = entry.offset+16
-		var end = entry.offset + entry.size-1
-		var img_data = raw_data.subarray(start, end)
 		var att_id = entry.entry_id
 		
 		entry.img = Image.new()
 		if att_id == 96: # compressed image, DXT1 4x4 packed, 1-bit alpha 
+			entry.size = ((entry.width * entry.height) / 16)*8
+			var img_data = raw_data.subarray(start, start + entry.size-1)
 			entry.img.create_from_data(entry.width, entry.height, false, Image.FORMAT_DXT1, img_data)
 		elif att_id == 97: # compressed image, DXT3 4x4 packed, 4-bit alpha 
+			entry.size = ((entry.width * entry.height) / 16)*16
+			var img_data = raw_data.subarray(start, start + entry.size-1)
 			entry.img.create_from_data(entry.width, entry.height, false, Image.FORMAT_DXT3, img_data)
-		elif att_id == 123 or att_id == 125 or att_id == 127: # image with palette (256 colors), 24 and 32 bmp
-			entry.img.load_bmp_from_buffer(img_data)
+		"""elif att_id == 123 or att_id == 125 or att_id == 127: # image with palette (256 colors), 24 and 32 bmp
+			entry.img.load_bmp_from_buffer(img_data)"""
 		assert(entry.img != null, "img load failed")
 		self.img = entry.img
 		self.width = entry.width

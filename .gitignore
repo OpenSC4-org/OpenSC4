@@ -39,3 +39,11 @@ readme.txt
 .dev/*
 
 .github
+*.Backup
+*.import
+*.png
+*.fx
+*.fxh
+*.log
+Apps/LUURT-config-log.txt
+Apps/dgVoodoo.conf

@@ -89,4 +89,8 @@ func _set_view():
 	mat_e.set_shader_param("zoom", zoom)
 	mat_e.set_shader_param("tiling_factor", zoom)
 	self.get_parent().get_node("Spatial/Border").set_material_override(mat_e)
+	var mat_w = self.get_parent().get_node("Spatial/WaterPlane").get_material_override()
+	mat_w.set_shader_param("zoom", zoom)
+	mat_w.set_shader_param("tiling_factor", zoom)
+	self.get_parent().get_node("Spatial/WaterPlane").set_material_override(mat_w)
 	

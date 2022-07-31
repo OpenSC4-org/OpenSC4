@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://City.gd" type="Script" id=1]
 [ext_resource path="res://CameraAnchor3D.gd" type="Script" id=2]
 [ext_resource path="res://Terrain.gd" type="Script" id=3]
+[ext_resource path="res://WaterPlane.gd" type="Script" id=4]
 
 [sub_resource type="Shader" id=4]
 code = "shader_type spatial;
@@ -10,16 +11,28 @@ code = "shader_type spatial;
 uniform sampler2DArray terrain : hint_albedo;
 uniform int zoom;
 uniform sampler2D layer;
+uniform sampler2D watermap;
 varying smooth vec3 coord_pass;
+varying smooth float map_str;
 const float PI = 3.14159265358979323846;
 uniform float cliff_ind;
 uniform float beach_ind;
 uniform float tiling_factor;
 uniform float water_height = 15.625; //250.0/16.0
+uniform bool grid_bool = false;
+uniform float beach_ht_range;
 
 void vertex()
 {
 	coord_pass = VERTEX.xyz;
+	
+	map_str = (texelFetch(watermap, ivec2(coord_pass.zx), 0).r*beach_ht_range);
+	//if (map_str < (beach_ht_range/2.0)){
+	//	map_str = min(map_str, 1.0);
+	//}
+	//else{
+	//	map_str = 0.0;
+	//}
 }
 
 void fragment()
@@ -40,11 +53,13 @@ void fragment()
 	vec2 rem3 = abs(vec2(icoord3) - coord);
 	vec2 rem4 = abs(vec2(icoord4) - coord);
 	vec3 grid = vec3(1.0, 1.0, 1.0);
-	if (rem1.x < (0.05 * max((5.0-float(zoom)), 0.0))){
-		grid = vec3(0.6, 0.6, 0.6);
-	}
-	if (rem1.y < 0.05){
-		grid = vec3(0.6, 0.6, 0.6);
+	if (grid_bool){
+		if (rem1.x < (0.05 * max((5.0-float(zoom_ind)), 0.0)) ){
+			grid = vec3(0.6, 0.6, 0.6);
+		}
+		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0)) and grid_bool == true){
+			grid = vec3(0.6, 0.6, 0.6);
+		}
 	}
 	float str1 = ((cos((rem1.x)*PI)*0.5+0.5) * (cos((rem1.y)*PI)*0.5+0.5));
 	float str2 = ((cos((rem2.x)*PI)*0.5+0.5) * (cos((rem2.y)*PI)*0.5+0.5));
@@ -60,10 +75,10 @@ void fragment()
 	vec3 underlay = vec3(0.0, 0.0, 0.0);
 	float over_str = 0.0;
 	float under_str = 0.0;
-	float beachy = abs((coord_pass.y) - water_height);
+	float beachy = ((coord_pass.y) - water_height);
 	if (abs(NORMAL.y) < 0.5){
-		over_str = max(min(((0.5-abs(NORMAL.y))*10.0), 1.0), 0.0);
-		if (abs(NORMAL.x) > abs(NORMAL.z)){
+		over_str = max(min(((0.5-abs(NORMAL.y))*2.2), 1.0), 0.0);
+		if (abs(NORMAL.x) < abs(NORMAL.z)){
 			overlay = texture(terrain, vec3(UV.y*tiling_factor, UV.x*tiling_factor, float(zoom_ind)+cliff_ind)).rgb;
 		}
 		else{
@@ -71,19 +86,23 @@ void fragment()
 		}
 	}
 	if(beachy < 4.0){
-		under_str = max(min(4.0-beachy, 1.0), 0.0);
+		under_str = max(min(((4.0*map_str)-(beachy)), 1.0), 0.0);
 		underlay = texture(terrain, vec3(UV.y*tiling_factor, UV.x*tiling_factor, float(zoom_ind)+beach_ind)).rgb;
 	}
 	
 
 		ALBEDO = (
-			(
-			(
-			((col1 + col2 + col3 + col4) 
-			 * (1.0 - under_str)) + (underlay * under_str)
-			)
-			* (1.0-over_str)) + (overlay * over_str)
-			) * grid;
+					(
+						(
+							(
+							(col1 + col2 + col3 + col4) * (1.0-over_str)
+							) 
+						+ (overlay * over_str)
+						)
+					 * (1.0 - under_str)
+					) 
+					+ (underlay * under_str)
+				) * grid;
 		//ALBEDO = texture(layer, UV).rgb;
 		
 	}"
@@ -95,8 +114,40 @@ shader_param/cliff_ind = null
 shader_param/beach_ind = null
 shader_param/tiling_factor = null
 shader_param/water_height = 15.625
+shader_param/grid_bool = false
+shader_param/beach_ht_range = null
 
-[sub_resource type="PlaneMesh" id=6]
+[sub_resource type="Shader" id=9]
+code = "shader_type spatial;
+
+uniform sampler2D watermap;
+uniform sampler2DArray watertexture : hint_albedo;
+uniform int zoom;
+uniform float tiling_factor;
+uniform float max_depth;
+uniform float depth_range;
+varying float depth_alpha;
+varying vec3 depth_color;
+
+void vertex(){
+	float depth = texelFetch(watermap, ivec2(VERTEX.xz), 0).r;
+	depth_color = vec3((.75), (.75), (.75));
+	depth_alpha = min(depth*1.0, 1.0);
+	
+}
+
+void fragment(){
+	float zoom_ind = min( float(zoom-1), 4.0);
+	ALBEDO = texture(watertexture, vec3(UV*tiling_factor, float(zoom_ind))).rgb*depth_color;
+	ALPHA = depth_alpha;
+}"
+
+[sub_resource type="ShaderMaterial" id=10]
+shader = SubResource( 9 )
+shader_param/zoom = null
+shader_param/tiling_factor = null
+shader_param/max_depth = null
+shader_param/depth_range = null
 
 [sub_resource type="Shader" id=7]
 code = "shader_type spatial;
@@ -152,7 +203,7 @@ shader_param/mid_ind = null
 shader_param/bot_ind = null
 
 [sub_resource type="Environment" id=1]
-ambient_light_color = Color( 0.560784, 0.560784, 1, 1 )
+ambient_light_color = Color( 1, 1, 1, 1 )
 ambient_light_energy = 0.2
 
 [node name="City" type="Spatial"]
@@ -161,13 +212,6 @@ script = ExtResource( 1 )
 [node name="Spatial" type="Spatial" parent="."]
 transform = Transform( -0.924, 0, 0.383, 0, -1, 1, 0.191, 0.866, 0.462, 0, 0, 0 )
 
-[node name="Camera" type="Camera" parent="KinematicBody"]
-transform = Transform( 0.93, -0.05, -0.15, 0.31, 0.61, 0.79, -0.18, 0.79, 0.59, 0, 200, 0 )
-projection = 1
-current = true
-size = 50.0
-far = 700.0
-
 [node name="Terrain" type="MeshInstance" parent="Spatial"]
 transform = Transform( 4.37114e-08, 0, -1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
 material_override = SubResource( 5 )
@@ -175,26 +219,18 @@ cast_shadow = 0
 skeleton = NodePath("../..")
 script = ExtResource( 3 )
 
-[node name="MeshInstance2D" type="MeshInstance2D" parent="Spatial/Terrain"]
-visible = false
-position = Vector2( 869.649, 515.476 )
-scale = Vector2( 0.561, 0.561 )
-z_index = 1000
-mesh = SubResource( 6 )
-
-[node name="Sprite" type="Sprite" parent="Spatial/Terrain/MeshInstance2D"]
+[node name="WaterPlane" type="MeshInstance" parent="Spatial"]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0 )
+material_override = SubResource( 10 )
+skeleton = NodePath("../..")
+script = ExtResource( 4 )
 
 [node name="Border" type="MeshInstance" parent="Spatial"]
 transform = Transform( -4.37114e-08, -3.82137e-15, -1, -8.74228e-08, 1, 0, -1, -8.74228e-08, 4.37114e-08, 0, 0, 0 )
 material_override = SubResource( 8 )
 
-[node name="WaterPlane" type="MeshInstance" parent="Spatial"]
-transform = Transform( 4.37114e-08, 0, -1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
-skeleton = NodePath("../..")
-
 [node name="Sun" type="DirectionalLight" parent="Spatial"]
 transform = Transform( 1.05984, -0.1417, 0.227311, 0, 0.762665, 0.304699, 0, -5.96046e-08, 0.951493, 35.2, 57.5, 47.4 )
-light_color = Color( 0.960784, 0.890196, 0.741176, 1 )
 light_energy = 0.95
 light_indirect_energy = 0.3
 directional_shadow_mode = 0

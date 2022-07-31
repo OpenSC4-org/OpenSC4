@@ -11,8 +11,8 @@ func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) ->
 		return index.dbpf.get_subfile(type_id, group_id, instance_id, subfile_class)
 
 func add_dbpf(dbpf : DBPF):
-	for index in dbpf.indices.values():
-		if subfile_indices.has([index.type_id, index.group_id, index.instance_id]):
-			print("File '%s' overwrites subfile %s" % [dbpf.filename, SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id)])
-		subfile_indices[[index.type_id, index.group_id, index.instance_id]] = index
-	print("Added %d subfiles from %s" % [len(dbpf.indices), dbpf.filename])
+	for ind_key in dbpf.indices.keys():
+		var index = dbpf.indices[ind_key]
+		if subfile_indices.has(ind_key):
+			print("File '%s' overwrites subfile %s" % [dbpf.path, SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id)])
+		subfile_indices[ind_key] = dbpf.indices[ind_key]
