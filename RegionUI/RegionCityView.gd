@@ -4,7 +4,7 @@ class_name RegionCityView
 var region_view_thumbnails : Array = []
 var savefile : DBPF
 var city_info : SC4ReadRegionalCity
-var settings = {"borders":false}
+var settings = {"borders":true}
 
 # Size, in pixels, of the tile base
 

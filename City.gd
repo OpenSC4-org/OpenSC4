@@ -159,7 +159,6 @@ func create_edge(vert, n1, n2, normal):
 	var uvs = []
 	var TerrainTexTilingFactor = 0.2
 	var factor = (16.0/100.0) * TerrainTexTilingFactor
-	"need to set uv's differently per edge, can see what edge I'm on with normal"
 	var coords = [vert[0].x, vert[1].x, vert[2].x, vert[3].x]
 	if abs(normal.x) < abs(normal.z):
 		coords = [vert[0].z, vert[1].z, vert[2].z, vert[3].z]
@@ -280,6 +279,7 @@ func create_terrain():
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
+				
 			vw1 = Vector3(i, WATER_HEIGHT, j)
 			vw2 = Vector3(i, WATER_HEIGHT, j+1)
 			vw3 = Vector3(i+1, WATER_HEIGHT, j+1)

@@ -122,6 +122,8 @@ func generate_wateredges(HeightMap):
 	mat.set_shader_param("watertexture", water_text)
 	mat.set_shader_param("depth_range", depth_range)
 	mat.set_shader_param("max_depth", max_depth_water_alpha)
+	mat.set_shader_param("noise_texture", $NoiseTexture.texture)
+	mat.set_shader_param("noise_normals", $NoiseNormals.texture)	
 	self.set_material_override(mat)
 	var matT = self.get_parent().get_node("Terrain").get_material_override()
 	matT.set_shader_param("watermap", shoretex)
