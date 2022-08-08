@@ -10,13 +10,14 @@ var height
 var layer_arr = []
 const TILE_SIZE : int = 16
 const WATER_HEIGHT : float = 250.0 / TILE_SIZE
+var cur_img
+var vec_hot
 
 func _ready():
 	rng.randomize()
 	savefile = Boot.current_city
 	create_terrain()
-	#create_water_mesh()
-	#set_view(1)
+	set_cursor()
 	pass
 
 func gen_random_terrain(width : int, height : int) -> Array:
@@ -327,26 +328,11 @@ func create_terrain():
 	warray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, warrays)
 	$Spatial/WaterPlane.mesh = warray_mesh
 	
-func create_water_mesh():
-	$Spatial/WaterPlane.generate_wateredges(load_city_terrain(savefile))
-	var vertices : PoolVector3Array = PoolVector3Array()
-	var normals : PoolVector3Array = PoolVector3Array()
-	var v1 = Vector3(0, WATER_HEIGHT, 0)
-	var v2 = Vector3(0, WATER_HEIGHT, size_h * 64)
-	var v3 = Vector3(size_w * 64, WATER_HEIGHT, size_h * 64)
-	var v4 = Vector3(size_w * 64, WATER_HEIGHT, 0)
-	var r = create_face(v1, v2, v3, v4, null)
-	vertices.append_array(r[0])
-	normals.append_array(r[1])
-
-	var array_mesh : ArrayMesh = ArrayMesh.new()
-	var arrays : Array = []
-	arrays.resize(ArrayMesh.ARRAY_MAX)
-	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
-	arrays[ArrayMesh.ARRAY_NORMAL] = normals
-	arrays[ArrayMesh.ARRAY_TEX_UV] = PoolVector3Array([Vector2(0.0, 0.0), Vector2(1.0, 1.0),Vector2(0.0, 1.0),Vector2(0.0, 0.0),Vector2(1.0, 0.0),Vector2(1.0, 1.0)])
-	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	$Spatial/WaterPlane.mesh = array_mesh
+func set_cursor():
+	var TGI_cur = {"T": 0xaa5c3144, "G": 0x00000032, "I":0x13b138d0}
+	self.vec_hot = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).entries[0].vec_hotspot
+	self.cur_img = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).get_as_texture()
+	Input.set_custom_mouse_cursor(cur_img, Input.CURSOR_ARROW, vec_hot)
 	
 func coord_to_uv(x, y, z):
 	var TerrainTexTilingFactor = 0.2 # 0x6534284a,0x88cd66e9,0x00000001 describes this as 100m of terrain corresponds to this fraction of texture in farthest zoom

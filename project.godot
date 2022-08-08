@@ -9,6 +9,16 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "DBPFSubfile",
+"class": "CURSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/CURSubfile.gd"
+}, {
+"base": "Node",
+"class": "CUR_Entry",
+"language": "GDScript",
+"path": "res://addons/dbpf/CUR_Entry.gd"
+}, {
 "base": "Reference",
 "class": "DBDF",
 "language": "GDScript",
@@ -100,6 +110,8 @@ _global_script_classes=[ {
 "path": "res://cSTETerrain__SaveAltitudes.gd"
 } ]
 _global_script_class_icons={
+"CURSubfile": "",
+"CUR_Entry": "",
 "DBDF": "",
 "DBDFEntry": "",
 "DBPF": "",

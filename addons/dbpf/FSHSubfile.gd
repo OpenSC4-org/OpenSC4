@@ -132,5 +132,5 @@ func get_int_from_bytes(bytearr):
 func get_as_texture():
 	assert(self.img != null)
 	var ret = ImageTexture.new()
-	ret.create_from_image(self.img)
+	ret.create_from_image(self.img, 2)
 	return ret
