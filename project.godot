@@ -74,6 +74,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://RegionViewCityThumbnail.gd"
 }, {
+"base": "DBPFSubfile",
+"class": "S3DSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/S3DSubfile.gd"
+}, {
+"base": "Node",
+"class": "S3D_Group",
+"language": "GDScript",
+"path": "res://addons/dbpf/S3D_Group.gd"
+}, {
 "base": "TextureButton",
 "class": "SC4Button",
 "language": "GDScript",
@@ -123,6 +133,8 @@ _global_script_class_icons={
 "ImageSubfile": "",
 "RegionCityView": "",
 "RegionViewCityThumbnail": "",
+"S3DSubfile": "",
+"S3D_Group": "",
 "SC4Button": "",
 "SC4ReadRegionalCity": "",
 "SC4TextureRect": "",

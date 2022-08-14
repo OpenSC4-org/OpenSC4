@@ -328,6 +328,12 @@ func create_terrain():
 	warray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, warrays)
 	$Spatial/WaterPlane.mesh = warray_mesh
 	
+	"test s3d"
+	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16910410}
+	var s3dobj = Core.subfile(TGI_s3d["T"], TGI_s3d["G"], TGI_s3d["I"], S3DSubfile)
+	var location = Vector3(width/2, heightmap[int(width/2)][int(height/2)] / TILE_SIZE, height/2)
+	s3dobj.add_to_mesh($Spatial/TestS3D, location)
+	
 func set_cursor():
 	var TGI_cur = {"T": 0xaa5c3144, "G": 0x00000032, "I":0x13b138d0}
 	self.vec_hot = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).entries[0].vec_hotspot

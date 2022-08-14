@@ -1,9 +1,10 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://City.gd" type="Script" id=1]
 [ext_resource path="res://CameraAnchor3D.gd" type="Script" id=2]
 [ext_resource path="res://Terrain.gd" type="Script" id=3]
 [ext_resource path="res://WaterPlane.gd" type="Script" id=4]
+[ext_resource path="res://TestS3D.gd" type="Script" id=5]
 
 [sub_resource type="Shader" id=4]
 code = "shader_type spatial;
@@ -114,7 +115,7 @@ shader_param/cliff_ind = null
 shader_param/beach_ind = null
 shader_param/tiling_factor = null
 shader_param/water_height = 15.625
-shader_param/grid_bool = false
+shader_param/grid_bool = true
 shader_param/beach_ht_range = null
 
 [sub_resource type="Shader" id=9]
@@ -316,8 +317,19 @@ shader_param/top_ind = null
 shader_param/mid_ind = null
 shader_param/bot_ind = null
 
-[sub_resource type="PlaneMesh" id=16]
-size = Vector2( 128, 128 )
+[sub_resource type="Shader" id=16]
+code = "shader_type spatial;
+
+uniform sampler2DArray s3dtexture : hint_albedo;
+
+void fragment(){
+	ALBEDO = texture(s3dtexture, vec3(UV, 0.0)).rgb;
+	ALPHA = texture(s3dtexture, vec3(UV, 0.0)).a;
+}
+	"
+
+[sub_resource type="ShaderMaterial" id=17]
+shader = SubResource( 16 )
 
 [sub_resource type="ProceduralSky" id=15]
 radiance_size = 0
@@ -335,7 +347,6 @@ background_mode = 2
 background_sky = SubResource( 15 )
 background_color = Color( 0.317647, 0.341176, 0.352941, 1 )
 ambient_light_color = Color( 1, 1, 1, 1 )
-ambient_light_energy = 0.0
 
 [node name="City" type="Spatial"]
 script = ExtResource( 1 )
@@ -374,6 +385,7 @@ texture = SubResource( 14 )
 
 [node name="Border" type="MeshInstance" parent="Spatial"]
 transform = Transform( -4.37114e-08, -3.82137e-15, -1, -8.74228e-08, 1, 0, -1, -8.74228e-08, 4.37114e-08, 0, 0, 0 )
+visible = false
 material_override = SubResource( 8 )
 
 [node name="Sun" type="DirectionalLight" parent="Spatial"]
@@ -387,10 +399,10 @@ directional_shadow_mode = 0
 directional_shadow_normal_bias = 1.5
 directional_shadow_max_distance = 1500.0
 
-[node name="MeshInstance" type="MeshInstance" parent="Spatial"]
-visible = false
-mesh = SubResource( 16 )
-material/0 = null
+[node name="TestS3D" type="MeshInstance" parent="Spatial"]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
+material_override = SubResource( 17 )
+script = ExtResource( 5 )
 
 [node name="KinematicBody" type="KinematicBody" parent="."]
 script = ExtResource( 2 )
