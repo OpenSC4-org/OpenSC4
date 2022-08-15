@@ -21,7 +21,6 @@ func _ready():
 	UVs.push_back(Vector2(1,0))
 
 	#mat.albedo_color = color
-	st.add_smooth_group(true)
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_FAN)
 	for v in vertices.size(): 
 		#st.add_color(color)
@@ -80,12 +79,9 @@ func load_textures_to_uv_dict():
 	var type_tex = 0x7ab50e44
 	var group_tex = 0x891B0E1A
 	var img_dict = {}
-	var i_hori = 0
-	var i_vert = 0
 	var width = 0
 	var height = 0
 	var formats = []
-	var image_map = Image.new()
 	var uv_dict = {}
 	var d_len = 0
 	for instance in textures:
@@ -109,8 +105,8 @@ func load_textures_to_uv_dict():
 				width = fsh_subfile.width
 				height = fsh_subfile.height
 			img_dict[inst_z] = fsh_subfile
-	var w_size = int(16384 / width)
-	var h_size = int(16384 / height)
+	var w_size = ceil(16384 / width)
+	var h_size = ceil(16384 / height)
 	var tot_w
 	var tot_h
 	var format
@@ -129,10 +125,6 @@ func load_textures_to_uv_dict():
 	while len(arr_data) < tot_h:
 		arr_data.append_array(arr_data)
 	arr_data = arr_data.slice(0, tot_h)
-	"the data is read width first, so adding data horizontally is problematic"
-	"I would need to go row by row and add the data corresponding to that row"
-	"so I should keep a PoolByteArray per row, add padding where needed"
-	"and append the rows together in the end"
 	var format_decomp
 	var textarr = TextureArray.new()
 	textarr.create (width, height, len(textures) * 5, formats[0], 2)

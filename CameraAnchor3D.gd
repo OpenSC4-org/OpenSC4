@@ -10,6 +10,7 @@ var hold_r = []
 
 func _ready():
 	_set_view()
+	$Camera.set_znear(-200.0)
 	pass
 
 func _input(event):
@@ -17,8 +18,8 @@ func _input(event):
 	var margin_w = viewport.size.x / 15
 	var margin_h = viewport.size.y / 15
 	var move = Vector3(0, 0, 0)
-	var camera_forward = $Camera.transform.basis.y
-	var camera_left = $Camera.transform.basis.x
+	var camera_forward = self.transform.basis.z
+	var camera_left = self.transform.basis.x
 	
 	# Should move one screen width every 5 seconds
 	var move_vel = $Camera.size
@@ -74,13 +75,20 @@ func _set_view():
 	var rng_d = 1
 	# setting up the transform
 	var v_trans = transform
-	v_trans.basis.x = Vector3(-(Sx*cos(D))/rng_d, 0.0, Sx*sin(D)/rng_d)
-	v_trans.basis.y = Vector3(0.0, -1.0, Sy/rng_d)
-	v_trans.basis.z = Vector3((Sz*cos(E))/rng_d, 1.0, (Sz*sin(E))/rng_d)
-	v_trans.origin = Vector3(0.0, 0.0, 0.0)
-	self.get_parent().get_node("Spatial").transform = v_trans
-	self.get_parent().get_node("Spatial/Sun").transform.origin = Vector3(500, 200, -50)
+	v_trans.basis.x = Vector3(-(Sx*cos(D))/rng_d, 	0.0, 		Sx*sin(D)/rng_d)
+	v_trans.basis.y = Vector3(0.0, 					-1.0, 		Sy/rng_d)
+	v_trans.basis.z = Vector3((Sz*cos(E))/rng_d, 	1.0, 		(Sz*sin(E))/rng_d)
+	#self.get_parent().get_node("Spatial").transform = v_trans
+	v_trans = v_trans.inverse()
+	v_trans.origin = self.transform.origin
+	self.transform = v_trans
+	print("in", v_trans, "\ncm", self.get_node("Camera").transform)
+	
+	# set sun location
+	self.get_parent().get_node("Spatial/Sun").transform.origin = Vector3(50, 20, -5)
 	self.get_parent().get_node("Spatial/Sun").look_at(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+	
+	# set zoom related uniforms for shaders
 	var mat = self.get_parent().get_node("Spatial/Terrain").get_material_override()
 	mat.set_shader_param("zoom", zoom)
 	mat.set_shader_param("tiling_factor", zoom)
@@ -89,4 +97,8 @@ func _set_view():
 	mat_e.set_shader_param("zoom", zoom)
 	mat_e.set_shader_param("tiling_factor", zoom)
 	self.get_parent().get_node("Spatial/Border").set_material_override(mat_e)
+	var mat_w = self.get_parent().get_node("Spatial/WaterPlane").get_material_override()
+	mat_w.set_shader_param("zoom", zoom)
+	mat_w.set_shader_param("tiling_factor", zoom)
+	self.get_parent().get_node("Spatial/WaterPlane").set_material_override(mat_w)
 	

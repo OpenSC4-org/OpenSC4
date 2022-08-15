@@ -9,6 +9,16 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "DBPFSubfile",
+"class": "CURSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/CURSubfile.gd"
+}, {
+"base": "Node",
+"class": "CUR_Entry",
+"language": "GDScript",
+"path": "res://addons/dbpf/CUR_Entry.gd"
+}, {
 "base": "Reference",
 "class": "DBDF",
 "language": "GDScript",
@@ -64,6 +74,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://RegionViewCityThumbnail.gd"
 }, {
+"base": "DBPFSubfile",
+"class": "S3DSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/S3DSubfile.gd"
+}, {
+"base": "Node",
+"class": "S3D_Group",
+"language": "GDScript",
+"path": "res://addons/dbpf/S3D_Group.gd"
+}, {
 "base": "TextureButton",
 "class": "SC4Button",
 "language": "GDScript",
@@ -100,6 +120,8 @@ _global_script_classes=[ {
 "path": "res://cSTETerrain__SaveAltitudes.gd"
 } ]
 _global_script_class_icons={
+"CURSubfile": "",
+"CUR_Entry": "",
 "DBDF": "",
 "DBDFEntry": "",
 "DBPF": "",
@@ -111,6 +133,8 @@ _global_script_class_icons={
 "ImageSubfile": "",
 "RegionCityView": "",
 "RegionViewCityThumbnail": "",
+"S3DSubfile": "",
+"S3D_Group": "",
 "SC4Button": "",
 "SC4ReadRegionalCity": "",
 "SC4TextureRect": "",
@@ -152,7 +176,8 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
+2d/snapping/use_gpu_pixel_snap=true
 threads/thread_model=2
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
-environment/default_environment="res://default_env.tres"
+quality/filters/use_fxaa=true

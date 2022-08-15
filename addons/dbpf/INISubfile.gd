@@ -2,10 +2,12 @@ extends Node
 class_name INISubfile
 
 var sections = {}
+var file_path
 
 func _init(path):
+	file_path = path
 	var file = File.new() 
-	var err = file.open(path, File.READ)
+	var err = file.open(file_path, File.READ)
 	var current_section = ""
 	if err != OK:
 		return err
@@ -14,7 +16,7 @@ func _init(path):
 		line = line.strip_edges(true, true)
 		if line.length() == 0:
 			continue
-		if line[0] == '#':
+		if line[0] == '#' or line[0] == ';':
 			continue
 		if line[0] == '[':
 			current_section = line.substr(1, line.length() - 2)
@@ -29,3 +31,12 @@ func _init(path):
 		print(key)
 		for key2 in sections[key]:
 			print("\t" + key2 + " = " + sections[key][key2])
+
+func save_file():
+	var file = File.new()
+	file.open(file_path, File.WRITE)
+	for section in sections.keys():
+		file.store_line('[' + section + ']')
+		for line in sections[section].keys():
+			file.store_line(line + '=' + sections[section][line])
+		

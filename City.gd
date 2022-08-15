@@ -9,14 +9,15 @@ var width
 var height
 var layer_arr = []
 const TILE_SIZE : int = 16
-const WATER_HEIGHT : int = 250 / TILE_SIZE
+const WATER_HEIGHT : float = 250.0 / TILE_SIZE
+var cur_img
+var vec_hot
 
 func _ready():
 	rng.randomize()
 	savefile = Boot.current_city
 	create_terrain()
-	create_water_mesh()
-	#set_view(1)
+	set_cursor()
 	pass
 
 func gen_random_terrain(width : int, height : int) -> Array:
@@ -82,8 +83,8 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 	for vert in [v0, v1, v2, v3]:
 		var res = coord_to_uv(vert.x, vert.y, vert.z)
 		uvs.append(res[0])
-		self.layer_arr[vert.z][vert.x] = res[1]
 		if heightmap:
+			self.layer_arr[vert.z][vert.x] = res[1]
 			var normal = PoolVector3Array([
 				((v1 - v0).cross(v2 - v0) + (v3 - v2).cross(v0 - v2)).normalized()
 				])
@@ -159,7 +160,6 @@ func create_edge(vert, n1, n2, normal):
 	var uvs = []
 	var TerrainTexTilingFactor = 0.2
 	var factor = (16.0/100.0) * TerrainTexTilingFactor
-	"need to set uv's differently per edge, can see what edge I'm on with normal"
 	var coords = [vert[0].x, vert[1].x, vert[2].x, vert[3].x]
 	if abs(normal.x) < abs(normal.z):
 		coords = [vert[0].z, vert[1].z, vert[2].z, vert[3].z]
@@ -198,12 +198,16 @@ func create_terrain():
 	var e_vertices : PoolVector3Array = PoolVector3Array()
 	var e_normals : PoolVector3Array = PoolVector3Array()
 	var e_UVs : PoolVector2Array = PoolVector2Array()
+	var w_vertices : PoolVector3Array = PoolVector3Array()
+	var w_normals : PoolVector3Array = PoolVector3Array()
+	var w_UVs : PoolVector2Array = PoolVector2Array()
 	# Random heightmap (for now)
 	var heightmap : Array
 	if savefile != null:
 		heightmap = load_city_terrain(savefile)
 	else:
 		heightmap = gen_random_terrain(size_w * 64 + 1, size_h * 64 + 1)
+	$Spatial/WaterPlane.generate_wateredges(heightmap)
 	var tiles_w = size_w * 64 + 1
 	var tiles_h = size_h * 64 + 1
 	
@@ -215,6 +219,10 @@ func create_terrain():
 	var ve2
 	var ve3
 	var ve4
+	var vw1
+	var vw2
+	var vw3
+	var vw4
 	var n_in1
 	var n_in2
 	# Top surface 
@@ -273,48 +281,14 @@ func create_terrain():
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
 				
-				
-	"""
-	# Generate the borders
-	for i in range(tiles_w - 1):
-		# border with Z = 0
-		v1 = Vector3(i, heightmap[i][0] / TILE_SIZE, 0)
-		v2 = Vector3(i, 0, 0)
-		v3 = Vector3(i+1, 0, 0)
-		v4 = Vector3(i+1, heightmap[i+1][0] / TILE_SIZE, 0)
-		var r = create_face(v3, v2, v1, v4, heightmap)
-		vertices.append_array(r[0])
-		normals.append_array(r[1])
-		UVs.append_array(r[2])
-		# border with Z = tiles_h
-		v1 = Vector3(i, 0, tiles_h-1)
-		v2 = Vector3(i, heightmap[i][tiles_h-1] / TILE_SIZE, tiles_h-1)
-		v3 = Vector3(i+1, heightmap[i+1][tiles_h-1] / TILE_SIZE, tiles_h-1)
-		v4 = Vector3(i+1, 0, tiles_h-1)
-		r = create_face(v1, v2, v3, v4, heightmap)
-		vertices.append_array(r[0])
-		normals.append_array(r[1])
-		UVs.append_array(r[2])
-
-	for i in range(tiles_h - 1):
-		# border with X = 0
-		v1 = Vector3(0, 0, i)
-		v2 = Vector3(0, 0, i+1)
-		v3 = Vector3(0, heightmap[0][i+1] / TILE_SIZE, i+1)
-		v4 = Vector3(0, heightmap[0][i] / TILE_SIZE, i)
-		var r = create_face(v1, v2, v3, v4, heightmap)
-		vertices.append_array(r[0])
-		normals.append_array(r[1])
-		UVs.append_array(r[2])
-		# border with X = tiles_w
-		v1 = Vector3(tiles_w-1, heightmap[tiles_w-1][i] / TILE_SIZE, i)
-		v2 = Vector3(tiles_w-1, heightmap[tiles_w-1][i+1] / TILE_SIZE, i+1)
-		v3 = Vector3(tiles_w-1, 0, i+1)
-		v4 = Vector3(tiles_w-1, 0, i)
-		r = create_face(v1, v2, v3, v4, heightmap)
-		vertices.append_array(r[0])
-		normals.append_array(r[1])
-		UVs.append_array(r[2])"""
+			vw1 = Vector3(i, WATER_HEIGHT, j)
+			vw2 = Vector3(i, WATER_HEIGHT, j+1)
+			vw3 = Vector3(i+1, WATER_HEIGHT, j+1)
+			vw4 = Vector3(i+1, WATER_HEIGHT, j)
+			var wa = create_face(vw1, vw2, vw3, vw4, null)
+			w_vertices.append_array(wa[0])
+			w_normals.append_array(wa[1])
+			w_UVs.append_array(wa[2])
 
 	var array_mesh : ArrayMesh = ArrayMesh.new()
 	var arrays : Array = []
@@ -345,24 +319,26 @@ func create_terrain():
 	e_rray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, e_rrays)
 	$Spatial/Border.mesh = e_rray_mesh
 	
-func create_water_mesh():
-	var vertices : PoolVector3Array = PoolVector3Array()
-	var normals : PoolVector3Array = PoolVector3Array()
-	var v1 = Vector3(0, WATER_HEIGHT, 0)
-	var v2 = Vector3(0, WATER_HEIGHT, size_h * 64)
-	var v3 = Vector3(size_w * 64, WATER_HEIGHT, size_h * 64)
-	var v4 = Vector3(size_w * 64, WATER_HEIGHT, 0)
-	var r = create_face(v1, v2, v3, v4, null)
-	vertices.append_array(r[0])
-	normals.append_array(r[1])
-
-	var array_mesh : ArrayMesh = ArrayMesh.new()
-	var arrays : Array = []
-	arrays.resize(ArrayMesh.ARRAY_MAX)
-	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
-	arrays[ArrayMesh.ARRAY_NORMAL] = normals
-	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	$Spatial/WaterPlane.mesh = array_mesh
+	var warray_mesh : ArrayMesh = ArrayMesh.new()
+	var warrays : Array = []
+	warrays.resize(ArrayMesh.ARRAY_MAX)
+	warrays[ArrayMesh.ARRAY_VERTEX] = w_vertices
+	warrays[ArrayMesh.ARRAY_NORMAL] = w_normals 
+	warrays[ArrayMesh.ARRAY_TEX_UV] = w_UVs 
+	warray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, warrays)
+	$Spatial/WaterPlane.mesh = warray_mesh
+	
+	"test s3d"
+	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16910410}
+	var s3dobj = Core.subfile(TGI_s3d["T"], TGI_s3d["G"], TGI_s3d["I"], S3DSubfile)
+	var location = Vector3(width/2, heightmap[int(width/2)][int(height/2)] / TILE_SIZE, height/2)
+	s3dobj.add_to_mesh($Spatial/TestS3D, location)
+	
+func set_cursor():
+	var TGI_cur = {"T": 0xaa5c3144, "G": 0x00000032, "I":0x13b138d0}
+	self.vec_hot = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).entries[0].vec_hotspot
+	self.cur_img = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).get_as_texture()
+	Input.set_custom_mouse_cursor(cur_img, Input.CURSOR_ARROW, vec_hot)
 	
 func coord_to_uv(x, y, z):
 	var TerrainTexTilingFactor = 0.2 # 0x6534284a,0x88cd66e9,0x00000001 describes this as 100m of terrain corresponds to this fraction of texture in farthest zoom
