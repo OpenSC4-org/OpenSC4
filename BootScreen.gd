@@ -77,7 +77,7 @@ func _ready():
 			cfg_file.sections["paths"] = {}
 			cfg_file.sections["paths"]["sc4_files"] = game_dir
 			cfg_file.save_file()
-		
+	$dialog.deselect_items()
 	loading_thread = Thread.new()
 	print("Booting OpenSC4...")
 	var err = loading_thread.start(self, 'load_DATs')
