@@ -13,6 +13,6 @@ func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) ->
 func add_dbpf(dbpf : DBPF):
 	for ind_key in dbpf.indices.keys():
 		var index = dbpf.indices[ind_key]
-		if subfile_indices.has(ind_key):
+		if subfile_indices.has(ind_key) and index.type_id != 0xe86b1eef: # Don't report DBDF "overwrite"
 			print("File '%s' overwrites subfile %s" % [dbpf.path, SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id)])
 		subfile_indices[ind_key] = dbpf.indices[ind_key]
