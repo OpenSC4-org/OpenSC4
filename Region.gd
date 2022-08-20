@@ -147,5 +147,7 @@ func load_ui():
 	custom_ui_classes["0xaba290e1"] = preload("res://RegionUI/SatelliteViewRadioButton.gd")
 	custom_ui_classes["0xcba290ec"] = preload("res://RegionUI/TransportationViewRadioButton.gd")
 	custom_ui_classes["0x09ebf2bd"] = preload("res://RegionUI/RegionManagementButton.gd")
+	custom_ui_classes["0x4a779a1a"] = preload("res://RegionUI/InternetButton.gd")
+	custom_ui_classes["0x26c10a3e"] = preload("res://RegionUI/ExitGameButton.gd")
 	var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	ui.add_to_tree($UICanvas, custom_ui_classes)
