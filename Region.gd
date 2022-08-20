@@ -137,7 +137,7 @@ func load_ui():
 	var custom_ui_classes = {}
 	custom_ui_classes["0x6a91dc14"] = preload("res://RegionUI/TopBarDecoration.gd")
 	custom_ui_classes["0x6a91dc16"] = preload("res://RegionUI/TopBarButtons.gd")
-	custom_ui_classes["0x6a91dc15"] = preload("res://RegionUI/TopBarSettingsButton.gd")
+	custom_ui_classes["0x6a91dc15"] = preload("res://RegionUI/TopBarSettingsButtonContainer.gd")
 	custom_ui_classes["0x09ebee60"] = preload("res://RegionUI/TopBarSettingsMenu.gd")
 	custom_ui_classes["0x09ebe9ee"] = preload("res://RegionUI/NameAndPopulation.gd")
 	custom_ui_classes["0x09ebee45"] = preload("res://RegionUI/RegionSubmenu.gd")
@@ -153,5 +153,6 @@ func load_ui():
 	custom_ui_classes["0x26c10a3e"] = preload("res://RegionUI/ExitGameButton.gd")
 	custom_ui_classes["0xea5bd179"] = preload("res://RegionUI/RegionNameDisplay.gd")
 	custom_ui_classes["0xc9e41918"] = preload("res://RegionUI/PopulationIndicator.gd")
+	custom_ui_classes["0x09ebf2c3"] = preload("res://RegionUI/TopBarSettingsButton.gd")
 	var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	ui.add_to_tree($UICanvas, custom_ui_classes)
