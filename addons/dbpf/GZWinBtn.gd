@@ -24,6 +24,8 @@ enum ButtonStyle {
 }
 
 signal clicked
+signal toggled_on
+signal toggled_off
 signal checked
 signal unchecked
 
@@ -103,8 +105,18 @@ func _gui_input(event):
 			is_pressed = true
 			if self.style == ButtonStyle.RADIOCHECK:
 				is_checked = not is_checked
+				if is_checked:
+					emit_signal('checked')
+				else:
+					emit_signal('unchecked')
 			elif self.style == ButtonStyle.TOGGLE:
 				is_toggled = not is_toggled
+				if is_toggled:
+					emit_signal('toggled_on')
+				else:
+					emit_signal('toggled_off')
+			else:
+				emit_signal('clicked')
 		else:
 			is_pressed = false
 		update_state()
