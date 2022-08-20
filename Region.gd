@@ -131,6 +131,20 @@ func close_all_prompts():
 				prompt.queue_free()
 
 func load_ui():
-	pass
-	#var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
-	#$UICanvas.add_child(ui.root)
+	preload("res://addons/dbpf/GZWinBtn.gd")
+	var custom_ui_classes = {}
+	custom_ui_classes["0x6a91dc14"] = preload("res://RegionUI/TopBarDecoration.gd")
+	custom_ui_classes["0x6a91dc16"] = preload("res://RegionUI/TopBarButtons.gd")
+	custom_ui_classes["0x6a91dc15"] = preload("res://RegionUI/TopBarSettingsButton.gd")
+	custom_ui_classes["0x09ebee60"] = preload("res://RegionUI/TopBarSettingsMenu.gd")
+	custom_ui_classes["0x09ebe9ee"] = preload("res://RegionUI/NameAndPopulation.gd")
+	custom_ui_classes["0x09ebee45"] = preload("res://RegionUI/RegionSubmenu.gd")
+	custom_ui_classes["0xea8cad19"] = preload("res://RegionUI/Compass.gd")
+	custom_ui_classes["0x2a5b0000"] = preload("res://RegionUI/NewRegionButton.gd")
+	custom_ui_classes["0x2a5b0001"] = preload("res://RegionUI/BrowseRegionsButton.gd")
+	custom_ui_classes["0x2a5b0002"] = preload("res://RegionUI/DeleteRegionButton.gd")
+	#custom_ui_classes["0x2ba290c1"] = preload("res://RegionUI/ViewOptionsContainer.gd")
+	custom_ui_classes["0xaba290e1"] = preload("res://RegionUI/SatelliteViewRadioButton.gd")
+	custom_ui_classes["0xcba290ec"] = preload("res://RegionUI/TransportationViewRadioButton.gd")
+	var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
+	ui.add_to_tree($UICanvas, custom_ui_classes)

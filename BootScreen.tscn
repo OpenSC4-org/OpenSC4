@@ -12,13 +12,13 @@ margin_left = 228.0
 margin_top = 87.0
 margin_right = 794.0
 margin_bottom = 488.0
+rect_min_size = Vector2( 300, 105 )
 popup_exclusive = true
 window_title = "set the SimCity 4 directory"
 mode_overrides_title = false
 mode = 2
 access = 2
-current_dir = "/Users/Luurt/Documents/GitHub/OpenSC4"
-current_path = "/Users/Luurt/Documents/GitHub/OpenSC4/"
+show_hidden_files = true
 
 [node name="LoadProgress" type="ProgressBar" parent="."]
 anchor_left = 0.25

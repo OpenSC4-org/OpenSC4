@@ -54,6 +54,36 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/FSH_Entry.gd"
 }, {
+"base": "Object",
+"class": "GZWin",
+"language": "GDScript",
+"path": "res://addons/dbpf/GZWin.gd"
+}, {
+"base": "TextureRect",
+"class": "GZWinBMP",
+"language": "GDScript",
+"path": "res://addons/dbpf/GZWinBMP.gd"
+}, {
+"base": "GZWin",
+"class": "GZWinBtn",
+"language": "GDScript",
+"path": "res://addons/dbpf/GZWinBtn.gd"
+}, {
+"base": "GZWinBtn",
+"class": "GZWinBtn_CheckBox",
+"language": "GDScript",
+"path": "res://addons/dbpf/GZWinBtn_CheckBox.gd"
+}, {
+"base": "Control",
+"class": "GZWinGen",
+"language": "GDScript",
+"path": "res://addons/dbpf/GZWinGen.gd"
+}, {
+"base": "Label",
+"class": "GZWinText",
+"language": "GDScript",
+"path": "res://addons/dbpf/GZWinText.gd"
+}, {
 "base": "Node",
 "class": "INISubfile",
 "language": "GDScript",
@@ -84,20 +114,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/S3D_Group.gd"
 }, {
-"base": "TextureButton",
-"class": "SC4Button",
-"language": "GDScript",
-"path": "res://ui/SC4Button.gd"
-}, {
 "base": "DBPFSubfile",
 "class": "SC4ReadRegionalCity",
 "language": "GDScript",
 "path": "res://SC4ReadRegionalCity.gd"
-}, {
-"base": "TextureRect",
-"class": "SC4TextureRect",
-"language": "GDScript",
-"path": "res://ui/SC4TextureRect.gd"
 }, {
 "base": "DBPFSubfile",
 "class": "SC4UISubfile",
@@ -129,15 +149,19 @@ _global_script_class_icons={
 "DBPFSubfile": "",
 "FSHSubfile": "",
 "FSH_Entry": "",
+"GZWin": "",
+"GZWinBMP": "",
+"GZWinBtn": "",
+"GZWinBtn_CheckBox": "",
+"GZWinGen": "",
+"GZWinText": "",
 "INISubfile": "",
 "ImageSubfile": "",
 "RegionCityView": "",
 "RegionViewCityThumbnail": "",
 "S3DSubfile": "",
 "S3D_Group": "",
-"SC4Button": "",
 "SC4ReadRegionalCity": "",
-"SC4TextureRect": "",
 "SC4UISubfile": "",
 "SubfileIndex": "",
 "SubfileTGI": "",
@@ -176,8 +200,7 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-2d/snapping/use_gpu_pixel_snap=true
 threads/thread_model=2
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
-quality/filters/use_fxaa=true
+environment/default_environment="res://default_env.tres"
