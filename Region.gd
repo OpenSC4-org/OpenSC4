@@ -1,6 +1,7 @@
 extends Node2D
 
 var REGION_NAME = "Timbuktu"
+var total_population = 0
 var region_w = 0
 var region_h = 0
 var cities = {}
@@ -79,6 +80,7 @@ func _ready():
 		var y : int = city.city_info.location[1]
 		var width : int = city.city_info.size[0]
 		var height : int = city.city_info.size[1]
+		self.total_population += city.city_info.population_residential
 		var vert_comp = (x+width) + (y+height) - width
 		anchor.append([vert_comp, city, width])
 	anchor.sort_custom(self, "anchror_sort")
@@ -150,5 +152,6 @@ func load_ui():
 	custom_ui_classes["0x4a779a1a"] = preload("res://RegionUI/InternetButton.gd")
 	custom_ui_classes["0x26c10a3e"] = preload("res://RegionUI/ExitGameButton.gd")
 	custom_ui_classes["0xea5bd179"] = preload("res://RegionUI/RegionNameDisplay.gd")
+	custom_ui_classes["0xc9e41918"] = preload("res://RegionUI/PopulationIndicator.gd")
 	var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	ui.add_to_tree($UICanvas, custom_ui_classes)
