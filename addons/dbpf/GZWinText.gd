@@ -5,11 +5,11 @@ var text : String
 var font = null
 
 func _init(attributes).(attributes):
-	self.set_text(attributes.get('caption', ''))
 	# hack to get the default font while we can't decode the Simcity 4 ones
 	var label = Label.new()
 	self.font = label.get_font("")
 	label.free()
+	self.set_text(attributes.get('caption', ''))
 
 func set_text(text : String):
 	self.text = text
