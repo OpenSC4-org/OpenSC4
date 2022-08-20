@@ -69,11 +69,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/GZWinBtn.gd"
 }, {
-"base": "GZWinBtn",
-"class": "GZWinBtn_CheckBox",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWinBtn_CheckBox.gd"
-}, {
 "base": "Control",
 "class": "GZWinGen",
 "language": "GDScript",
@@ -152,7 +147,6 @@ _global_script_class_icons={
 "GZWin": "",
 "GZWinBMP": "",
 "GZWinBtn": "",
-"GZWinBtn_CheckBox": "",
 "GZWinGen": "",
 "GZWinText": "",
 "INISubfile": "",
