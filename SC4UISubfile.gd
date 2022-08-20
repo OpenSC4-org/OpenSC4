@@ -92,18 +92,18 @@ func create_element(attributes : Dictionary, custom_classes : Dictionary) -> Con
 		element = GZWinGen.new(interpreted_attributes)
 	elif type == 'IGZWinText':
 		element = GZWinText.new(interpreted_attributes)
-	elif type == 'IGZWinTextEdit':
-		element = TextEdit.new()
 	elif type == 'IGZWinBtn':
 		element = GZWinBtn.new(interpreted_attributes)
 	elif type == 'IGZWinBMP': 
 		element = GZWinBMP.new(interpreted_attributes)
+	elif type == 'IGZWinFlatRect':
+		element = GZWinFlatRect.new(interpreted_attributes)
+	elif type == 'IGZWinTextEdit':
+		element = TextEdit.new()
 	elif type == 'IGZWinCustom':
 		element = Control.new()
 	elif type == 'IGZWinGrid':
 		element = GridContainer.new()
-	elif type == 'IGZWinFlatRect':
-		element = ColorRect.new()
 	elif type == 'IGZWinSlider':
 		element = HSlider.new()
 	elif type == 'IGZWinCombo':

@@ -154,5 +154,11 @@ func load_ui():
 	custom_ui_classes["0xea5bd179"] = preload("res://RegionUI/RegionNameDisplay.gd")
 	custom_ui_classes["0xc9e41918"] = preload("res://RegionUI/PopulationIndicator.gd")
 	custom_ui_classes["0x09ebf2c3"] = preload("res://RegionUI/TopBarSettingsButton.gd")
+
+	custom_ui_classes["0x8a1da655"] = preload("res://RegionUI/SaveScreenshotButton.gd")
+	custom_ui_classes["0xca1da670"] = preload("res://RegionUI/BrowseScreenshotsButton.gd")
+	custom_ui_classes["0x098f4f6c"] = preload("res://RegionUI/DisplaySettingsButton.gd")
+	custom_ui_classes["0x0a5510a9"] = preload("res://RegionUI/GameSettingsButton.gd")
+	custom_ui_classes["0xa98f4f88"] = preload("res://RegionUI/AudioSettingsButton.gd")
 	var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	ui.add_to_tree($UICanvas, custom_ui_classes)
