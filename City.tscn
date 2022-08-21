@@ -58,7 +58,7 @@ void fragment()
 		if (rem1.x < (0.05 * max((5.0-float(zoom_ind)), 0.0)) ){
 			grid = vec3(0.6, 0.6, 0.6);
 		}
-		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0)) and grid_bool == true){
+		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0)) && grid_bool == true){
 			grid = vec3(0.6, 0.6, 0.6);
 		}
 	}
@@ -115,7 +115,7 @@ shader_param/cliff_ind = null
 shader_param/beach_ind = null
 shader_param/tiling_factor = null
 shader_param/water_height = 15.625
-shader_param/grid_bool = true
+shader_param/grid_bool = false
 shader_param/beach_ht_range = null
 
 [sub_resource type="Shader" id=9]
@@ -420,3 +420,5 @@ environment = SubResource( 1 )
 __meta__ = {
 "_editor_description_": "Default environment"
 }
+
+[node name="UICanvas" type="CanvasLayer" parent="."]
