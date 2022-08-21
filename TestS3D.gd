@@ -10,15 +10,6 @@ var tm_table
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	vertices.push_back(Vector3(1,0,0))
-	vertices.push_back(Vector3(1,0,1))
-	vertices.push_back(Vector3(0,0,1))
-	vertices.push_back(Vector3(0,0,0))
-
-	UVs.push_back(Vector2(0,0))
-	UVs.push_back(Vector2(0,1))
-	UVs.push_back(Vector2(1,1))
-	UVs.push_back(Vector2(1,0))
 
 	#mat.albedo_color = color
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_FAN)

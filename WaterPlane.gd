@@ -15,15 +15,6 @@ var tm_table
 # Called when the node enters the scene tree for the first time.
 func _ready():
 
-	vertices.push_back(Vector3(1,0,0))
-	vertices.push_back(Vector3(1,0,1))
-	vertices.push_back(Vector3(0,0,1))
-	vertices.push_back(Vector3(0,0,0))
-
-	UVs.push_back(Vector2(0,0))
-	UVs.push_back(Vector2(0,1))
-	UVs.push_back(Vector2(1,1))
-	UVs.push_back(Vector2(1,0))
 
 	#mat.albedo_color = color
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_FAN)
@@ -113,8 +104,21 @@ func generate_wateredges(HeightMap):
 	water_text.create (w_h, w_w, 5, format, 2)
 	for i in range(len(water_imgs)):
 		water_text.set_layer_data(water_imgs[i].img, i)
+	var watermap_inv =[]
+	for w in range(len(HeightMap)):
+		
+		for h in range(len(HeightMap[0])):
+			var i = h * len(HeightMap)
+			var j = (i + w)*4
+			watermap_inv.append(watermap[j])
+			watermap_inv.append(watermap[j-1])
+			watermap_inv.append(watermap[j-2])
+			watermap_inv.append(watermap[j-3])
+	
 	var shoreimg = Image.new()
-	shoreimg.create_from_data(len(HeightMap), len(HeightMap[0]), false, Image.FORMAT_RGBA8, watermap)
+	shoreimg.create_from_data(len(HeightMap), len(HeightMap[0]), false, Image.FORMAT_RGBA8, watermap_inv)
+	#shoreimg.flip_x()
+	#shoreimg.flip_y()
 	var shoretex = ImageTexture.new()
 	shoretex.create_from_image(shoreimg, 0)
 	mat = self.get_material_override()

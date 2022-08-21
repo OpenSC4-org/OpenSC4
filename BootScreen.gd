@@ -16,7 +16,7 @@ var dat_files : Array = [
 						 "EP1.dat",]
 
 func _ready():
-	
+	#_generate_types_dict_from_XML()
 	cfg_file = INISubfile.new("user://cfg.ini")
 	if cfg_file.sections.size() > 0:
 		game_dir = cfg_file.sections["paths"]["sc4_files"]
@@ -110,3 +110,47 @@ func load_single_DAT(src : String):
 
 func _on_dialog_confirmed():
 	game_dir = $dialog.current_dir
+	
+func _generate_types_dict_from_XML():
+	"""
+	Used to generate exemplar_types.dict from properties.xml
+	since this is quite slow I chose to store the results in a dict file that I assume loads faster
+	The hex values are stored as int to make matching easyer in ExemplarSubfile
+	"""
+	var xml_file = File.new()
+	xml_file.open("res://properties.xml", File.READ)
+	var xml_text = xml_file.get_as_text()
+	xml_file.close()
+	var type_dict = {}
+	var reg_key = RegEx.new()
+	reg_key.compile("(?:num=\\D)(\\w*)")
+	var reg_val = RegEx.new()
+	reg_val.compile("((?<!(group\\s))name=\")((?:(?!\").)*)")
+	var keys = []
+	for key in reg_key.search_all(xml_text):
+		var string = key.get_string(1).split("x")[1]
+		var str_int = ("0x00" + string.substr(0, 4)).hex_to_int()<<16
+		str_int += ("0x00" + string.substr(4, 4)).hex_to_int()
+		keys.append(str_int)
+	var vals = []
+	for val in reg_val.search_all(xml_text):
+		vals.append(val.get_string(3))
+		
+	var xml_file_tropod = File.new()
+	xml_file_tropod.open("res://tropod_Properties.xml", File.READ)
+	xml_text = xml_file_tropod.get_as_text()
+	xml_file_tropod.close()
+	for key in reg_key.search_all(xml_text):
+		var string = key.get_string(1).split("x")[1]
+		var str_int = ("0x00" + string.substr(0, 4)).hex_to_int()<<16
+		str_int += ("0x00" + string.substr(4, 4)).hex_to_int()
+		keys.append(str_int)
+	for val in reg_val.search_all(xml_text):
+		vals.append(val.get_string(3))
+		
+	for i in range(len(keys)):
+		type_dict[keys[i]] = vals[i]
+	var t_file = File.new()
+	t_file.open("res://exemplar_types.dict", File.WRITE)
+	t_file.store_string(var2str(type_dict))
+	t_file.close()

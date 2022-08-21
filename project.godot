@@ -45,6 +45,11 @@ _global_script_classes=[ {
 "path": "res://addons/dbpf/DBPFSubfile.gd"
 }, {
 "base": "DBPFSubfile",
+"class": "ExemplarSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/ExemplarSubfile.gd"
+}, {
+"base": "DBPFSubfile",
 "class": "FSHSubfile",
 "language": "GDScript",
 "path": "res://addons/dbpf/FSHSubfile.gd"
@@ -127,6 +132,7 @@ _global_script_class_icons={
 "DBPF": "",
 "DBPFPlugin": "",
 "DBPFSubfile": "",
+"ExemplarSubfile": "",
 "FSHSubfile": "",
 "FSH_Entry": "",
 "INISubfile": "",

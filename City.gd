@@ -165,7 +165,7 @@ func create_edge(vert, n1, n2, normal):
 		coords = [vert[0].z, vert[1].z, vert[2].z, vert[3].z]
 	var uv0 = Vector2(float(coords[0]) * factor, 0.0)
 	var uv1 = Vector2(float(coords[1]) * factor, 0.0)
-	var uv2 = Vector2(float(coords[2]) * factor, vert[1].y * factor) # n2.y ranges from 0 to 1, it being one when flat
+	var uv2 = Vector2(float(coords[2]) * factor, vert[1].y * factor)
 	var uv3 = Vector2(float(coords[3]) * factor, vert[0].y * factor)
 	var vertices = []
 	var normals = []
@@ -237,12 +237,12 @@ func create_terrain():
 			normals.append_array(r[1])
 			UVs.append_array(r[2])
 			if i == 0:
-				ve1 = v1
-				ve2 = v2
-				ve3 = Vector3(ve2.x, 0.0, ve2.z)
-				ve4 = Vector3(ve1.x, 0.0, ve1.z)
-				n_in1 = normals[0]
-				n_in2 = normals[1]
+				ve1 = v2
+				ve2 = v1
+				ve3 = Vector3(ve1.x, 0.0, ve2.z)
+				ve4 = Vector3(ve2.x, 0.0, ve1.z)
+				n_in1 = r[1][0]
+				n_in2 = r[1][1]
 				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(0.0, 0.0, 1.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
@@ -252,8 +252,8 @@ func create_terrain():
 				ve2 = v3
 				ve3 = Vector3(ve2.x, 0.0, ve2.z)
 				ve4 = Vector3(ve1.x, 0.0, ve1.z)
-				n_in1 = normals[3]
-				n_in2 = normals[2]
+				n_in1 = r[1][3]
+				n_in2 = r[1][2]
 				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(0.0, 0.0, -1.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
@@ -263,9 +263,9 @@ func create_terrain():
 				ve2 = v4
 				ve3 = Vector3(ve2.x, 0.0, ve2.z)
 				ve4 = Vector3(ve1.x, 0.0, ve1.z)
-				n_in1 = normals[3]
-				n_in2 = normals[0]
-				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(1.0, 0.0, 0.0))
+				n_in1 = r[1][0]
+				n_in2 = r[1][3]
+				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(-1.0, 0.0, 0.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
@@ -274,9 +274,9 @@ func create_terrain():
 				ve2 = v2
 				ve3 = Vector3(ve2.x, 0.0, ve2.z)
 				ve4 = Vector3(ve1.x, 0.0, ve1.z)
-				n_in1 = normals[1]
-				n_in2 = normals[2]
-				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(-1.0, 0.0, 0.0))
+				n_in1 = r[1][2]
+				n_in2 = r[1][1]
+				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(1.0, 0.0, 0.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
@@ -333,6 +333,8 @@ func create_terrain():
 	var s3dobj = Core.subfile(TGI_s3d["T"], TGI_s3d["G"], TGI_s3d["I"], S3DSubfile)
 	var location = Vector3(width/2, heightmap[int(width/2)][int(height/2)] / TILE_SIZE, height/2)
 	s3dobj.add_to_mesh($Spatial/TestS3D, location)
+	test_exemplar()
+	print("DEBUG")
 	
 func set_cursor():
 	var TGI_cur = {"T": 0xaa5c3144, "G": 0x00000032, "I":0x13b138d0}
@@ -363,7 +365,7 @@ func get_normal(vert : Vector3, heightmap):
 	var max_z = 0.0
 	if vert.z < (len(heightmap)-1):
 		max_z = 1.0
-	var vert_c = [[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0], [0.0, -1.0]]
+	var vert_c = [[1.0, 1.0], [-1.0, 1.0], [-1.0, -1.0], [1.0, -1.0]]
 	var vertices = []
 	for coord in vert_c:
 		vertices.append(
@@ -372,15 +374,27 @@ func get_normal(vert : Vector3, heightmap):
 			vert.z + coord[1])
 		)
 	var s_normals = Vector3(0.0, 0.0, 0.0)
+	
+	#print(vert, "\t", vertices)
 	for v_i in range(len(vertices)):
 		var v1 = vert
 		var v2 = vertices[v_i]
 		var v3 = vertices[(v_i - 1)%(len(vertices)-1)]
 		var v : Vector3 = v2 - v1
 		var u : Vector3 = v3 - v1
-		var normal : Vector3 = v.cross(u)
+		var normal : Vector3 = v.cross(u).normalized()
 		#var normal2 : Vector3 = u.cross(v)
 		#print([v1, v2, v3], "\t", u, "\t", v, "\t", normal, "\t", normal2)
 		s_normals = s_normals + normal
+		#print("s", s_normals, "\tn", normal)
 	var norm = (s_normals/len(vertices)).normalized()
+	#print(norm)
 	return norm
+	
+func test_exemplar():
+	var TGI = {"T": 0x6534284a, "G": 0xea12f32c, "I": 0x5}
+	var exemplar = Core.subfile(TGI["T"], TGI["G"], TGI["I"], ExemplarSubfile)
+	print("ParentCohort", exemplar.parent_cohort)
+	for key in exemplar.properties.keys():
+		print(key, "\t", exemplar.key_description(key), "\t", exemplar.properties[key])
+		
