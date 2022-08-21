@@ -8,6 +8,36 @@ var cities = {}
 var radio = []
 var current_music 
 var rng = RandomNumberGenerator.new()
+var custom_ui_classes = {
+	# Main region UI
+	"0x098f4f6c":preload("res://RegionUI/DisplaySettingsButton.gd"),
+	"0x09ebe9ee":preload("res://RegionUI/NameAndPopulation.gd"),
+	"0x09ebee45":preload("res://RegionUI/RegionSubmenu.gd"),
+	"0x09ebee60":preload("res://RegionUI/TopBarSettingsMenu.gd"),
+	"0x09ebf2bd":preload("res://RegionUI/RegionManagementButton.gd"),
+	"0x09ebf2c3":preload("res://RegionUI/TopBarSettingsButton.gd"),
+	"0x0a5510a9":preload("res://RegionUI/GameSettingsButton.gd"),
+	"0x26c10a3e":preload("res://RegionUI/ExitGameButton.gd"),
+	"0x2a5b0000":preload("res://RegionUI/NewRegionButton.gd"),
+	"0x2a5b0001":preload("res://RegionUI/BrowseRegionsButton.gd"),
+	"0x2a5b0002":preload("res://RegionUI/DeleteRegionButton.gd"),
+	"0x2ba290c1":preload("res://RegionUI/ViewOptionsContainer.gd"),
+	"0x4a779a1a":preload("res://RegionUI/InternetButton.gd"),
+	"0x6a91dc14":preload("res://RegionUI/TopBarDecoration.gd"),
+	"0x6a91dc15":preload("res://RegionUI/TopBarSettingsButtonContainer.gd"),
+	"0x6a91dc16":preload("res://RegionUI/TopBarButtons.gd"),
+	"0x8a1da655":preload("res://RegionUI/SaveScreenshotButton.gd"),
+	"0xa98f4f88":preload("res://RegionUI/AudioSettingsButton.gd"),
+	"0xaba290e1":preload("res://RegionUI/SatelliteViewRadioButton.gd"),
+	"0xc9e41918":preload("res://RegionUI/PopulationIndicator.gd"),
+	"0xca1da670":preload("res://RegionUI/BrowseScreenshotsButton.gd"),
+	"0xca5cfee2":preload("res://RegionUI/ShowNamesCheckbox.gd"),
+	"0xcba290ec":preload("res://RegionUI/TransportationViewRadioButton.gd"),
+	"0xea5a96e6":preload("res://RegionUI/ShowBordersCheckbox.gd"),
+	"0xea5bd179":preload("res://RegionUI/RegionNameDisplay.gd"),
+	"0xea8cad19":preload("res://RegionUI/Compass.gd"),
+	# Region prompts
+}
 
 func _init():
 	print("Initializing the region view")
@@ -134,36 +164,5 @@ func close_all_prompts():
 
 func load_ui():
 	preload("res://addons/dbpf/GZWinBtn.gd")
-	var custom_ui_classes = {}
-	custom_ui_classes["0x6a91dc14"] = preload("res://RegionUI/TopBarDecoration.gd")
-	custom_ui_classes["0x6a91dc16"] = preload("res://RegionUI/TopBarButtons.gd")
-	custom_ui_classes["0x6a91dc15"] = preload("res://RegionUI/TopBarSettingsButtonContainer.gd")
-	custom_ui_classes["0x09ebee60"] = preload("res://RegionUI/TopBarSettingsMenu.gd")
-	custom_ui_classes["0x09ebe9ee"] = preload("res://RegionUI/NameAndPopulation.gd")
-	custom_ui_classes["0x09ebee45"] = preload("res://RegionUI/RegionSubmenu.gd")
-	custom_ui_classes["0xea8cad19"] = preload("res://RegionUI/Compass.gd")
-	custom_ui_classes["0x2a5b0000"] = preload("res://RegionUI/NewRegionButton.gd")
-	custom_ui_classes["0x2a5b0001"] = preload("res://RegionUI/BrowseRegionsButton.gd")
-	custom_ui_classes["0x2a5b0002"] = preload("res://RegionUI/DeleteRegionButton.gd")
-	#custom_ui_classes["0x2ba290c1"] = preload("res://RegionUI/ViewOptionsContainer.gd")
-	custom_ui_classes["0xaba290e1"] = preload("res://RegionUI/SatelliteViewRadioButton.gd")
-	custom_ui_classes["0xcba290ec"] = preload("res://RegionUI/TransportationViewRadioButton.gd")
-	custom_ui_classes["0x09ebf2bd"] = preload("res://RegionUI/RegionManagementButton.gd")
-	custom_ui_classes["0x4a779a1a"] = preload("res://RegionUI/InternetButton.gd")
-	custom_ui_classes["0x26c10a3e"] = preload("res://RegionUI/ExitGameButton.gd")
-	custom_ui_classes["0xea5bd179"] = preload("res://RegionUI/RegionNameDisplay.gd")
-	custom_ui_classes["0xc9e41918"] = preload("res://RegionUI/PopulationIndicator.gd")
-	custom_ui_classes["0x09ebf2c3"] = preload("res://RegionUI/TopBarSettingsButton.gd")
-
-	custom_ui_classes["0x8a1da655"] = preload("res://RegionUI/SaveScreenshotButton.gd")
-	custom_ui_classes["0xca1da670"] = preload("res://RegionUI/BrowseScreenshotsButton.gd")
-	custom_ui_classes["0x098f4f6c"] = preload("res://RegionUI/DisplaySettingsButton.gd")
-	custom_ui_classes["0x0a5510a9"] = preload("res://RegionUI/GameSettingsButton.gd")
-	custom_ui_classes["0xa98f4f88"] = preload("res://RegionUI/AudioSettingsButton.gd")
-
-	custom_ui_classes["0xca5cfee2"] = preload("res://RegionUI/ShowNamesCheckbox.gd")
-	custom_ui_classes["0xea5a96e6"] = preload("res://RegionUI/ShowBordersCheckbox.gd")
-
-
 	var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
-	ui.add_to_tree($UICanvas, custom_ui_classes)
+	ui.add_to_tree($UICanvas, self.custom_ui_classes)

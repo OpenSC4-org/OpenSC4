@@ -1,6 +1,12 @@
 extends Node 
 
 var subfile_indices : Dictionary
+# TODO: read region_settings from file
+var region_settings : Dictionary = {
+	"show_borders" : true,
+	"show_names" : true,
+	"view_mode" : "satellite",
+}
 
 func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) -> DBPFSubfile:
 	if not subfile_indices.has(SubfileTGI.TGI2str(type_id, group_id, instance_id)):

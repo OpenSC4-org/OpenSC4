@@ -67,7 +67,7 @@ func _init(filepath : String):
 		print("Took ", time_now - time_start, "ms to read ", index_entry_count, " indices from ", filepath)
 
 	# Find compressed file and mark them
-	for index in indices_by_type[0xe86b1eef]:
+	for index in indices_by_type.get(0xe86b1eef, []):
 		var dbdf = DBDF.new()
 		dbdf.load(file, index.location, index.size)
 		for compressed_file in dbdf.entries:
