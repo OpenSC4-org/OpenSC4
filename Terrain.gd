@@ -70,7 +70,10 @@ func load_textures_to_uv_dict():
 	for line in tm_dict.keys():
 		var line_r = []
 		for val_i in range(len(tm_dict[line].split(','))):
-			var val = (tm_dict[line].split(',')[val_i]).hex_to_int()
+			var hexval = (tm_dict[line].split(',')[val_i])
+			if hexval == "":
+				continue
+			var val = hexval.hex_to_int()
 			if val != 0: # space at end of line returned 0 value from hex_to_int
 				line_r.append(val)
 				if not textures.has(val):
