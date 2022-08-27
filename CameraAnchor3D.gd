@@ -4,11 +4,13 @@ var zoom = 1
 var zoom_list = [292, 146, 73, 32, 16, 8]
 var elevations = [60, 55, 50, 45, 45, 45]
 var AZIMUTH = deg2rad(67.5)
+var rotated = 2
 var boot = true
 var velocity = Vector3(0, 0, 0)
 var hold_r = []
 
 func _ready():
+	self.transform.origin = Vector3(self.transform.origin.x, get_parent().WATER_HEIGHT, self.transform.origin.z)
 	_set_view()
 	$Camera.set_znear(-200.0)
 	pass
@@ -18,7 +20,7 @@ func _input(event):
 	var margin_w = viewport.size.x / 15
 	var margin_h = viewport.size.y / 15
 	var move = Vector3(0, 0, 0)
-	var camera_forward = self.transform.basis.z
+	var camera_forward = Vector3(self.transform.basis.z.x, 0, self.transform.basis.z.z)
 	var camera_left = self.transform.basis.x
 	
 	# Should move one screen width every 5 seconds
@@ -30,9 +32,9 @@ func _input(event):
 			move += camera_left
 
 		if event.position.y < margin_h:
-			move += camera_forward
-		elif event.position.y > viewport.size.y - margin_h:
 			move -= camera_forward
+		elif event.position.y > viewport.size.y - margin_h:
+			move += camera_forward
 		
 		self.velocity = move.normalized() * move_vel
 		#print($Camera.project_position(Vector2(0.5, 0.5), 0.5))
@@ -56,7 +58,21 @@ func _input(event):
 		if not event.is_pressed():
 			if event.button_index == BUTTON_RIGHT:
 				hold_r = []
-
+	elif event is InputEventKey:
+		if event.pressed and event.scancode == KEY_PAGEUP:
+			rotated = (rotated + 1)%4
+			var rot = round(((rotated*(PI/2)) + get_node("../Spatial").rotation.y) / (PI/2))*(PI/2)
+			var rot_trans = get_node("../Spatial").transform.rotated(Vector3(0,1,0), rot)
+			get_node("../Spatial").set_transform(rot_trans)
+			var old = self.transform.origin
+			self.transform.origin = Vector3(-old.z, old.y, old.x)
+		elif event.pressed and event.scancode == KEY_PAGEDOWN:
+			rotated = ((rotated-1)+4)%4
+			var rot = round(((rotated*(PI/2)) + get_node("../Spatial").rotation.y) / (PI/2))*(PI/2)
+			var rot_trans = get_node("../Spatial").transform.rotated(Vector3(0,1,0), rot)
+			get_node("../Spatial").set_transform(rot_trans)
+			var old = self.transform.origin
+			self.transform.origin = Vector3(old.z, old.y, -old.x)
 func _physics_process(_delta):
 	self.move_and_slide(self.velocity)
 
@@ -75,18 +91,17 @@ func _set_view():
 	var rng_d = 1
 	# setting up the transform
 	var v_trans = transform
-	v_trans.basis.x = Vector3(-(Sx*cos(D))/rng_d, 	0.0, 		Sx*sin(D)/rng_d)
-	v_trans.basis.y = Vector3(0.0, 					-1.0, 		Sy/rng_d)
-	v_trans.basis.z = Vector3((Sz*cos(E))/rng_d, 	1.0, 		(Sz*sin(E))/rng_d)
-	#self.get_parent().get_node("Spatial").transform = v_trans
+	v_trans.basis.x = Vector3((Sx*cos(D))/rng_d, 	0.0, 		Sx*sin(D)/rng_d)
+	v_trans.basis.y = Vector3(0.0, 					1.0, 		Sy/rng_d)
+	v_trans.basis.z = Vector3(-(Sz*cos(E))/rng_d, 	-1.0, 		(Sz*sin(E))/rng_d)
 	v_trans = v_trans.inverse()
 	v_trans.origin = self.transform.origin
 	self.transform = v_trans
-	print("in", v_trans, "\ncm", self.get_node("Camera").transform)
+	#print("in", v_trans, "\ncm", self.get_node("Camera").transform)
 	
 	# set sun location
-	self.get_parent().get_node("Spatial/Sun").transform.origin = Vector3(50, 20, -5)
-	self.get_parent().get_node("Spatial/Sun").look_at(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+	self.get_node("../Sun").transform.origin = Vector3(-50, 30, 20)
+	self.get_node("../Sun").look_at(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
 	
 	# set zoom related uniforms for shaders
 	var mat = self.get_parent().get_node("Spatial/Terrain").get_material_override()

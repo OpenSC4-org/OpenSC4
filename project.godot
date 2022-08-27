@@ -186,4 +186,6 @@ common/enable_pause_aware_picking=true
 threads/thread_model=2
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
+quality/shadow_atlas/cubemap_size=1024
+quality/shadows/filter_mode=2
 quality/filters/use_fxaa=true

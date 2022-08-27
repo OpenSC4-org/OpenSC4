@@ -10,171 +10,17 @@
 radiance_size = 0
 sky_top_color = Color( 0.909804, 0.92549, 0.933333, 1 )
 sky_horizon_color = Color( 1, 1, 1, 1 )
-sky_energy = 0.1
 ground_bottom_color = Color( 0.909804, 0.92549, 0.933333, 1 )
 ground_horizon_color = Color( 1, 1, 1, 1 )
-ground_energy = 0.1
-sun_energy = 0.0
 texture_size = 0
 
 [sub_resource type="Environment" id=1]
-background_mode = 2
 background_sky = SubResource( 15 )
 background_sky_custom_fov = 92.2
 background_color = Color( 0.317647, 0.341176, 0.352941, 1 )
+background_energy = 0.0
 ambient_light_color = Color( 1, 1, 1, 1 )
-ambient_light_energy = 0.5
-ss_reflections_enabled = true
-
-[sub_resource type="Shader" id=16]
-code = "shader_type spatial;
-render_mode depth_draw_always;
-
-uniform sampler2DArray s3dtexture : hint_albedo;
-
-void fragment(){
-	ALBEDO = texture(s3dtexture, vec3(UV, 0.0)).rgb;
-	ALPHA = texture(s3dtexture, vec3(UV, 0.0)).a;
-	ALPHA_SCISSOR = 0.9;
-}
-	"
-
-[sub_resource type="ShaderMaterial" id=17]
-shader = SubResource( 16 )
-
-[sub_resource type="Shader" id=4]
-code = "shader_type spatial;
-render_mode depth_draw_always;
-
-uniform sampler2DArray terrain : hint_albedo;
-uniform int zoom;
-uniform sampler2D layer;
-uniform sampler2D watermap;
-varying smooth vec3 coord_pass;
-varying smooth float map_str;
-const float PI = 3.14159265358979323846;
-uniform float cliff_ind;
-uniform float beach_ind;
-uniform float tiling_factor;
-uniform float water_height = 15.625; //250.0/16.0
-uniform bool grid_bool = false;
-uniform float beach_ht_range;
-varying float norm_x;
-varying float norm_y;
-varying float norm_z;
-//varying flat vec3 normal;
-
-void vertex()
-{
-	coord_pass = VERTEX.xyz;
-	
-	map_str = (texelFetch(watermap, ivec2(coord_pass.zx), 0).r*beach_ht_range);
-	vec3 w_norm = normalize((vec4(NORMAL, 0.0) * inverse(WORLD_MATRIX) * CAMERA_MATRIX).rgb);
-	norm_x = w_norm.x;
-	norm_y = w_norm.y;
-	norm_z = w_norm.z;
-	//normal = normalize((inverse(WORLD_MATRIX) * vec4(NORMAL, 0.0)).rgb);
-	//if (map_str < (beach_ht_range/2.0)){
-	//	map_str = min(map_str, 1.0);
-	//}
-	//else{
-	//	map_str = 0.0;
-	//}
-}
-
-void fragment()
-{
-	float zoom_ind = min( float(zoom-1), 4.0);
-	vec2 coord = coord_pass.xz;
-	// might not be the fastest way of doing this
-	ivec2 icoord1 = ivec2(coord);
-	ivec2 icoord2 = icoord1 + ivec2(1, 0);
-	ivec2 icoord3 = icoord1 + ivec2(0, 1);
-	ivec2 icoord4 = icoord1 + ivec2(1, 1);
-	
-	float beach_str1 = pow(min((texelFetch(watermap, icoord1, 0).r) * 100.0, 1.0), 4.0);
-	float beach_str2 = pow(min((texelFetch(watermap, icoord2, 0).r) * 100.0, 1.0), 4.0);
-	float beach_str3 = pow(min((texelFetch(watermap, icoord3, 0).r) * 100.0, 1.0), 4.0);
-	float beach_str4 = pow(min((texelFetch(watermap, icoord4, 0).r) * 100.0, 1.0), 4.0);
-	
-	float index1 = texelFetch(layer, icoord1, 0).r*255.0;
-	float index2 = texelFetch(layer, icoord2, 0).r*255.0;
-	float index3 = texelFetch(layer, icoord3, 0).r*255.0;
-	float index4 = texelFetch(layer, icoord4, 0).r*255.0;
-	
-	vec3 beach_col = texture(terrain, vec3(UV.y*tiling_factor, UV.x*tiling_factor, float(zoom_ind)+beach_ind)).rgb;
-	
-	//if (beach_str1 > .3){
-	//	index1 = beach_ind;
-	//}
-	//if (beach_str2 > .3){
-	//	index2 = beach_ind;
-	//}
-	//if (beach_str3 > .3){
-	//	index3 = beach_ind;
-	//}
-	//if (beach_str4 > .3){
-	//	index4 = beach_ind;
-	//}
-	
-	vec2 rem1 = abs(vec2(icoord1) - coord);
-	vec2 rem2 = abs(vec2(icoord2) - coord);
-	vec2 rem3 = abs(vec2(icoord3) - coord);
-	vec2 rem4 = abs(vec2(icoord4) - coord);
-	vec3 grid = vec3(1.0, 1.0, 1.0);
-	if (grid_bool){
-		if (rem1.x < (0.05 * max((5.0-float(zoom_ind)), 0.0)) ){
-			grid = vec3(0.6, 0.6, 0.6);
-		}
-		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0)) and grid_bool == true){
-			grid = vec3(0.6, 0.6, 0.6);
-		}
-	}
-	float str1 = ((cos((rem1.x)*PI)*0.5+0.5) * (cos((rem1.y)*PI)*0.5+0.5));
-	float str2 = ((cos((rem2.x)*PI)*0.5+0.5) * (cos((rem2.y)*PI)*0.5+0.5));
-	float str3 = ((cos((rem3.x)*PI)*0.5+0.5) * (cos((rem3.y)*PI)*0.5+0.5));
-	float str4 = ((cos((rem4.x)*PI)*0.5+0.5) * (cos((rem4.y)*PI)*0.5+0.5));
-	float sum_str = str1 + str2 + str3 + str4;
-	vec3 col1 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index1)).rgb * (1.0 - beach_str1) + (beach_str1 * beach_col)) * (str1/sum_str);
-	vec3 col2 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index2)).rgb * (1.0 - beach_str2) + (beach_str2 * beach_col)) * (str2/sum_str);
-	vec3 col3 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index3)).rgb * (1.0 - beach_str3) + (beach_str3 * beach_col)) * (str3/sum_str);
-	vec3 col4 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index4)).rgb * (1.0 - beach_str4) + (beach_str4 * beach_col)) * (str4/sum_str);
-	//cliffs
-	vec3 overlay = vec3(0.0, 0.0, 0.0);
-	vec3 underlay = vec3(0.0, 0.0, 0.0);
-	float over_str = 0.0;
-	//vec3 normal = normalize((vec4(NORMAL, 0.0) * inverse(WORLD_MATRIX)).xyz);
-	vec3 normal = vec3(norm_x, norm_y, norm_z);
-	if (normal.y < 0.5){
-		over_str = (max(min(((0.5-(normal.y))*2.2), 1.0), 0.01));
-		if (abs(normal.x) > abs(normal.z)){
-			overlay = texture(terrain, vec3(UV.y*tiling_factor, UV.x*tiling_factor, float(zoom_ind)+cliff_ind)).rgb;
-		}
-		else{
-			overlay = texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+cliff_ind)).rgb;
-		}
-	}
-	ALBEDO = (
-				(
-				(
-					(col1 + col2 + col3 + col4) * (1.0-over_str)
-					) 
-				+ (overlay * over_str)
-				)
-			) * grid;
-	//ALBEDO = NORMAL*.5+.5;
-	
-	}"
-
-[sub_resource type="ShaderMaterial" id=5]
-shader = SubResource( 4 )
-shader_param/zoom = null
-shader_param/cliff_ind = null
-shader_param/beach_ind = null
-shader_param/tiling_factor = null
-shader_param/water_height = 15.625
-shader_param/grid_bool = true
-shader_param/beach_ht_range = null
+ambient_light_energy = 0.3
 
 [sub_resource type="Shader" id=9]
 code = "shader_type spatial;
@@ -240,25 +86,25 @@ void vertex(){
 
 void fragment(){
 	
-	float depth = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+	float depth = texture(DEPTH_TEXTURE, SCREEN_UV).r;
 	vec3 ndc = vec3(SCREEN_UV, depth) * 2.0 - 1.0;
 	vec4 view = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
 	view.xyz /= view.w;
 	
-	float delta_depth = abs(abs(view.z) - abs(VERTEX.z));
+	float delta_depth = abs((view.z) - (VERTEX.z));
 	float depth_alpha = 1.0;
-	if (delta_depth < 5.0){
-		depth_alpha = min(sqrt((delta_depth) / 20.0) + 0.5, 1.0);
+	if (delta_depth < 6.0){
+		depth_alpha = min((delta_depth / 5.0) + 0.1, 1.0);
 	}
 	float zoom_ind = min( float(zoom-1), 4.0);
 	vec3 noisenormal = vec3(0.0);
 	vec4 noise_tex = texture(noise_normals, mod(n_val1.rg/1024.0, 1.0));// * vec4(2.0, 2.0, 1.0, 1.0) - vec4(1.0, 1.0, 0.0, 0.0);
 	noisenormal += (normalize(vec3(normal_horizontal*(2.0*sqrt(noise_tex.r)-1.0), normal_vertical*(2.0*sqrt(noise_tex.b)-1.0), normal_horizontal*(2.0*sqrt(noise_tex.g)-1.0))) * n_val1.b);
 	noise_tex = texture(noise_normals, mod(n_val2.rg/1024.0, 1.0));// * vec4(2.0, 2.0, 1.0, 1.0) - vec4(1.0, 1.0, 0.0, 0.0);
-	noisenormal -= (normalize(vec3(normal_horizontal*(2.0*sqrt(noise_tex.g)-1.0), normal_vertical*(2.0*sqrt(noise_tex.b)-1.0), normal_horizontal*(2.0*sqrt(noise_tex.r)-1.0))) * n_val2.b);
+	noisenormal += (normalize(vec3(normal_horizontal*(2.0*(noise_tex.g)-1.0), normal_vertical*(2.0*(noise_tex.b)-1.0), normal_horizontal*(2.0*(noise_tex.r)-1.0))) * n_val2.b);
 	noise_tex = texture(noise_normals, mod(n_val3.rg/1024.0, 1.0));// * vec4(2.0, 2.0, 1.0, 1.0) - vec4(1.0, 1.0, 0.0, 0.0);
 	noisenormal += (normalize(vec3(normal_horizontal*(2.0*sqrt(noise_tex.r)-1.0), normal_vertical*(2.0*sqrt(noise_tex.b)-1.0), normal_horizontal*(2.0*sqrt(noise_tex.g)-1.0))) * n_val3.b);
-	NORMAL = normalize((PROJECTION_MATRIX * WORLD_MATRIX * vec4(normalize(noisenormal), 0.0)).rgb);
+	NORMAL = normalize((PROJECTION_MATRIX * INV_CAMERA_MATRIX * WORLD_MATRIX * vec4(normalize(noisenormal), 0.0)).rgb);
 	vec3 break_col = vec3(0.0);
 	if (depth_alpha < 0.8){
 		if (noisenormal.y > 0.8){
@@ -276,22 +122,22 @@ void fragment(){
 [sub_resource type="ShaderMaterial" id=10]
 shader = SubResource( 9 )
 shader_param/noise_octaves = 3
-shader_param/noise_persistance = 0.7
-shader_param/noise_lacunarity = 0.64
-shader_param/noise_angle_ransomness = 3.0
+shader_param/noise_persistance = 1.0
+shader_param/noise_lacunarity = 0.5
+shader_param/noise_angle_ransomness = 10.0
 shader_param/noise_direction = Vector2( -0.5, -0.4 )
-shader_param/noise_time_scale = 0.02
+shader_param/noise_time_scale = 0.005
 shader_param/wave_height_scale = 0.01
-shader_param/wave_width_scale = 40.0
+shader_param/wave_width_scale = 100.0
 shader_param/normal_horizontal = 1.0
-shader_param/normal_vertical = 0.1
+shader_param/normal_vertical = 2.0
 shader_param/zoom = null
 shader_param/tiling_factor = null
 shader_param/max_depth = null
 shader_param/depth_range = null
 shader_param/water_fog_density = 1.668
 shader_param/rim = 0.0
-shader_param/metallic = 0.9
+shader_param/metallic = 0.0
 shader_param/roughness = 0.0
 
 [sub_resource type="OpenSimplexNoise" id=11]
@@ -322,6 +168,143 @@ seamless = true
 as_normalmap = true
 bump_strength = 10.0
 noise = SubResource( 13 )
+
+[sub_resource type="Shader" id=4]
+code = "shader_type spatial;
+render_mode depth_draw_always;
+
+uniform sampler2DArray terrain : hint_albedo;
+uniform int zoom;
+uniform sampler2D layer;
+uniform sampler2D watermap;
+varying smooth vec3 coord_pass;
+varying smooth float map_str;
+const float PI = 3.14159265358979323846;
+uniform float cliff_ind;
+uniform float beach_ind;
+uniform float tiling_factor;
+uniform float water_height = 15.625; //250.0/16.0
+uniform bool grid_bool = false;
+uniform float beach_ht_range;
+varying float norm_x;
+varying float norm_y;
+varying float norm_z;
+//varying flat vec3 normal;
+
+void vertex()
+{
+	coord_pass = VERTEX.xyz;
+	
+	map_str = (texelFetch(watermap, ivec2(coord_pass.zx), 0).r*beach_ht_range);
+	vec3 w_norm = normalize((vec4(NORMAL, 0.0)).rgb);
+	norm_x = w_norm.x;
+	norm_y = w_norm.y;
+	norm_z = w_norm.z;
+	//normal = normalize((inverse(WORLD_MATRIX) * vec4(NORMAL, 0.0)).rgb);
+	//if (map_str < (beach_ht_range/2.0)){
+	//	map_str = min(map_str, 1.0);
+	//}
+	//else{
+	//	map_str = 0.0;
+	//}
+}
+
+void fragment()
+{
+	float zoom_ind = min( float(zoom-1), 4.0);
+	vec2 coord = coord_pass.xz;
+	// might not be the fastest way of doing this
+	ivec2 icoord1 = ivec2(coord);
+	ivec2 icoord2 = icoord1 + ivec2(0, 1);
+	ivec2 icoord3 = icoord1 + ivec2(1, 0);
+	ivec2 icoord4 = icoord1 + ivec2(1, 1);
+	
+	float beach_str1 = pow(min((texelFetch(watermap, icoord1.yx, 0).r) * 100.0, 1.0), 4.0);
+	float beach_str2 = pow(min((texelFetch(watermap, icoord2.yx, 0).r) * 100.0, 1.0), 4.0);
+	float beach_str3 = pow(min((texelFetch(watermap, icoord3.yx, 0).r) * 100.0, 1.0), 4.0);
+	float beach_str4 = pow(min((texelFetch(watermap, icoord4.yx, 0).r) * 100.0, 1.0), 4.0);
+	
+	float index1 = texelFetch(layer, icoord1, 0).r*255.0;
+	float index2 = texelFetch(layer, icoord2, 0).r*255.0;
+	float index3 = texelFetch(layer, icoord3, 0).r*255.0;
+	float index4 = texelFetch(layer, icoord4, 0).r*255.0;
+	
+	vec3 beach_col = texture(terrain, vec3(UV.y*tiling_factor, UV.x*tiling_factor, float(zoom_ind)+beach_ind)).rgb;
+		
+	vec2 rem1 = abs(vec2(icoord1) - coord);
+	vec2 rem2 = abs(vec2(icoord2) - coord);
+	vec2 rem3 = abs(vec2(icoord3) - coord);
+	vec2 rem4 = abs(vec2(icoord4) - coord);
+	vec3 grid = vec3(1.0, 1.0, 1.0);
+	if (grid_bool){
+		if (rem1.x < (0.05 * max((5.0-float(zoom_ind)), 0.0)) ){
+			grid = vec3(0.6, 0.6, 0.6);
+		}
+		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0)) and grid_bool == true){
+			grid = vec3(0.6, 0.6, 0.6);
+		}
+	}
+	float str1 = ((cos((rem1.x)*PI)*0.5+0.5) * (cos((rem1.y)*PI)*0.5+0.5));
+	float str2 = ((cos((rem2.x)*PI)*0.5+0.5) * (cos((rem2.y)*PI)*0.5+0.5));
+	float str3 = ((cos((rem3.x)*PI)*0.5+0.5) * (cos((rem3.y)*PI)*0.5+0.5));
+	float str4 = ((cos((rem4.x)*PI)*0.5+0.5) * (cos((rem4.y)*PI)*0.5+0.5));
+	float sum_str = str1 + str2 + str3 + str4;
+	vec3 col1 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index1)).rgb * (1.0 - beach_str1) + (beach_str1 * beach_col)) * (str1/sum_str);
+	vec3 col2 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index2)).rgb * (1.0 - beach_str2) + (beach_str2 * beach_col)) * (str2/sum_str);
+	vec3 col3 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index3)).rgb * (1.0 - beach_str3) + (beach_str3 * beach_col)) * (str3/sum_str);
+	vec3 col4 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index4)).rgb * (1.0 - beach_str4) + (beach_str4 * beach_col)) * (str4/sum_str);
+	//cliffs
+	vec3 overlay = vec3(0.0, 0.0, 0.0);
+	vec3 underlay = vec3(0.0, 0.0, 0.0);
+	float over_str = 0.0;
+	//vec3 normal = normalize((vec4(NORMAL, 0.0) * inverse(WORLD_MATRIX)).xyz);
+	vec3 normal = normalize(vec3(norm_x, norm_y, norm_z));
+	if (normal.y < 0.75){
+		over_str = (max(min(((0.75-(normal.y))*8.0), 1.0), 0.01));
+		if (abs(normal.x) > abs(normal.z)){
+			overlay = texture(terrain, vec3(UV.y*2.0*tiling_factor, UV.x*2.0*tiling_factor, float(zoom_ind)+cliff_ind)).rgb;
+		}
+		else{
+			overlay = texture(terrain, vec3(UV.x*2.0*tiling_factor, UV.y*2.0*tiling_factor, float(zoom_ind)+cliff_ind)).rgb;
+		}
+	}
+	ALBEDO = (
+				(
+				(
+					(col1 + col2 + col3 + col4) * (1.0-over_str)
+					) 
+				+ (overlay * over_str)
+				)
+			) * grid;
+	//ALBEDO = vec3(normal.g)*2.0-1.0;
+	
+	}"
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = SubResource( 4 )
+shader_param/zoom = null
+shader_param/cliff_ind = null
+shader_param/beach_ind = null
+shader_param/tiling_factor = null
+shader_param/water_height = 15.625
+shader_param/grid_bool = false
+shader_param/beach_ht_range = null
+
+[sub_resource type="Shader" id=16]
+code = "shader_type spatial;
+render_mode depth_draw_always;
+
+uniform sampler2DArray s3dtexture : hint_albedo;
+
+void fragment(){
+	ALBEDO = texture(s3dtexture, vec3(UV, 0.0)).rgb;
+	ALPHA = texture(s3dtexture, vec3(UV, 0.0)).a;
+	ALPHA_SCISSOR = 0.9;
+}
+	"
+
+[sub_resource type="ShaderMaterial" id=17]
+shader = SubResource( 16 )
 
 [sub_resource type="Shader" id=7]
 code = "shader_type spatial;
@@ -382,19 +365,11 @@ script = ExtResource( 1 )
 
 [node name="Sun" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 7.81531e-08, 0, -7.81531e-08, 1, 0, 0, 0 )
-portal_mode = 3
-include_in_bound = false
-light_indirect_energy = 0.0
 light_specular = 0.0
 light_bake_mode = 0
 shadow_enabled = true
-shadow_bias = 1.194
+shadow_bias = 1.422
 directional_shadow_mode = 0
-directional_shadow_blend_splits = true
-directional_shadow_normal_bias = 1.7
-directional_shadow_bias_split_scale = 0.0
-directional_shadow_depth_range = 1
-directional_shadow_max_distance = 500.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 1 )
@@ -403,29 +378,10 @@ __meta__ = {
 }
 
 [node name="Spatial" type="Spatial" parent="."]
-
-[node name="TestS3D" type="MeshInstance" parent="Spatial"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
-material_override = SubResource( 17 )
-cast_shadow = 2
-use_in_baked_light = true
-software_skinning_transform_normals = false
-script = ExtResource( 5 )
-
-[node name="Terrain" type="MeshInstance" parent="Spatial"]
-transform = Transform( 4.47035e-08, 2.98023e-08, -1, 0, 1, 0, -1, 0, -4.47035e-08, 0, 0, 0 )
-material_override = SubResource( 5 )
-cast_shadow = 2
-use_in_baked_light = true
-skeleton = NodePath("../..")
-software_skinning_transform_normals = false
-script = ExtResource( 3 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -64, 0, -64 )
 
 [node name="WaterPlane" type="MeshInstance" parent="Spatial"]
-transform = Transform( -1, 5.96046e-08, 1.3411e-07, -1.49012e-08, 1, -2.98023e-08, -1.04308e-07, 0, -1, 0, 0, 0 )
 material_override = SubResource( 10 )
-cast_shadow = 2
-use_in_baked_light = true
 skeleton = NodePath("../..")
 software_skinning_transform_normals = false
 script = ExtResource( 4 )
@@ -446,20 +402,30 @@ margin_right = 617.0
 margin_bottom = 1194.0
 texture = SubResource( 14 )
 
+[node name="Terrain" type="MeshInstance" parent="Spatial"]
+material_override = SubResource( 5 )
+skeleton = NodePath("../..")
+software_skinning_transform_normals = false
+script = ExtResource( 3 )
+
+[node name="TestS3D" type="MeshInstance" parent="Spatial"]
+transform = Transform( -1, -8.33794e-22, -8.74228e-08, 3.84949e-16, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
+material_override = SubResource( 17 )
+software_skinning_transform_normals = false
+script = ExtResource( 5 )
+
 [node name="Border" type="MeshInstance" parent="Spatial"]
-transform = Transform( -4.37114e-08, -3.82137e-15, -1, -8.74228e-08, 1, 0, -1, -8.74228e-08, 4.37114e-08, 0, 0, 0 )
 material_override = SubResource( 8 )
 cast_shadow = 2
 software_skinning_transform_normals = false
 
 [node name="KinematicBody" type="KinematicBody" parent="."]
-transform = Transform( -0.924, 0, 0.191, 0, -1, 0.866, 0.383, 1, 0.462, 0, 0, 0 )
+transform = Transform( -0.924, 0, 0.191, 0, -1, 0.866, 0.383, 1, 0.462, 0, 15.625, 0 )
 script = ExtResource( 2 )
 
 [node name="Camera" type="Camera" parent="KinematicBody"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
 projection = 1
 current = true
 size = 292.0
-near = 451.0
-far = 300.0
+near = 1.0
+far = 200.0

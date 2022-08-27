@@ -208,8 +208,8 @@ func create_terrain():
 	else:
 		heightmap = gen_random_terrain(size_w * 64 + 1, size_h * 64 + 1)
 	$Spatial/WaterPlane.generate_wateredges(heightmap)
-	var tiles_w = size_w * 64 + 1
-	var tiles_h = size_h * 64 + 1
+	var tiles_w = size_w * 64
+	var tiles_h = size_h * 64
 	
 	var v1
 	var v2
@@ -226,12 +226,12 @@ func create_terrain():
 	var n_in1
 	var n_in2
 	# Top surface 
-	for i in range(tiles_w-1):
-		for j in range(tiles_h-1):
-			v1 = Vector3(i,   heightmap[i  ][j  ] / TILE_SIZE, j  )
-			v2 = Vector3(i,   heightmap[i  ][j+1] / TILE_SIZE, j+1)
-			v3 = Vector3(i+1, heightmap[i+1][j+1] / TILE_SIZE, j+1)
-			v4 = Vector3(i+1, heightmap[i+1][j  ] / TILE_SIZE, j  )
+	for i in range(tiles_w):
+		for j in range(tiles_h):
+			v1 = Vector3(i,   heightmap[j  ][i  ] / TILE_SIZE, j  )
+			v2 = Vector3(i,   heightmap[j+1][i  ] / TILE_SIZE, (j+1))
+			v3 = Vector3((i+1), heightmap[j+1][i+1] / TILE_SIZE, (j+1))
+			v4 = Vector3((i+1), heightmap[j  ][i+1] / TILE_SIZE, j  )
 			var r = create_face(v1, v2, v3, v4, heightmap)
 			vertices.append_array(r[0])
 			normals.append_array(r[1])
@@ -243,18 +243,18 @@ func create_terrain():
 				ve4 = Vector3(ve2.x, 0.0, ve1.z)
 				n_in1 = r[1][0]
 				n_in2 = r[1][1]
-				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(0.0, 0.0, 1.0))
+				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(0.0, 0.0, -1.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
-			if i == tiles_w - 2:
+			if i == tiles_w - 1:
 				ve1 = v4
 				ve2 = v3
 				ve3 = Vector3(ve2.x, 0.0, ve2.z)
 				ve4 = Vector3(ve1.x, 0.0, ve1.z)
 				n_in1 = r[1][3]
 				n_in2 = r[1][2]
-				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(0.0, 0.0, -1.0))
+				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(0.0, 0.0, 1.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
@@ -265,18 +265,18 @@ func create_terrain():
 				ve4 = Vector3(ve1.x, 0.0, ve1.z)
 				n_in1 = r[1][0]
 				n_in2 = r[1][3]
-				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(-1.0, 0.0, 0.0))
+				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(1.0, 0.0, 0.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
-			if j == tiles_h - 2:
+			if j == tiles_h - 1:
 				ve1 = v3
 				ve2 = v2
 				ve3 = Vector3(ve2.x, 0.0, ve2.z)
 				ve4 = Vector3(ve1.x, 0.0, ve1.z)
 				n_in1 = r[1][2]
 				n_in2 = r[1][1]
-				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(1.0, 0.0, 0.0))
+				var e = create_edge([ve1, ve2, ve3, ve4], n_in1, n_in2, Vector3(-1.0, 0.0, 0.0))
 				e_vertices.append_array(e[0])
 				e_normals.append_array(e[1])
 				e_UVs.append_array(e[2])
@@ -365,16 +365,15 @@ func get_normal(vert : Vector3, heightmap):
 	var max_z = 0.0
 	if vert.z < (len(heightmap)-1):
 		max_z = 1.0
-	var vert_c = [[1.0, 1.0], [-1.0, 1.0], [-1.0, -1.0], [1.0, -1.0]]
+	var vert_c = [[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0], [0.0, -1.0]]
 	var vertices = []
 	for coord in vert_c:
 		vertices.append(
 			Vector3(vert.x + coord[0], 
-			(heightmap[vert.x + min(max(coord[0], min_x), max_x)][vert.z + min(max(coord[1], min_z), max_z)])/16.0, 
+			(heightmap[(vert.z) + min(max(coord[1], min_z), max_z)][(vert.x) + min(max(coord[0], min_x), max_x)])/16.0, 
 			vert.z + coord[1])
 		)
 	var s_normals = Vector3(0.0, 0.0, 0.0)
-	
 	#print(vert, "\t", vertices)
 	for v_i in range(len(vertices)):
 		var v1 = vert
@@ -386,9 +385,7 @@ func get_normal(vert : Vector3, heightmap):
 		#var normal2 : Vector3 = u.cross(v)
 		#print([v1, v2, v3], "\t", u, "\t", v, "\t", normal, "\t", normal2)
 		s_normals = s_normals + normal
-		#print("s", s_normals, "\tn", normal)
 	var norm = (s_normals/len(vertices)).normalized()
-	#print(norm)
 	return norm
 	
 func test_exemplar():

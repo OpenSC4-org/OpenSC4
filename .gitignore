@@ -47,3 +47,4 @@ readme.txt
 *.log
 Apps/LUURT-config-log.txt
 Apps/dgVoodoo.conf
+tropod_Properties.xml
