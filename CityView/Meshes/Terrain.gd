@@ -7,6 +7,7 @@ var color = Color(0.9, 0.1, 0.1)
 var mat = self.get_material_override()
 var st = SurfaceTool.new()
 var tm_table
+var heightmap : Array
 
 func _ready():
 	#mat.albedo_color = color
@@ -71,7 +72,6 @@ func load_textures_to_uv_dict():
 	var width = 0
 	var height = 0
 	var formats = []
-	var uv_dict = {}
 	var d_len = 0
 	for instance in textures:
 		while true: # set array index for textures to be used in shader
@@ -94,27 +94,6 @@ func load_textures_to_uv_dict():
 				width = fsh_subfile.width
 				height = fsh_subfile.height
 			img_dict[inst_z] = fsh_subfile
-	var w_size = ceil(16384 / width)
-	var h_size = ceil(16384 / height)
-	var tot_w
-	var tot_h
-	var format
-	if len(formats) == 1:
-		format = formats[0]
-	else:
-		print("TODO need to handle multiple formats")
-	if len(textures) > w_size:
-		tot_w = 16384
-		tot_h = ceil(len(textures) / w_size) * 5 * height
-	else:
-		tot_w = len(textures) * width
-		tot_h = 5 * height
-	var uv_mipmap_offset = height / tot_h
-	var arr_data = [PoolByteArray([])]
-	while len(arr_data) < tot_h:
-		arr_data.append_array(arr_data)
-	arr_data = arr_data.slice(0, tot_h)
-	var format_decomp
 	var textarr = TextureArray.new()
 	textarr.create (width, height, len(textures) * 5, formats[0], 2)
 	var layer = 0

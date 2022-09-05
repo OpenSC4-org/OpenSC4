@@ -17,9 +17,9 @@ func load(file, dbpf=null):
 	for i in stream.get_size() / 4:
 		altitudes.append(stream.get_float())
 
-func set_dimensions(width, height):
-	self.width = width
-	self.height = height
+func set_dimensions(width_, height_):
+	self.width = width_
+	self.height = height_
 
 func get_altitude(x, y):
 	return altitudes[x * width + y]

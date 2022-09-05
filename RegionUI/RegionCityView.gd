@@ -69,6 +69,6 @@ func save_thumbnail():
 
 func open_city():
 	Boot.current_city = savefile
-	var err = get_tree().change_scene("res://City.tscn")
+	var err = get_tree().change_scene("res://CityView/CityScene/City.tscn")
 	if err != OK:
 		print("Error trying to change the scene to the city")

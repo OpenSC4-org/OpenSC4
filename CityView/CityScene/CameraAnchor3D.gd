@@ -21,7 +21,7 @@ func _input(event):
 	var margin_h = viewport.size.y / 15
 	var move = Vector3(0, 0, 0)
 	var camera_forward = Vector3(self.transform.basis.z.x, 0, self.transform.basis.z.z)
-	var camera_left = self.transform.basis.x
+	var camera_left = Vector3(self.transform.basis.x.x, 0, self.transform.basis.x.z)
 	
 	# Should move one screen width every 5 seconds
 	var move_vel = $Camera.size

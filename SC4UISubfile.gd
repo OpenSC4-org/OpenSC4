@@ -39,6 +39,7 @@ func load(file, dbdf=null):
 				current_element = last_element
 			elif tag_name == '/CHILDREN':
 				current_element = current_element.get_parent()
+	print("DEBUG")
 
 func create_element(attributes : Dictionary) -> Control:
 	var type = attributes['clsid']

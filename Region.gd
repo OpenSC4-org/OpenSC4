@@ -93,7 +93,6 @@ func _ready():
 			for j in range(y, y+height): 
 				$BaseGrid.cities[i][j] = city
 		$BaseGrid.add_child(city)
-	load_ui()
 
 func read_config_bmp():
 	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
@@ -130,7 +129,7 @@ func close_all_prompts():
 			if prompt != null:
 				prompt.queue_free()
 
-func load_ui():
-	pass
+#func load_ui():
+	#pass
 	#var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	#$UICanvas.add_child(ui.root)

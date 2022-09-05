@@ -69,6 +69,31 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/ImageSubfile.gd"
 }, {
+"base": "Reference",
+"class": "NetGraphEdge",
+"language": "GDScript",
+"path": "res://CityView/ClassDefinitions/NetGraphEdge.gd"
+}, {
+"base": "Reference",
+"class": "NetGraphNode",
+"language": "GDScript",
+"path": "res://CityView/ClassDefinitions/NetGraphNode.gd"
+}, {
+"base": "Reference",
+"class": "NetTile",
+"language": "GDScript",
+"path": "res://CityView/ClassDefinitions/NetTile.gd"
+}, {
+"base": "Reference",
+"class": "NetworkGraph",
+"language": "GDScript",
+"path": "res://CityView/ClassDefinitions/NeworkGraph.gd"
+}, {
+"base": "DBPFSubfile",
+"class": "RULSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/RULSubfile.gd"
+}, {
 "base": "Area2D",
 "class": "RegionCityView",
 "language": "GDScript",
@@ -119,6 +144,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/SubfileTGI.gd"
 }, {
+"base": "Reference",
+"class": "TransitTile",
+"language": "GDScript",
+"path": "res://CityView/ClassDefinitions/TransitTile.gd"
+}, {
 "base": "DBPFSubfile",
 "class": "cSTETerrain__SaveAltitudes",
 "language": "GDScript",
@@ -137,6 +167,11 @@ _global_script_class_icons={
 "FSH_Entry": "",
 "INISubfile": "",
 "ImageSubfile": "",
+"NetGraphEdge": "",
+"NetGraphNode": "",
+"NetTile": "",
+"NetworkGraph": "",
+"RULSubfile": "",
 "RegionCityView": "",
 "RegionViewCityThumbnail": "",
 "S3DSubfile": "",
@@ -147,6 +182,7 @@ _global_script_class_icons={
 "SC4UISubfile": "",
 "SubfileIndex": "",
 "SubfileTGI": "",
+"TransitTile": "",
 "cSTETerrain__SaveAltitudes": ""
 }
 
@@ -161,6 +197,11 @@ config/icon="res://icon.png"
 
 Boot="*res://Boot.gd"
 Core="*res://Core.gd"
+
+[display]
+
+window/size/width=1280
+window/size/height=720
 
 [editor_plugins]
 

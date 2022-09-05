@@ -28,7 +28,7 @@ func _ready():
 	
 func generate_wateredges(HeightMap):
 	var TGI_Tprop = {"T": 0x6534284a, "G": 0x88cd66e9, "I":0x00000001}
-	var Terr_properties = Core.subfile(TGI_Tprop["T"], TGI_Tprop["G"], TGI_Tprop["I"], DBPFSubfile)
+	var _Terr_properties = Core.subfile(TGI_Tprop["T"], TGI_Tprop["G"], TGI_Tprop["I"], DBPFSubfile)
 	"TODO figure out how to read exemplar files"
 	var waterheight = 250.0
 	var beachrange = 2

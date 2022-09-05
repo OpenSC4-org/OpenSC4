@@ -1,10 +1,11 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=23 format=2]
 
-[ext_resource path="res://City.gd" type="Script" id=1]
-[ext_resource path="res://CameraAnchor3D.gd" type="Script" id=2]
-[ext_resource path="res://Terrain.gd" type="Script" id=3]
-[ext_resource path="res://WaterPlane.gd" type="Script" id=4]
-[ext_resource path="res://TestS3D.gd" type="Script" id=5]
+[ext_resource path="res://CityView/CityScene/City.gd" type="Script" id=1]
+[ext_resource path="res://CityView/CityScene/CameraAnchor3D.gd" type="Script" id=2]
+[ext_resource path="res://CityView/Meshes/Terrain.gd" type="Script" id=3]
+[ext_resource path="res://CityView/Meshes/WaterPlane.gd" type="Script" id=4]
+[ext_resource path="res://CityView/Meshes/TestS3D.gd" type="Script" id=5]
+[ext_resource path="res://CityView/Meshes/TransitTiles.gd" type="Script" id=6]
 
 [sub_resource type="ProceduralSky" id=15]
 radiance_size = 0
@@ -42,6 +43,10 @@ uniform float wave_height_scale = 4.0;
 uniform float wave_width_scale = 60.0;
 uniform float normal_horizontal = 1.0;
 uniform float normal_vertical = 1.0;
+uniform float beach_wave_str = 10.0;
+uniform float beach_wave_threshold = 0.9;
+uniform float open_wave_str = 20.0;
+uniform float open_wave_threshold = 0.95;
 varying float noise_height;
 
 uniform sampler2DArray watertexture : hint_albedo;
@@ -103,14 +108,19 @@ void fragment(){
 	noise_tex = texture(noise_normals, mod(n_val2.rg/1024.0, 1.0));// * vec4(2.0, 2.0, 1.0, 1.0) - vec4(1.0, 1.0, 0.0, 0.0);
 	noisenormal += (normalize(vec3(normal_horizontal*(2.0*(noise_tex.g)-1.0), normal_vertical*(2.0*(noise_tex.b)-1.0), normal_horizontal*(2.0*(noise_tex.r)-1.0))) * n_val2.b);
 	noise_tex = texture(noise_normals, mod(n_val3.rg/1024.0, 1.0));// * vec4(2.0, 2.0, 1.0, 1.0) - vec4(1.0, 1.0, 0.0, 0.0);
-	noisenormal += (normalize(vec3(normal_horizontal*(2.0*sqrt(noise_tex.r)-1.0), normal_vertical*(2.0*sqrt(noise_tex.b)-1.0), normal_horizontal*(2.0*sqrt(noise_tex.g)-1.0))) * n_val3.b);
+	noisenormal -= (normalize(vec3(normal_horizontal*(2.0*sqrt(noise_tex.r)-1.0), normal_vertical*(2.0*sqrt(noise_tex.b)-1.0), normal_horizontal*(2.0*sqrt(noise_tex.g)-1.0))) * n_val3.b);
 	NORMAL = normalize((PROJECTION_MATRIX * INV_CAMERA_MATRIX * WORLD_MATRIX * vec4(normalize(noisenormal), 0.0)).rgb);
 	vec3 break_col = vec3(0.0);
+	if (noisenormal.y/3.0 < open_wave_threshold){
+		break_col = vec3((open_wave_threshold - noisenormal.y/3.0)*open_wave_str);
+		}
 	if (depth_alpha < 0.8){
-		if (noisenormal.y > 0.8){
-			break_col = pow(vec3(1.0 - (1.25*depth_alpha)), vec3(2.0));
-			}
+		if (noisenormal.y/3.0 < beach_wave_threshold){
+			break_col += min(((depth_alpha-0.1)*3.0), 1.0) * pow(vec3(1.0 - (1.25*depth_alpha)) * vec3((beach_wave_threshold - noisenormal.y/3.0)*beach_wave_str), vec3(2.0));
+			depth_alpha += break_col.r;
+		}
 	}
+	
 	RIM = rim;
 	METALLIC = metallic;
 	ROUGHNESS = roughness;
@@ -122,15 +132,19 @@ void fragment(){
 [sub_resource type="ShaderMaterial" id=10]
 shader = SubResource( 9 )
 shader_param/noise_octaves = 3
-shader_param/noise_persistance = 1.0
-shader_param/noise_lacunarity = 0.5
+shader_param/noise_persistance = 0.77
+shader_param/noise_lacunarity = 0.615
 shader_param/noise_angle_ransomness = 10.0
 shader_param/noise_direction = Vector2( -0.5, -0.4 )
-shader_param/noise_time_scale = 0.005
-shader_param/wave_height_scale = 0.01
+shader_param/noise_time_scale = 0.007
+shader_param/wave_height_scale = 0.09
 shader_param/wave_width_scale = 100.0
-shader_param/normal_horizontal = 1.0
-shader_param/normal_vertical = 2.0
+shader_param/normal_horizontal = 1.156
+shader_param/normal_vertical = 1.0
+shader_param/beach_wave_str = 70.0
+shader_param/beach_wave_threshold = 0.372
+shader_param/open_wave_str = 50.0
+shader_param/open_wave_threshold = 0.348
 shader_param/zoom = null
 shader_param/tiling_factor = null
 shader_param/max_depth = null
@@ -287,7 +301,7 @@ shader_param/cliff_ind = null
 shader_param/beach_ind = null
 shader_param/tiling_factor = null
 shader_param/water_height = 15.625
-shader_param/grid_bool = false
+shader_param/grid_bool = true
 shader_param/beach_ht_range = null
 
 [sub_resource type="Shader" id=16]
@@ -360,6 +374,26 @@ shader_param/top_ind = null
 shader_param/mid_ind = null
 shader_param/bot_ind = null
 
+[sub_resource type="Shader" id=18]
+code = "shader_type spatial;
+render_mode depth_draw_always;
+
+uniform sampler2DArray textarr : hint_albedo;
+//uniform sampler2D layer : hint_albedo;
+varying flat float index;
+
+void vertex(){
+	index = (UV2.r) + (UV2.g * 256.0);
+}
+
+void fragment(){
+	ALBEDO = texture(textarr, vec3(UV, index)).rgb * COLOR.rgb;
+	ALPHA = COLOR.a;
+}"
+
+[sub_resource type="ShaderMaterial" id=19]
+shader = SubResource( 18 )
+
 [node name="City" type="Spatial"]
 script = ExtResource( 1 )
 
@@ -381,6 +415,7 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -64, 0, -64 )
 
 [node name="WaterPlane" type="MeshInstance" parent="Spatial"]
+visible = false
 material_override = SubResource( 10 )
 skeleton = NodePath("../..")
 software_skinning_transform_normals = false
@@ -409,7 +444,6 @@ software_skinning_transform_normals = false
 script = ExtResource( 3 )
 
 [node name="TestS3D" type="MeshInstance" parent="Spatial"]
-transform = Transform( -1, -8.33794e-22, -8.74228e-08, 3.84949e-16, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
 material_override = SubResource( 17 )
 software_skinning_transform_normals = false
 script = ExtResource( 5 )
@@ -419,11 +453,15 @@ material_override = SubResource( 8 )
 cast_shadow = 2
 software_skinning_transform_normals = false
 
-[node name="KinematicBody" type="KinematicBody" parent="."]
+[node name="TransitTiles" type="MeshInstance" parent="Spatial"]
+material_override = SubResource( 19 )
+script = ExtResource( 6 )
+
+[node name="CameraHandler" type="KinematicBody" parent="."]
 transform = Transform( -0.924, 0, 0.191, 0, -1, 0.866, 0.383, 1, 0.462, 0, 15.625, 0 )
 script = ExtResource( 2 )
 
-[node name="Camera" type="Camera" parent="KinematicBody"]
+[node name="Camera" type="Camera" parent="CameraHandler"]
 projection = 1
 current = true
 size = 292.0

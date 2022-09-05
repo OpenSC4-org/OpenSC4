@@ -5,12 +5,12 @@ var cities : Array = []
 var width : int = 0
 var height : int = 0
 
-func init_cities_array(width, height):
-	self.width = width
-	self.height = height
-	for i in range(width):
+func init_cities_array(width_, height_):
+	self.width = width_
+	self.height = height_
+	for i in range(width_):
 		cities.append([])
-		for j in range(height):
+		for _j in range(height_):
 			cities[i].append(null)
 
 func _unhandled_input(event):

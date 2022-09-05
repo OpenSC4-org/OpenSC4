@@ -4,12 +4,17 @@ var size_w : int = 4
 var size_h : int = 4
 var rng : RandomNumberGenerator = RandomNumberGenerator.new()
 var savefile
-var ind_layer
 var width
 var height
-var layer_arr = []
 const TILE_SIZE : int = 16
 const WATER_HEIGHT : float = 250.0 / TILE_SIZE
+# stores where tiles are in the vertex, uv and normal arrays
+var terr_tile_ind = {}
+# translator from fsh-iid to texturearray layer
+var ind_layer
+# stores texturearray layer per tile
+var layer_arr = []
+# for cursor
 var cur_img
 var vec_hot
 
@@ -40,21 +45,22 @@ func load_city_terrain(svfile : DBPF):
 	var terrain_info = svfile.get_subfile(0xa9dd6ff4, 0xe98f9525, 00000001, cSTETerrain__SaveAltitudes)
 	size_w = city_info.size[0]
 	size_h = city_info.size[1]
-	width = size_w * 64 + 1
-	height = size_h * 64 + 1
+	self.width = size_w * 64 + 1
+	self.height = size_h * 64 + 1
 	self.layer_arr.resize(width)
 	var row = []
-	row.resize(height)
+	row.resize(self.height)
 	for coll in range(len(self.layer_arr)):
 		self.layer_arr[coll] = []
-		for cell in range(len(self.layer_arr)):
+		for _cell in range(len(self.layer_arr)):
 			self.layer_arr[coll].append(null)
 		
-	terrain_info.set_dimensions(width, height)
+	terrain_info.set_dimensions(self.width, self.height)
 	for i in range(width):
 		heightmap.append([])
-		for j in range(height):
+		for j in range(self.height):
 			heightmap[i].append(terrain_info.get_altitude(i, j))
+	self.get_node("Spatial/Terrain").heightmap = heightmap
 	return heightmap
 
 #(0, 0)       (1, 0)
@@ -78,16 +84,12 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 	var normal3 : Vector3 = v.cross(u2).normalized()
 	var normal4 : Vector3 = u2.cross(w2).normalized()
 	var uvs = []
-	var layers = []
 	var normalz = []
 	for vert in [v0, v1, v2, v3]:
 		var res = coord_to_uv(vert.x, vert.y, vert.z)
 		uvs.append(res[0])
 		if heightmap:
 			self.layer_arr[vert.z][vert.x] = res[1]
-			var normal = PoolVector3Array([
-				((v1 - v0).cross(v2 - v0) + (v3 - v2).cross(v0 - v2)).normalized()
-				])
 			normalz.append(get_normal(vert, heightmap))
 		else:
 			normalz.append(Vector3(0.0, 1.0, 0.0))
@@ -155,9 +157,6 @@ func create_edge(vert, n1, n2, normal):
 	Long Quads -> Varying smooth and static -> uv.y's represent height, 
 	should jiggle bottom uv.y's based on normal.y's
 	"""
-	var v : Vector3 = vert[1] - vert[0]
-	var u : Vector3 = vert[2] - vert[0]
-	var uvs = []
 	var TerrainTexTilingFactor = 0.2
 	var factor = (16.0/100.0) * TerrainTexTilingFactor
 	var coords = [vert[0].x, vert[1].x, vert[2].x, vert[3].x]
@@ -233,6 +232,7 @@ func create_terrain():
 			v3 = Vector3((i+1), heightmap[j+1][i+1] / TILE_SIZE, (j+1))
 			v4 = Vector3((i+1), heightmap[j  ][i+1] / TILE_SIZE, j  )
 			var r = create_face(v1, v2, v3, v4, heightmap)
+			terr_tile_ind[Vector2(v1.x, v1.z)] = len(vertices)
 			vertices.append_array(r[0])
 			normals.append_array(r[1])
 			UVs.append_array(r[2])
@@ -298,12 +298,13 @@ func create_terrain():
 	arrays[ArrayMesh.ARRAY_TEX_UV] = UVs 
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	$Spatial/Terrain.mesh = array_mesh
+	$Spatial/Terrain.create_trimesh_collision()
 	
 	var layer_img = Image.new()
 	var layer_flat = PoolByteArray([])
 	for row in self.layer_arr:
 		layer_flat.append_array(row)
-	layer_img.create_from_data(width, height, false, Image.FORMAT_R8, layer_flat)
+	layer_img.create_from_data(self.width, self.height, false, Image.FORMAT_R8, layer_flat)
 	var layer_tex = ImageTexture.new()
 	layer_tex.create_from_image(layer_img, 2) 
 	var mat = $Spatial/Terrain.get_material_override()
@@ -331,7 +332,7 @@ func create_terrain():
 	"test s3d"
 	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16910410}
 	var s3dobj = Core.subfile(TGI_s3d["T"], TGI_s3d["G"], TGI_s3d["I"], S3DSubfile)
-	var location = Vector3(width/2, heightmap[int(width/2)][int(height/2)] / TILE_SIZE, height/2)
+	var location = Vector3(width/2, heightmap[int(width/2)][int(self.height/2)] / TILE_SIZE, self.height/2)
 	s3dobj.add_to_mesh($Spatial/TestS3D, location)
 	test_exemplar()
 	print("DEBUG")
