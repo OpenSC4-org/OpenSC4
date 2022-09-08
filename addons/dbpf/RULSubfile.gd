@@ -19,10 +19,10 @@ This data is then used to define a dict of the same shape with TransitTile objec
 Edge definitions come in the following forms:
 	per side w, n, e, s:
  - 00 = disconnected
- - 01 = diagonal 45deg left (as viewed from centre to edge)
+ - 01 = diagonal 45deg left (as viewed from edge to center)
  - 02 = straight
  - 03 = diagonal 45deg right
- - 04 = shared median for 2-tile networks(what about diagonals?)
+ - 04 = shared median for 2-tile networks
  - 11 = transition from 01 to 02, diag to straight
  - 13 = transition as 11 but other diagonal
 rails also use:

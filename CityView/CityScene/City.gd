@@ -335,6 +335,9 @@ func create_terrain():
 	var location = Vector3(width/2, heightmap[int(width/2)][int(self.height/2)] / TILE_SIZE, self.height/2)
 	s3dobj.add_to_mesh($Spatial/TestS3D, location)
 	test_exemplar()
+	var s3dmat = $Spatial/TestS3D.get_material_override()
+	s3dmat.set_shader_param("nois_texture", $Spatial/WaterPlane/NoiseTexture.texture)
+	$Spatial/TestS3D.set_material_override(s3dmat)
 	print("DEBUG")
 	
 func set_cursor():

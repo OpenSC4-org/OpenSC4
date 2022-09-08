@@ -309,9 +309,13 @@ code = "shader_type spatial;
 render_mode depth_draw_always;
 
 uniform sampler2DArray s3dtexture : hint_albedo;
+uniform sampler2D nois_texture: hint_albedo;
+uniform vec2 direction = vec2(1.0, 0.0);
 
 void fragment(){
-	ALBEDO = texture(s3dtexture, vec3(UV, 0.0)).rgb;
+	ivec2 iUV = (ivec2(UV * vec2(1280, 720) * vec2(341) + (direction * TIME))%ivec2(1024));
+	vec3 noise_col = pow(texelFetch(nois_texture, iUV, 0).rgb * vec3(2.0), vec3(2.0));//*vec3(0.4, 0.8, 0.4);
+	ALBEDO = min(texture(s3dtexture, vec3(UV, 0.0)).rgb * noise_col, vec3(1.0));
 	ALPHA = texture(s3dtexture, vec3(UV, 0.0)).a;
 	ALPHA_SCISSOR = 0.9;
 }
@@ -319,6 +323,7 @@ void fragment(){
 
 [sub_resource type="ShaderMaterial" id=17]
 shader = SubResource( 16 )
+shader_param/direction = Vector2( 40, 20 )
 
 [sub_resource type="Shader" id=7]
 code = "shader_type spatial;
@@ -379,16 +384,29 @@ code = "shader_type spatial;
 render_mode depth_draw_always;
 
 uniform sampler2DArray textarr : hint_albedo;
+varying float built;
 //uniform sampler2D layer : hint_albedo;
 varying flat float index;
 
 void vertex(){
-	index = (UV2.r) + (UV2.g * 256.0);
+	built = 0.0;
+	if (UV2.g > 127.0){
+		built = 1.0;
+		}
+	index = (UV2.r) + (floor(mod(UV2.g, 128.0)) * 256.0);
+	
 }
 
 void fragment(){
-	ALBEDO = texture(textarr, vec3(UV, index)).rgb * COLOR.rgb;
-	ALPHA = COLOR.a;
+	vec4 frag = texture(textarr, vec3(UV, index));
+	float alpha = frag.a;
+	vec4 col = vec4(1.0);
+	if(built == 0.0){
+		col = COLOR;
+		alpha = col.a;
+		}
+	ALBEDO = frag.rgb * col.rgb;
+	ALPHA = alpha;
 }"
 
 [sub_resource type="ShaderMaterial" id=19]
