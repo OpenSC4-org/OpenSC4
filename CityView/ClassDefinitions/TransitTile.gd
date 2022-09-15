@@ -10,7 +10,7 @@ func _init(edges_ : Dictionary, ids_ : Dictionary, layers_ : Dictionary):
 	self.edges = edges_
 	self.ids = ids_
 	self.tilepaths = self.set_tile_paths()
-	self.text_arr_layers = layers_ #TODO Setup TextureArrays in a TransitMesh Use a layer dict to convert ID to TexArrLayer
+	self.text_arr_layers = layers_
 
 func set_UVs(tile_ind : int, dir : Vector2):
 	var rot = self.ids[tile_ind][1]

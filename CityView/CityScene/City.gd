@@ -85,11 +85,20 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 	var normal4 : Vector3 = u2.cross(w2).normalized()
 	var uvs = []
 	var normalz = []
-	for vert in [v0, v1, v2, v3]:
+	var layer_ind = []
+	var layer_weights = []
+	var vertex_layers = []
+	var vertex_weights = []
+	for i in range(4):
+		var vert = [v0, v1, v2, v3][i]
 		var res = coord_to_uv(vert.x, vert.y, vert.z)
 		uvs.append(res[0])
 		if heightmap:
+			var weight = [0.0, 0.0, 0.0, 0.0]
+			weight[i] = 1.0
 			self.layer_arr[vert.z][vert.x] = res[1]
+			vertex_layers.append(res[1])
+			vertex_weights.append([weight[0], weight[1], weight[2], weight[3]])
 			normalz.append(get_normal(vert, heightmap))
 		else:
 			normalz.append(Vector3(0.0, 1.0, 0.0))
@@ -100,45 +109,104 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 	
 	# this if-else is my attempt to make the terrain diagonals smart, sometimes they still don't cooperate
 	if min(normal1.y, normal2.y) >= min(normal3.y, normal4.y):
+		var uv2
+		var cols = [null, null, null]
+		if heightmap:
+			uv2 = Vector2(vertex_layers[2]/255.0, vertex_layers[1]/255.0)
+			cols = [
+				Color(vertex_weights[0][0], vertex_weights[0][2], vertex_weights[0][1], vertex_layers[0]/255.0),
+				Color(vertex_weights[2][0], vertex_weights[2][2], vertex_weights[2][1], vertex_layers[0]/255.0),
+				Color(vertex_weights[1][0], vertex_weights[1][2], vertex_weights[1][1], vertex_layers[0]/255.0),
+					]
 		vertices.append(v0)
 		UVs.append(uvs[0])
 		normals.append(normalz[0])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[0])
 		vertices.append(v2)
 		UVs.append(uvs[2])
 		normals.append(normalz[2])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[2])
 		vertices.append(v1)
 		UVs.append(uvs[1])
 		normals.append(normalz[1])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[1])
+		
+		if heightmap:
+			uv2 = Vector2(vertex_layers[3]/255.0, vertex_layers[2]/255.0)
+			cols = [
+				Color(vertex_weights[0][0], vertex_weights[0][3], vertex_weights[0][2], vertex_layers[0]/255.0),
+				Color(vertex_weights[3][0], vertex_weights[3][3], vertex_weights[3][2], vertex_layers[0]/255.0),
+				Color(vertex_weights[2][0], vertex_weights[2][3], vertex_weights[2][2], vertex_layers[0]/255.0),
+					]
 		vertices.append(v0)
 		UVs.append(uvs[0])
 		normals.append(normalz[0])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[0])
 		vertices.append(v3)
 		UVs.append(uvs[3])
 		normals.append(normalz[3])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[1])
 		vertices.append(v2)
 		UVs.append(uvs[2])
 		normals.append(normalz[2])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[2])
+		
 	else:
+		var uv2
+		var cols = [null, null, null]
+		if heightmap:
+			uv2 = Vector2(vertex_layers[3]/255.0, vertex_layers[1]/255.0)
+			cols = [
+				Color(vertex_weights[0][0], vertex_weights[0][3], vertex_weights[0][1], vertex_layers[0]/255.0),
+				Color(vertex_weights[3][0], vertex_weights[3][3], vertex_weights[3][1], vertex_layers[0]/255.0),
+				Color(vertex_weights[1][0], vertex_weights[1][3], vertex_weights[1][1], vertex_layers[0]/255.0),
+					]
 		vertices.append(v0)
 		UVs.append(uvs[0])
 		normals.append(normalz[0])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[0])
 		vertices.append(v3)
 		UVs.append(uvs[3])
 		normals.append(normalz[3])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[1])
 		vertices.append(v1)
 		UVs.append(uvs[1])
 		normals.append(normalz[1])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[2])
+		
+		if heightmap:
+			uv2 = Vector2(vertex_layers[2]/255.0, vertex_layers[1]/255.0)
+			cols = [
+				Color(vertex_weights[3][3], vertex_weights[3][2], vertex_weights[3][1], vertex_layers[3]/255.0),
+				Color(vertex_weights[2][3], vertex_weights[2][2], vertex_weights[2][1], vertex_layers[3]/255.0),
+				Color(vertex_weights[1][3], vertex_weights[1][2], vertex_weights[1][1], vertex_layers[3]/255.0),
+					]
 		vertices.append(v3)
 		UVs.append(uvs[3])
 		normals.append(normalz[3])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[0])
 		vertices.append(v2)
 		UVs.append(uvs[2])
 		normals.append(normalz[2])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[1])
 		vertices.append(v1)
 		UVs.append(uvs[1])
 		normals.append(normalz[1])
+		layer_ind.append(uv2)
+		layer_weights.append(cols[2])
 
-	return [vertices, normals, UVs]
+	return [vertices, normals, UVs, layer_ind, layer_weights]
 
 func create_edge(vert, n1, n2, normal):
 	"""
@@ -194,6 +262,8 @@ func create_terrain():
 	var vertices : PoolVector3Array = PoolVector3Array()
 	var normals : PoolVector3Array = PoolVector3Array()
 	var UVs : PoolVector2Array = PoolVector2Array()
+	var col_layer_weights : PoolColorArray = PoolColorArray()
+	var uv2_layer_ind : PoolVector2Array = PoolVector2Array()
 	var e_vertices : PoolVector3Array = PoolVector3Array()
 	var e_normals : PoolVector3Array = PoolVector3Array()
 	var e_UVs : PoolVector2Array = PoolVector2Array()
@@ -236,6 +306,8 @@ func create_terrain():
 			vertices.append_array(r[0])
 			normals.append_array(r[1])
 			UVs.append_array(r[2])
+			uv2_layer_ind.append_array(r[3])
+			col_layer_weights.append_array(r[4])
 			if i == 0:
 				ve1 = v2
 				ve2 = v1
@@ -296,20 +368,22 @@ func create_terrain():
 	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
 	arrays[ArrayMesh.ARRAY_NORMAL] = normals 
 	arrays[ArrayMesh.ARRAY_TEX_UV] = UVs 
+	arrays[ArrayMesh.ARRAY_TEX_UV2] = uv2_layer_ind
+	arrays[ArrayMesh.ARRAY_COLOR] = col_layer_weights
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	$Spatial/Terrain.mesh = array_mesh
 	$Spatial/Terrain.create_trimesh_collision()
 	
-	var layer_img = Image.new()
-	var layer_flat = PoolByteArray([])
-	for row in self.layer_arr:
-		layer_flat.append_array(row)
-	layer_img.create_from_data(self.width, self.height, false, Image.FORMAT_R8, layer_flat)
-	var layer_tex = ImageTexture.new()
-	layer_tex.create_from_image(layer_img, 2) 
-	var mat = $Spatial/Terrain.get_material_override()
-	mat.set_shader_param("layer", layer_tex)
-	$Spatial/Terrain.set_material_override(mat)
+	#var layer_img = Image.new()
+	#var layer_flat = PoolByteArray([])
+	#for row in self.layer_arr:
+	#	layer_flat.append_array(row)
+	#layer_img.create_from_data(self.width, self.height, false, Image.FORMAT_R8, layer_flat)
+	#var layer_tex = ImageTexture.new()
+	#layer_tex.create_from_image(layer_img, 2) 
+	#var mat = $Spatial/Terrain.get_material_override()
+	#mat.set_shader_param("layer", layer_tex)
+	#$Spatial/Terrain.set_material_override(mat)
 	
 	var e_rray_mesh : ArrayMesh = ArrayMesh.new()
 	var e_rrays : Array = []

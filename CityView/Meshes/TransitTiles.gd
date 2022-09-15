@@ -16,9 +16,34 @@ var drag_meshinst = MeshInstance.new()
 var layer_map = []
 var map_width : int
 var map_height : int
+var drag_first = true
 #input
 var start_l = false
 var hold_l = false
+var drag_modes = {
+	"Elevated Highway": 0x0011, "WaterPipe": 0x0011,"Rail":0x1111, 		"Road": 0x1111, 
+	"Street":0x0001, 			"Subway":0x0011, 	"Avenue": 0x0011,	"Elevated Rail": 0x0011, 
+	"One-Way Road": 0x1111, 	"Dirt Road":0x1111, "Monorail": 0x0011, "Ground Highway":0x0011
+}
+"""
+11	12	13	14	15
+10	2	3	4	16
+9	1	0	5	17
+24	8	7	6	18
+23	22	21	20	19
+"""
+var neigh_num_to_vec = [
+	# middle
+	Vector2(0, 0),
+	# inner ring
+	Vector2(-1, 0),Vector2(-1, -1),Vector2(0, -1),Vector2(1, -1),
+	Vector2(1, 0),Vector2(1, 1),Vector2(0, 1),Vector2(-1, 1),
+	# outer ring
+	Vector2(-2, 0),Vector2(-2, -1),Vector2(-2, -2),Vector2(-1, -2),
+	Vector2(0, -2),Vector2(1, -2),Vector2(2, -2),Vector2(2, -1),
+	Vector2(2, 0),Vector2(2, 1),Vector2(2, 2),Vector2(1, 2),
+	Vector2(0, 2),Vector2(-1, 2),Vector2(-2, 2),Vector2(-2, 1)
+]
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -53,7 +78,6 @@ func _ready():
 	0x0000017 : "Ground Highway",
 	0x0000018 : "Ground Highway"}
 	# it gets messy here, not sure how to make this not a tonne of loops without sacrificing fast lookups when drawing
-	var tex_arr_layer_ind = 0
 	# iter rul files
 	for RUL_id in rul_iid_types.keys():
 		var t_type = rul_iid_types[RUL_id]
@@ -63,42 +87,30 @@ func _ready():
 		# iter options for west-edge
 		#if t_type == "Road":
 			#print("debug", rul_dict[0][2])
-		for w in rul_dict.keys():
-			if not self.transit_tiles[t_type].keys().has(w):
-				self.transit_tiles[t_type][w] = {}
-			# iter options for north-edge
-			for n in rul_dict[w].keys():
-				if not self.transit_tiles[t_type][w].keys().has(n):
-					self.transit_tiles[t_type][w][n] = {}
-				# iter options for east-edge
-				for e in rul_dict[w][n].keys():
-					if not self.transit_tiles[t_type][w][n].keys().has(e):
-						self.transit_tiles[t_type][w][n][e] = {}
-					# iter options for south-edge
-					for s in rul_dict[w][n][e].keys():
-						if not self.transit_tiles[t_type][w][n][e].keys().has(s):
-							self.transit_tiles[t_type][w][n][e][s] = []
-						# iter available alternatives for current 1-line
-						for i in range(len(rul_dict[w][n][e][s])):
-							var rul_edges = {0: [w, n, e, s]}
-							var rul_ids = {}
-							var layer_inds = {}
-							# iter its 2 and 3 lines
-							for line in rul_dict[w][n][e][s][i]:
-								# if 2-line it gets stored in edges
-								if line[0] == 2:
-									rul_edges[line[1]] = line.slice(2, 6)
-								# else must be 3-line, add to rul_ids and initiate its FSH
-								else:
-									rul_ids[line[1]] = line.slice(2, 5)
-									if not layer_arr.has(line[2]):
-										# if matching FSH is found
-										if Core.sub_by_type_and_group[[0x7ab50e44, 0x1abe787d]].keys().has(line[2]):
-											layer_arr.append(line[2])
-											tex_arr_layer_ind += 1
-									if layer_arr.has(line[2]):
-										layer_inds[line[1]] = layer_arr.find(line[2])
-							self.transit_tiles[t_type][w][n][e][s].append(TransitTile.new(rul_edges, rul_ids, layer_inds))
+		for wnes in rul_dict.keys():
+			if not self.transit_tiles[t_type].keys().has(wnes):
+				self.transit_tiles[t_type][wnes] = []
+			for i in range(len(rul_dict[wnes])):
+				var rul_edges = {0: wnes}
+				var rul_ids = {}
+				var layer_inds = {}
+				# iter its 2 and 3 lines
+				for line in rul_dict[wnes][i]:
+					# if 2-line it gets stored in edges
+					if line[0] == 2:
+						rul_edges[line[1]] = line.slice(2, 6)
+					# else must be 3-line, add to rul_ids and initiate its FSH
+					else:
+						rul_ids[line[1]] = line.slice(2, 5)
+						if not layer_arr.has(line[2]):
+							# if matching FSH is found
+							if Core.sub_by_type_and_group[[0x7ab50e44, 0x1abe787d]].keys().has(line[2]):
+								layer_arr.append(line[2])
+						if layer_arr.has(line[2]):
+							layer_inds[line[1]] = layer_arr.find(line[2])
+				if wnes == [0,2,11,2]:
+					print("debug")
+				self.transit_tiles[t_type][wnes].append(TransitTile.new(rul_edges, rul_ids, layer_inds))
 	var format = false
 	for i in range(len(layer_arr)):
 		var iid = layer_arr[i]
@@ -131,14 +143,22 @@ func _input(event):
 		if event.is_pressed():
 			if event.button_index == 1:
 				self.start_l = self.mouse_ray()
+				self.hold_l = self.mouse_ray()
+				self._drag_network(self.start_l, self.hold_l, "Road")
 		if not event.is_pressed():
 			if event.button_index == 1 and self.hold_l:
 				_build_network()
 				self.start_l = false
 				self.hold_l = false
-	if event is InputEventMouseMotion and start_l:
+	elif event is InputEventMouseMotion and start_l:
 		self.hold_l = self.mouse_ray()
 		self._drag_network(self.start_l, self.hold_l, "Road")
+	elif event is InputEventKey:
+		if event.pressed and event.scancode == KEY_CONTROL:
+			self.drag_first = not self.drag_first
+			if self.start_l:
+				self._drag_network(self.start_l, self.hold_l, "Road")
+		
 
 func mouse_ray():
 	var ray_length = 2000
@@ -162,6 +182,7 @@ func _drag_network(start, end, type):
 	self.drag_arrays[ArrayMesh.ARRAY_COLOR] = [] 
 	self.drag_arrays[ArrayMesh.ARRAY_TEX_UV] = [] 
 	self.drag_arrays[ArrayMesh.ARRAY_TEX_UV2] = [] 
+	self.drag_tiles = {}
 	drag_tracker = []
 	var heightmap = self.get_parent().get_node("Terrain").heightmap
 	if len(layer_map) == 0:
@@ -213,9 +234,9 @@ func _drag_network(start, end, type):
 			best_dot = curr_dot
 			best_ind = ind
 	var draw_dir = directions[best_ind]
-	var edges : Dictionary
+	var edges : Array
 	if start == end:
-		edges[[0,0,0,0]] = [start]
+		edges = [[[0,0,0,0]],[start]]
 	elif best_ind < 4:
 		edges = edges_ortho(start, end, draw_dir)
 	elif best_ind < 8:
@@ -227,105 +248,394 @@ func _drag_network(start, end, type):
 	else:
 		draw_dir = directions[best_orth_ind]
 		edges = edges_ortho(start, end, draw_dir)
-	for edge_t in edges.keys():
-		var key_set = transit_tiles[type].keys()
-		var tile_arr = transit_tiles[type].duplicate(true)
-		for i in range(len(edge_t)):
-			var key_check = edge_t[i]
-			if key_set.has(int(key_check)):
-				if i < (len(edge_t) - 1):
-					key_set = tile_arr[int(key_check)].keys()
-				tile_arr = tile_arr[int(key_check)]
+	"""
+	Allright, here I have the basic edges per location with edges[0] containing edges and edges[1] containing locations
+	Now I need to interact this with existing tiles, for this I want two options, one with existing-first one with drag-first
+	This would allow for a key-hold, for instance CRTL to set the mode to which edge is considered more important
+	"""
+	# combine edges with existing
+	var intersect_ind = []
+	for loc_i in range(len(edges[1])):
+		var loc = edges[1][loc_i]
+		if network_tiles.has(loc):
+			var edge_d = edges[0][loc_i]
+			var edge_e = network_tiles[loc].edges
+			var edge_res = []
+			if self.drag_first:
+				for i in range(len(edge_d)):
+					if edge_d[i] == 0:
+						edge_res.append(edge_e[i])
+					else:
+						edge_res.append(edge_d[i])
 			else:
-				tile_arr = []
-				break
-		if len(tile_arr) == 0:
-			print("ERROR cannot find edge match:", edge_t)
-		# setting UVs like this means I do it only for tiles/allignments that arn't defined yet
-		if not tile_arr[0].UVs.keys().has([0, draw_dir]):
-			tile_arr[0].set_UVs(0, draw_dir)
-		for location in edges[edge_t]:
-			if true:#len(tile_arr) == 1:
-				# generate vertices, basically location+UV, what about height though? normals?
-				var t_verts = PoolVector3Array([])
-				# should use draw_dir's horizontal tangent to determine which direction needs to be flat
-				# for diagonals that means slopechanges cause deviations
-				var corners = [Vector2(0, 0), Vector2(0, 1), Vector2(1, 1), Vector2(1, 0)]
-				var vecadd = PoolVector2Array([
-					corners[0],
-					corners[2],
-					corners[1],
-					corners[0],
-					corners[3],
-					corners[2]
-					])
-				if(draw_dir.x>0 and draw_dir.y>0) or (draw_dir.x<0 and draw_dir.y<0):
-					vecadd = PoolVector2Array([
-						corners[0],
-						corners[3],
-						corners[1],
-						corners[3],
-						corners[2],
-						corners[1]
-					])
-				for i in range(len(vecadd)):
-					var add = vecadd[i]
-					var vec_two = location+add
-					var height = heightmap[vec_two.y][vec_two.x]
-					# to make height stuff not insane I use a 16units/tile scale that gets adjusted in the transform
-					t_verts.append(Vector3(vec_two.x, height/16.0+0.05, vec_two.y))
-					# store location in vertex tracker
-					# the shape of drag_tracker should 1 on 1 match the mesh arrays
-					self.drag_tracker.append(location)
-					self.drag_arrays[ArrayMesh.ARRAY_VERTEX].append(Vector3(vec_two.x, height/16.0+0.05, vec_two.y))
-				# add vertices, normals and UVs to mesh, TODO change terrain
-				var v : Vector3 = t_verts[2] - t_verts[0]
-				var u : Vector3 = t_verts[1] - t_verts[0]
-				var normal1 : Vector3 = v.cross(u).normalized()
-				v  = t_verts[5] - t_verts[3]
-				u  = t_verts[4] - t_verts[3]
-				var normal2 : Vector3 = v.cross(u).normalized()
-				var normal = ((normal1+normal2)/2.0).normalized()
-				if normal == Vector3(0.0, 0.0, 0.0):
-					print("debug 0 length normal vec", normal1, normal2, normal)
-				# generate network tile and store it in network_tiles
-				var net_tile = NetTile.new(location, edge_t, tile_arr[0], normal)
-				var layer = tile_arr[0].text_arr_layers[0]
-				# UV2 is used as a variable per vertex and not used for shading, it sets texture array-layer instead
-				var layr_l = 0xFF & layer
-				var layr_a = (0xFF00 & layer)>>8
-				#var layr_g = (0xFF0000 & layer)>>16
-				#var layr_a = (0x0F000000 & layer)>>24
-				var layer_vec = Vector2(layr_l, layr_a)
-				self.drag_tiles[location] = net_tile
-				# yellow transparent color for dragged network
-				var col = Color(1.0, 1.0, 0.1, 0.7)
-				self.drag_arrays[ArrayMesh.ARRAY_NORMAL].append_array([normal, normal, normal, normal, normal, normal])
-				self.drag_arrays[ArrayMesh.ARRAY_COLOR].append_array([col, col, col, col, col, col])
-				self.drag_arrays[ArrayMesh.ARRAY_TEX_UV].append_array(tile_arr[0].UVs[[0, draw_dir]])
-				self.drag_arrays[ArrayMesh.ARRAY_TEX_UV2].append_array([layer_vec, layer_vec, layer_vec, layer_vec, layer_vec, layer_vec])
-				
-				
-				
-			else:
-				print("TODO")
-				# surrounding tiles both existing and temporary
-				# find best match from options
-				# generate network tile and store it in network_tiles
-				# generate vertices, basically location+UV
-				# add vertices and UVs to mesh
+				for i in range(len(edge_d)):
+					if edge_e[i] == 0:
+						edge_res.append(edge_d[i])
+					else:
+						edge_res.append(edge_e[i])
+			var buff = edges[0].duplicate()
+			buff[loc_i] = edge_res.duplicate()
+			edges[0] = buff.duplicate()
+			intersect_ind.append(loc_i)
+			
+	var neighbors = [Vector2(-1, 0), Vector2(0, -1), Vector2(1, 0), Vector2(0, 1)]
+	# iter over the intersection points
+	for int_i in intersect_ind:
+		var edge_base = edges[0][int_i].duplicate()
+		# if intersection needs diagonals to be adjusted
+		if not self.transit_tiles[type].has(edge_base):
+			if edge_base == [2,0,1,0]:
+				print("debug")
+			var loc_to_fix = [edges[1][int_i]]
+			var edge_ind_affected = []
+			# while there is locations to fix, fix them
+			while len(loc_to_fix) > 0:
+				# get first in list and remove it from list
+				var loc_fix = loc_to_fix[0]
+				loc_to_fix.erase(loc_fix)
+				# get the edge numbers
+				var edge_fix
+				if loc_fix in edges[1]:
+					var ind = edges[1].find(loc_fix)
+					edge_fix = edges[0][ind].duplicate()
+				else:
+					edge_fix = network_tiles[loc_fix].edges.duplicate()
+				# edge_ind_affected starts with length 0
+				if not len(edge_ind_affected) == 0:
+					# get the first in list and remove it from list
+					var edge_aff = edge_ind_affected[0]
+					edge_ind_affected.erase(edge_aff)
+					# update the affected edge
+					if edge_fix[edge_aff] == 1 or edge_fix[edge_aff] == 3:
+						edge_fix[edge_aff] += 10
+						var affected_loc = neighbors[edge_aff] + loc_fix
+						# calculate and add new affected edge values to the lists
+						var n_i = (edge_aff+2)%4
+						var n_edge 
+						if edges[1].has(affected_loc):
+							var n_ind = edges[1].find(affected_loc)
+							n_edge = edges[0][n_ind]
+						else:
+							n_edge = network_tiles[affected_loc].edges
+						# only add the neighbor if the affected edge wasn't fixed yet
+						if n_edge[n_i] == 1 or n_edge[n_i] == 3:
+							loc_to_fix.append(affected_loc)
+							edge_ind_affected.append(n_i)
+				# only do the below if the above did not produce a valid edge-set
+				if not self.transit_tiles[type].has(edge_fix):
+					var diag_inds = []
+					# get the diagonals not yet changed, might need to change for rails as they have more edges
+					for e in range(len(edge_fix)):
+						if edge_fix[e] == 1 or edge_fix[e] == 3:
+							diag_inds.append(e)
+					# generate every combination of diagonal-edge-updates
+					var options = []
+					for i in range(len(diag_inds)):
+						options.append([diag_inds[i]])
+					for i in range(len(diag_inds)):
+						for j in range(len(options)):
+							if diag_inds[i] > options[j][0]:
+								var option = options[j].duplicate()
+								option.append(diag_inds[i])
+								options.append(option.duplicate())
+					# the above might not work, and was adding null values instead of edge combinations
+					if options.has(null):
+						print("debug")
+					# go over the options
+					for option in options:
+						var edge_option = edge_fix.duplicate()
+						# generate the change the option is set to make
+						for i in range(len(option)):
+							if edge_option[option[i]] == 1 or edge_option[option[i]] == 3:
+								edge_option[option[i]] +=10
+						# if option is valid
+						if self.transit_tiles[type].has(edge_option):
+							# go over the options changes and add affected neighbors
+							for i in range(len(option)):
+								var opt_i = option[i]
+								var affected_loc = neighbors[opt_i] + loc_fix
+								var n_i = (opt_i+2)%4
+								var n_edge 
+								if edges[1].has(affected_loc):
+									var n_ind = edges[1].find(affected_loc)
+									n_edge = edges[0][n_ind]
+								else:
+									n_edge = network_tiles[affected_loc].edges
+								# only add the neighbor if the affected edge wasn't fixed yet
+								if n_edge[n_i] == 1 or n_edge[n_i] == 3:
+									loc_to_fix.append(affected_loc)
+									edge_ind_affected.append(n_i)
+							# check if the fixed tile is in edges(could be a built tile)
+							if edges[1].has(loc_fix):
+								var ind = edges[1].find(loc_fix)
+								var edge_buff = edges[0].duplicate()
+								edge_buff[ind] = edge_option.duplicate()
+								edges[0] = edge_buff.duplicate()
+							# if not yet in edges just add it as the build_network then overrides the existing tiles
+							else:
+								var edge_buff = edges[0].duplicate()
+								edge_buff.append(edge_option.duplicate())
+								edges[0] = edge_buff.duplicate()
+								var loc_buff = edges[1].duplicate()
+								loc_buff.append(loc_fix)
+								edges[1] = loc_buff.duplicate()
+							break
+				else:
+					if edges[1].has(loc_fix):
+						var ind = edges[1].find(loc_fix)
+						var edge_buff = edges[0].duplicate()
+						edge_buff[ind] = edge_fix.duplicate()
+						edges[0] = edge_buff.duplicate()
+					# if not yet in edges just add it as the build_network then overrides the existing tiles
+					else:
+						var edge_buff = edges[0].duplicate()
+						edge_buff.append(edge_fix.duplicate())
+						edges[0] = edge_buff.duplicate()
+						var loc_buff = edges[1].duplicate()
+						loc_buff.append(loc_fix)
+						edges[1] = loc_buff.duplicate()
+					break
+	"""
+	Now that all edges are valid 
+	I should go over the various options per location and find the tile that best fits the surroundings
+	To do this I need a structure that translates the neighbour indicator in 2 and 3-lines into vectors
+		neigh_num_to_vec does this ^^
+	"""
+	# check
+	var tile_arr = []
+	var overridden = []
+	var overrider = []
+	for i in range(len(edges[0])):
+		var best_score = 0
+		var best_points = 0
+		var best_t_i = 0
+		var b_loc = edges[1][i]
+		var override = false
+		for t_i in range(len(transit_tiles[type][edges[0][i]])):
+			var points = 0
+			var div = 0
+			for line in transit_tiles[type][edges[0][i]][t_i].edges.keys():
+				div += 1
+				var vec = neigh_num_to_vec[line]
+				var loc = b_loc + vec
+				var drag_bool = edges[1].has(loc)
+				var built_bool = network_tiles.has(loc)
+				if drag_bool or built_bool:
+					points += 1
+			var score : float = float(points)/float(div)
+			if (score > best_score) or (score == best_score and points > best_points):
+				best_score = score
+				best_points = points
+				best_t_i = t_i
+				if len(transit_tiles[type][edges[0][i]][t_i].ids) > 1:
+					override = true
+				else:
+					override = false
+		tile_arr.append(transit_tiles[type][edges[0][i]][best_t_i])
+		if override and not b_loc in overridden:
+			overrider.append(b_loc)
+			for sub in transit_tiles[type][edges[0][i]][best_t_i].ids.keys():
+				if sub != 0:
+					var loc = b_loc + neigh_num_to_vec[sub]
+					overridden.append(loc)
+	"""
+	now I need to generate normals, uvs, vertices, uv2-layer_indices and colors and add them to the arrays
+	and generate and register the network tiles to drag_tiles
+	
+	first step is generate vertices and smoothen them
+	"""
+	# determine the edges that best match the perpendicular to the draw direction
+	var best_perp
+	var best_score_perp = 1
+	for x in range(-1, 2):
+		for y in range(-1, 2):
+			var curr_vec = Vector2(x, y).normalized()
+			if x != 0 or y != 0:
+				var curr_score = abs(draw_dir.dot(curr_vec))
+				if curr_score < best_score_perp:
+					best_score_perp = curr_score
+					best_perp = curr_vec
+	var matches = []
+	var first_step = null
+	var last_step = null
+	var step_length = 1
+	# sqrt(2.0)/2.0 reasoning:
+	#	x--x
+	#	|\ |\
+	#	| \| \
+	#	x--x--x
+	# sides are length 1, diagonal is sqrt(1^2 + 1^2) = sqrt(2)
+	# distance between diagonals is half of that so sqrt(2.0)/2.0
+	if best_perp.x == best_perp.y:
+		step_length = sqrt(2.0)/2.0
+		matches = [2,0]
+		first_step = [3]
+		last_step = [1]
+		if draw_dir.x > 0:
+			matches = [0,2]
+			first_step = [1]
+			last_step = [3]
+	elif best_perp.x == -best_perp.y:
+		step_length = sqrt(2.0)/2.0
+		matches = [3,1]
+		first_step = [0]
+		last_step = [2]
+		if draw_dir.x < 0:
+			matches = [1,3] # to ensure counter-clockwise order
+			first_step = [2]
+			last_step = [0]
+	elif best_perp.x != 0:
+		first_step = [0,3]
+		matches = [1,2]
+		if draw_dir.y < 0:
+			first_step = [2,1]
+			matches = [3,0]
+			
+	else:
+		first_step = [0,1]
+		matches = [3,2]
+		if draw_dir.x < 0:
+			first_step = [2,3]
+			matches = [1,0]
+	# use the match
+	var corners = [Vector2(0, 0), Vector2(0, 1), Vector2(1, 1), Vector2(1, 0)]
+	var strip_heights = []
+	if first_step != null:
+		var height = 0
+		for c_i in range(len(first_step)):
+			var vec = edges[1][0] + corners[first_step[c_i]]
+			height += heightmap[vec.y][vec.x]
+		strip_heights.append(height/len(first_step))
+	for loc_i in range(len(edges[1])):
+		var height = 0
+		for c_i in matches:
+			var vec = edges[1][loc_i] + corners[c_i]
+			height += heightmap[vec.y][vec.x]
+		strip_heights.append(height/2.0)
+	var height = 0
+	if last_step != null:
+		for c_i in range(len(last_step)): # need to use range(len()) because the array can be length 1 which godot derps on
+			var vec = edges[1][-1] + corners[last_step[c_i]]
+			height += heightmap[vec.y][vec.x]
+		strip_heights.append(height/len(last_step))
+	var MaxNetworkSlopeChange = 35.0 #degrees
+	var MaxSlopeAlongNetwork = 35.0 #degrees
+	var MaxNetworkHtAdjustment = 10.0/16.0
+	var numSmoothingProgressionSteps = 2
+	#var distAddedPerSmoothingProgressionStep = 4 # idk, i guess its supposed to take the average of more tiles?
+	
+	var max_height_change = tan(deg2rad(MaxSlopeAlongNetwork))*step_length
+	var max_slope_change = tan(deg2rad(MaxNetworkSlopeChange))*step_length
+	for _step in range(numSmoothingProgressionSteps):
+		for h_i in range(len(strip_heights)):
+			var from = strip_heights[max(h_i-1, 0)]
+			var curr = strip_heights[h_i]
+			var to = strip_heights[min(h_i+1, len(strip_heights)-1)]
+			var slope = curr-to
+			var change = abs((from-curr) - (curr-to))
+			if abs(slope) > max_height_change or change > max_slope_change:
+				var average = (from+curr+to)/3.0
+				var step_height = 0.5 * (average-curr)
+				curr += min(step_height, MaxNetworkHtAdjustment)
+				strip_heights[h_i] = curr
+	
+	"""
+	I should have smooth heights now, next is to turn them into vertices
+	corner heights would be i, i+1, i+1, i+2 for diagonals
+	"""
+	# step_seq stores the index offset per corner-index
+	var step_seq = {}
+	var counter = 0
+	if first_step != null:
+		for step in range(len(first_step)):
+			step_seq[first_step[step]] = counter
+		counter += 1
+	for step in matches:
+		step_seq[step] = counter
+	counter += 1
+	if last_step != null:
+		for step in range(len(last_step)):
+			step_seq[last_step[step]] = counter
+	var vecadd = [0,3,1,1,3,2]
+	if(best_perp.x == -best_perp.y):
+			vecadd = [1,0,2,2,0,3]
+	#print(step_seq, draw_dir, best_perp)
+	#print(strip_heights)
+	var corner_uvs = [Vector2(0, 0), Vector2(0, 1), Vector2(1, 1), Vector2(1, 0)]
+	# yellow transparent color for dragged network
+	var col = Color(1.0, 1.0, 0.1, 0.7)
+	for h_i in range(len(edges[1])):
+		var tile = tile_arr[h_i]
+		if not edges[1][h_i] in overridden:
+			for sub_tile in tile.ids.keys():
+				if tile.text_arr_layers.keys().has(sub_tile):
+					var rot = tile.ids[sub_tile][1] # for multi-tile dragging there needs to be additional rot and flip added
+					var flip = tile.ids[sub_tile][2] # since multi tile base-pieces presume we generate additional rot and flip
+					var layer = tile.text_arr_layers[sub_tile] # TODO^^
+					var layr_l = 0xFF & layer
+					var layr_a = (0xFF00 & layer)>>8
+					var layer_vec = Vector2(layr_l, layr_a)
+					var rot_uvs = []
+					for i in range(rot, 4+rot, 1):
+						rot_uvs.append(corner_uvs[i%4])
+					var flip_uvs = []
+					if flip == 1:
+						flip_uvs.append(rot_uvs[3])
+						flip_uvs.append(rot_uvs[2])
+						flip_uvs.append(rot_uvs[1])
+						flip_uvs.append(rot_uvs[0])
+					else:
+						flip_uvs = rot_uvs
+					if edges[0][h_i] == [0,2,11,2] or edges[0][h_i] == [11,2,0,2]:
+						print(overridden, edges[1][h_i], overrider)
+						print(tile.ids[sub_tile], flip_uvs)
+						print("debug")
+					var normal_verts = []
+					var sub_vec = edges[1][h_i] + neigh_num_to_vec[sub_tile]
+					for vec_i in range(6):
+						var vec = sub_vec + corners[vecadd[vec_i]]
+						var vec_ht = strip_heights[h_i + step_seq[vecadd[vec_i]]]
+						self.drag_arrays[ArrayMesh.ARRAY_VERTEX].append(Vector3(vec.x, vec_ht/16.0, vec.y))
+						self.drag_arrays[ArrayMesh.ARRAY_TEX_UV].append(flip_uvs[vecadd[vec_i]])
+						self.drag_arrays[ArrayMesh.ARRAY_COLOR].append(col)
+						self.drag_arrays[ArrayMesh.ARRAY_TEX_UV2].append(layer_vec)
+						self.drag_tracker.append(sub_vec)
+						normal_verts.append(Vector3(vec.x, vec_ht/16.0, vec.y))
+					# vecadd = [0,3,1,1,3,2] or [1,0,2,2,0,3]
+					# indices   0 1 2 3 4 5		 0 1 2 3 4 5
+					# ind 1 == 4 is used as the anchors
+					# 2 to 0 and 5 to 3 results in counter-clockwise order for both
+					var v = normal_verts[2] - normal_verts[1]
+					var u = normal_verts[0] - normal_verts[1]
+					var normal1 : Vector3 = v.cross(u).normalized()
+					v  = normal_verts[5] - normal_verts[4]
+					u  = normal_verts[3] - normal_verts[4]
+					var normal2 : Vector3 = v.cross(u).normalized()
+					for norm in [normal1, normal2]:
+						for _face_vert in range(3):
+							self.drag_arrays[ArrayMesh.ARRAY_NORMAL].append(norm)
+		self.drag_tiles[edges[1][h_i]] = NetTile.new(edges[1][h_i], edges[0][h_i], tile, draw_dir)
 	if len(self.drag_arrays[ArrayMesh.ARRAY_VERTEX]) > 0:
 		var drag_array_mesh = ArrayMesh.new()
 		drag_array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, get_mesh_arrays(self.drag_arrays))
 		self.get_child(0).mesh = drag_array_mesh
 	"""
-	- determine direction - max(dot products of drag_dir and buildable dirs) - done
-	- generate edge_values and fetch edge values from surrounding tiles
-	- generate temp TransitTiles - done
-	- draw temp TransitTiles - done?
-	
-	TODO
-	- Implement 2-line checking
+	TODO 
+	x diagonal intersections are bugged - done
+	x situations where a neighbor is attempted to update into an imcompatible shape, should check the neighbors other diagonals before discaring
+		and if another diagonal needs changing, it should do a recursion, so I should make a function that calls itself. - fixed
+	- multi-tile networking
+	- smoothening for built tiles - means smoothening should be 2-d
+	  - need to lock the heights of intersections and direction changes? maybe the 2d height update is enough
+	  - for tiles with locked perpendicularness I either need to add foundation or make the built one set the height for the drag
+	  - the perpendicular flatness could be optional
+	  - snapping to heights of parallel tiles could be optional
+	  - could do three modes: BuiltFirst, DragFirst, Foundations where foundations makes it pick its own heights
+	- transform terrain
+	  - have the permanence of terrain transformation be optional
+	  - add foundation logic: if delta_height > someval: do foundations
+	x implement drag vs built prio toggle - done
+	- Verticality and viaducts
 	"""
 	
 func _build_network():#start, end, type):
@@ -357,16 +667,14 @@ func _build_network():#start, end, type):
 								self.built_arrays[i][found+k] = self.drag_arrays[i][j+k]+built
 							else:
 								self.built_arrays[i][found+k] = self.drag_arrays[i][j+k]
-				
-		if debug:
-			print("after:", len(self.built_arrays[ArrayMesh.ARRAY_VERTEX]))
-			print("debug in Meshes/TransitTiles func _build_network")
-		self.mesh.surface_remove(0)
+		
+		if self.mesh.get_surface_count() > 0:
+			self.mesh.surface_remove(0)
 		self.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, get_mesh_arrays(self.built_arrays))
 	self.drag_arrays = []
 	self.get_child(0).mesh.surface_remove(0)
 	for key in self.drag_tiles.keys():
-		self.network_tiles[key] = drag_tiles[key]
+		self.network_tiles[key] = self.drag_tiles[key]
 	self.drag_tiles = {}
 	for j in range(0, len(self.drag_tracker), 6):
 		var found = self.built_tracker.find(self.drag_tracker[j])
@@ -424,55 +732,30 @@ func get_uvs(rot : int, flip : int):
 	])
 	return ret_uvs
 	
-func edges_ortho(start, end, draw_dir):
+func edges_ortho(start: Vector2, end: Vector2, draw_dir: Vector2) -> Array:
 	#print("ortho")
 	var curr_tile = start
-	var ret_edges = {}
+	var ret_edges = []
+	var ret_locations = []
 	var half_d = draw_dir/2
-	var e_key = [2 * abs(floor(half_d.x)), 2 * abs(floor(half_d.y)), 2 * ceil(half_d.x), 2 * ceil(half_d.y)]
-	if network_tiles.keys().has(curr_tile):
-		var e_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(e_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if e_existing[e_ind] == 0:
-				# if they are the same don't add
-				e_existing[e_ind] += e_key[e_ind]
-		e_key = e_existing.duplicate()
-	ret_edges[e_key] = []
-	ret_edges[e_key].append(curr_tile)
+	var e_key = [int(2 * abs(floor(half_d.x))), int(2 * abs(floor(half_d.y))), int(2 * ceil(half_d.x)), int(2 * ceil(half_d.y))]
+	ret_edges.append(e_key.duplicate())
+	ret_locations.append(curr_tile)
 	curr_tile += draw_dir
 	while (curr_tile.x * abs(draw_dir.x)) != end.x and (curr_tile.y * abs(draw_dir.y)) != end.y:
 		# use edge values as keys, 2 means orthogonal edge
 		e_key = [int(2*abs(draw_dir.x)), int(2*abs(draw_dir.y)), int(2*abs(draw_dir.x)), int(2*abs(draw_dir.y))]
-		if network_tiles.keys().has(curr_tile):
-			var e_existing = network_tiles[curr_tile].edges
-			for e_ind in range(len(e_existing)):
-				# if one of them is 0 they override, if they are the same the also override
-				if e_existing[e_ind] == 0:
-					# if they are the same don't add
-					e_existing[e_ind] += e_key[e_ind]
-			e_key = e_existing.duplicate()
 		# add edge to dict if its not in there
-		if not ret_edges.keys().has(e_key):
-			ret_edges[e_key] = []
-		ret_edges[e_key].append(curr_tile)
+		ret_edges.append(e_key.duplicate())
+		ret_locations.append(curr_tile)
 		# find best next tile
 		curr_tile += draw_dir
-	e_key = [2 * ceil(half_d.x), 2 * ceil(half_d.y), 2 * abs(floor(half_d.x)), 2 * abs(floor(half_d.y))]
-	if network_tiles.keys().has(curr_tile):
-		var e_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(e_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if e_existing[e_ind] == 0:
-				# if they are the same don't add
-				e_existing[e_ind] += e_key[e_ind]
-		e_key = e_existing.duplicate()
-	if not ret_edges.keys().has(e_key):
-		ret_edges[e_key] = []
-	ret_edges[e_key].append(curr_tile)
-	return ret_edges
+	e_key = [int(2 * ceil(half_d.x)), int(2 * ceil(half_d.y)), int(2 * abs(floor(half_d.x))), int(2 * abs(floor(half_d.y)))]
+	ret_edges.append(e_key.duplicate())
+	ret_locations.append(curr_tile)
+	return [ret_edges, ret_locations]
 	
-func edges_diag(start, end, draw_dir):
+func edges_diag(start: Vector2, end: Vector2, draw_dir: Vector2) -> Array:
 	#print("diag")
 	# two ways to start:
 	#	| /|	|  |
@@ -484,20 +767,19 @@ func edges_diag(start, end, draw_dir):
 	# Vector2(-.7, -.7),->	[0, 1, 3, 0]	alt	[3, 0, 0, 1]	start[0, 1, 0, 0]	alt[3, 0, 0, 0]
 	# Vector2(.7, -.7),	->	[1, 3, 0, 0]	alt	[0, 0, 1, 3]	start[0, 3, 0, 0]	alt[0, 0, 1, 0]
 	# 1 = \ , 3 = /
-	"TODO need to always split the quad-to-triangles with the diagonal perpendicular to the network"
-	"TODO 2-lines"
 	var curr_tile = start
-	var ret_edges = {}
+	var ret_edges = []
+	var ret_locations = []
 	var edges_sets = [[
-		abs(ceil(draw_dir.x) * 			(1+2*ceil(draw_dir.y))), 
-		abs(abs(floor(draw_dir.y)) * 	(1+2*ceil(draw_dir.x))), 
-		abs(abs(floor(draw_dir.x)) * 	(1+2*abs(floor(draw_dir.y)))), 
-		abs(ceil(draw_dir.y) * 			(1+2*abs(floor(draw_dir.x))))
+		int(abs(ceil(draw_dir.x) * 			(1+2*ceil(draw_dir.y)))), 
+		int(abs(abs(floor(draw_dir.y)) * 	(1+2*ceil(draw_dir.x)))), 
+		int(abs(abs(floor(draw_dir.x)) * 	(1+2*abs(floor(draw_dir.y))))), 
+		int(abs(ceil(draw_dir.y) * 			(1+2*abs(floor(draw_dir.x)))))
 	],[
-		abs(abs(floor(draw_dir.x)) * 	(1+2*abs(floor(draw_dir.y)))), 
-		abs(ceil(draw_dir.y) * 			(1+2*abs(floor(draw_dir.x)))), 
-		abs(ceil(draw_dir.x) * 			(1+2*ceil(draw_dir.y))), 
-		abs(abs(floor(draw_dir.y)) * 	(1+2*ceil(draw_dir.x)))
+		int(abs(abs(floor(draw_dir.x)) * 	(1+2*abs(floor(draw_dir.y))))), 
+		int(abs(ceil(draw_dir.y) * 			(1+2*abs(floor(draw_dir.x))))), 
+		int(abs(ceil(draw_dir.x) * 			(1+2*ceil(draw_dir.y)))), 
+		int(abs(abs(floor(draw_dir.y)) * 	(1+2*ceil(draw_dir.x))))
 	]]
 	var curr_edges_i = 0
 	if abs((end - start).x) > abs((end - start).y):
@@ -515,34 +797,17 @@ func edges_diag(start, end, draw_dir):
 		s_key[1] = 0
 		s_key[2] = edges_sets[curr_edges_i][2]
 		s_key[3] = 0
-	if network_tiles.keys().has(curr_tile):
-		var s_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(s_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if s_existing[e_ind] == 0:
-				# if they are the same don't add
-				s_existing[e_ind] += s_key[e_ind]
-		s_key = s_existing.duplicate()
-	ret_edges[s_key] = []
-	ret_edges[s_key].append(curr_tile)
+	ret_edges.append(s_key.duplicate())
+	ret_locations.append(curr_tile)
 	curr_tile += Vector2(round(draw_dir.x)*curr_edges_i, round(draw_dir.y)*(1-curr_edges_i))
 	curr_edges_i = (curr_edges_i+1)%2
 	
 	# this iters the range, since for diagonals abs(x) == abs(y) these simple != checks work
 	while curr_tile.x != end.x and curr_tile.y != end.y:
 		var e_key = edges_sets[curr_edges_i]
-		if network_tiles.keys().has(curr_tile):
-			var e_existing = network_tiles[curr_tile].edges
-			for e_ind in range(len(e_existing)):
-				# if one of them is 0 they override, if they are the same the also override
-				if e_existing[e_ind] == 0:
-					# if they are the same don't add
-					e_existing[e_ind] += e_key[e_ind]
-			e_key = e_existing.duplicate()
 		# add edge to dict if its not in there
-		if not ret_edges.keys().has(e_key):
-			ret_edges[e_key] = []
-		ret_edges[e_key].append(curr_tile)
+		ret_edges.append(e_key.duplicate())
+		ret_locations.append(curr_tile)
 		curr_tile += Vector2(round(draw_dir.x)*curr_edges_i, round(draw_dir.y)*(1-curr_edges_i))
 		# 2%2=0, 1%2=1 so this toggles between 0 and 0
 		curr_edges_i = (curr_edges_i+1)%2
@@ -559,23 +824,15 @@ func edges_diag(start, end, draw_dir):
 		f_key[1] = 0
 		f_key[2] = edges_sets[curr_edges_i][2]
 		f_key[3] = 0
-	if network_tiles.keys().has(curr_tile):
-		var f_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(f_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if f_existing[e_ind] == 0:
-				# if they are the same don't add
-				f_existing[e_ind] += f_key[e_ind]
-		f_key = f_existing.duplicate()
-	if not ret_edges.keys().has(f_key):
-		ret_edges[f_key] = []
-	ret_edges[f_key].append(curr_tile)
-	return ret_edges
+	ret_edges.append(f_key.duplicate())
+	ret_locations.append(curr_tile)
+	return [ret_edges, ret_locations]
 	
-func edges_far2(start, end, draw_dir):
+func edges_far2(start : Vector2, end : Vector2, draw_dir : Vector2) -> Array:
 	#print("far2")
 	var curr_tile = start
-	var ret_edges = {}
+	var ret_edges = []
+	var ret_locations = []
 	var main_vec : Vector2
 	var sec_vec : Vector2
 	if abs(draw_dir.x) > abs(draw_dir.y):
@@ -609,11 +866,11 @@ func edges_far2(start, end, draw_dir):
 		main_vec,
 	]
 	var edge_steps = [
-		[2*abs(main_vec.x), 	    2*abs(main_vec.y), 			2*abs(main_vec.x), 			2*abs(main_vec.y)],
-		[2*abs(main_vec.x), 	    2*abs(main_vec.y), 			2*abs(main_vec.x), 			2*abs(main_vec.y)],
+		[int(2*abs(main_vec.x)), 	    int(2*abs(main_vec.y)), 			int(2*abs(main_vec.x)), 			int(2*abs(main_vec.y))],
+		[int(2*abs(main_vec.x)), 	    int(2*abs(main_vec.y)), 			int(2*abs(main_vec.x)), 			int(2*abs(main_vec.y))],
 		# bottom two lines use min and max to convert pos/neg dir into 0 edges where needed
-		[2*max(main_vec.x, 0), 	    2*max(main_vec.y,0), 		2*abs(min(main_vec.x, 0)), 	2*abs(min(main_vec.y, 0))],
-		[2*abs(min(main_vec.x, 0)), 2*abs(min(main_vec.y, 0)), 	2*max(main_vec.x, 0), 		2*max(main_vec.y, 0)],
+		[int(2*max(main_vec.x, 0)), 	int(2*max(main_vec.y,0)), 			int(2*abs(min(main_vec.x, 0))), 	int(2*abs(min(main_vec.y, 0)))],
+		[int(2*abs(min(main_vec.x, 0))),int(2*abs(min(main_vec.y, 0))), 	int(2*max(main_vec.x, 0)), 			int(2*max(main_vec.y, 0))],
 	]
 	var step = 0
 	var goal = end.x
@@ -624,34 +881,17 @@ func edges_far2(start, end, draw_dir):
 		curr = curr_tile.y
 		x_first = false
 	var e_key = edge_steps[3]
-	if network_tiles.keys().has(curr_tile):
-		var e_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(e_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if e_existing[e_ind] == 0:
-				# if they are the same don't add
-				e_existing[e_ind] += e_key[e_ind]
-		e_key = e_existing.duplicate()
-	ret_edges[e_key] = []
-	ret_edges[e_key].append(curr_tile)
+	ret_edges.append(e_key.duplicate())
+	ret_locations.append(curr_tile)
 	curr_tile += tile_steps[step]
 	while curr != goal:
 		e_key = edge_steps[step]
 		if abs(curr - goal) == 1:
 			e_key = edge_steps[0]
 			step = (step + (len(tile_steps)-1))%len(tile_steps)
-		if network_tiles.keys().has(curr_tile):
-			var e_existing = network_tiles[curr_tile].edges
-			for e_ind in range(len(e_existing)):
-				# if one of them is 0 they override, if they are the same the also override
-				if e_existing[e_ind] == 0:
-					# if they are the same don't add
-					e_existing[e_ind] += e_key[e_ind]
-			e_key = e_existing.duplicate()
 		# add edge to dict if its not in there
-		if not ret_edges.keys().has(e_key):
-			ret_edges[e_key] = []
-		ret_edges[e_key].append(curr_tile)
+		ret_edges.append(e_key.duplicate())
+		ret_locations.append(curr_tile)
 		curr_tile += tile_steps[step]
 		step = (step + 1)%len(tile_steps)
 		if x_first:
@@ -659,24 +899,16 @@ func edges_far2(start, end, draw_dir):
 		else:
 			curr = curr_tile.y
 	e_key = edge_steps[2]
-	if network_tiles.keys().has(curr_tile):
-		var e_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(e_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if e_existing[e_ind] == 0:
-				# if they are the same don't add
-				e_existing[e_ind] += e_key[e_ind]
-		e_key = e_existing.duplicate()
-	if not ret_edges.keys().has(e_key):
-		ret_edges[e_key] = []
-	ret_edges[e_key].append(curr_tile)
+	ret_edges.append(e_key.duplicate())
+	ret_locations.append(curr_tile)
 	curr_tile += tile_steps[step]
-	return ret_edges
+	return [ret_edges, ret_locations]
 	
-func edges_far3(start, end, draw_dir):
+func edges_far3(start: Vector2, end: Vector2, draw_dir: Vector2) -> Array:
 	#print("far3")
 	var curr_tile = start
-	var ret_edges = {}
+	var ret_edges = []
+	var ret_locations = []
 	var main_vec : Vector2
 	var sec_vec : Vector2
 	var starting = true
@@ -712,14 +944,17 @@ func edges_far3(start, end, draw_dir):
 		main_vec,
 		main_vec,
 	]
+	
+	#  = = = >
+	#    < =
 	var edge_steps = [
-		[2*abs(main_vec.x), 	    2*abs(main_vec.y), 			2*abs(main_vec.x), 			2*abs(main_vec.y)],
-		[2*abs(main_vec.x), 	    2*abs(main_vec.y), 			2*abs(main_vec.x), 			2*abs(main_vec.y)],
-		[2*abs(main_vec.x), 	    2*abs(main_vec.y), 			2*abs(main_vec.x), 			2*abs(main_vec.y)],
+		[int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y)), 		int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y))],
+		[int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y)), 		int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y))],
+		[int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y)), 		int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y))],
 		# bottom two lines use min and max to convert pos/neg dir into 0 edges where needed
-		[2*max(main_vec.x, 0), 	    2*max(main_vec.y,0), 		2*abs(min(main_vec.x, 0)), 	2*abs(min(main_vec.y, 0))],
-		[2*abs(min(main_vec.x, 0)), 2*abs(min(main_vec.y, 0)), 	2*max(main_vec.x, 0), 		2*max(main_vec.y, 0)],
-		[2*abs(main_vec.x), 	    2*abs(main_vec.y), 			2*abs(main_vec.x), 			2*abs(main_vec.y)],
+		[int(2*max(main_vec.x, 0)), 	int(2*max(main_vec.y,0)), 		int(2*abs(min(main_vec.x, 0))), int(2*abs(min(main_vec.y, 0)))],
+		[int(2*abs(min(main_vec.x, 0))),int(2*abs(min(main_vec.y, 0))), int(2*max(main_vec.x, 0)), 		int(2*max(main_vec.y, 0))],
+		[int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y)), 		int(2*abs(main_vec.x)), 		int(2*abs(main_vec.y))],
 	]
 	var step = 0
 	var goal = end.x
@@ -730,19 +965,13 @@ func edges_far3(start, end, draw_dir):
 		curr = curr_tile.y
 		x_first = false
 	var e_key = edge_steps[4]
-	if network_tiles.keys().has(curr_tile):
-		var e_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(e_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if e_existing[e_ind] == 0:
-				# if they are the same don't add
-				e_existing[e_ind] += e_key[e_ind]
-		e_key = e_existing.duplicate()
-	ret_edges[e_key] = []
-	ret_edges[e_key].append(curr_tile)
+	ret_edges.append(e_key.duplicate())
+	ret_locations.append(curr_tile)
 	curr_tile += tile_steps[step]
 	while curr != goal:
 		e_key = edge_steps[step]
+		# this if-elif chain makes the first and last segment have far-to-ortho transitions
+		# might want to make this more flexible to incorporate more/all transitions
 		if step == 1 and starting:
 			e_key = edge_steps[3]
 		elif step == 2 and starting:
@@ -755,18 +984,9 @@ func edges_far3(start, end, draw_dir):
 		elif abs(curr - goal) < 3:
 			e_key = edge_steps[0]
 			step-=1
-		if network_tiles.keys().has(curr_tile):
-			var e_existing = network_tiles[curr_tile].edges
-			for e_ind in range(len(e_existing)):
-				# if one of them is 0 they override, if they are the same the also override
-				if e_existing[e_ind] == 0:
-					# if they are the same don't add
-					e_existing[e_ind] += e_key[e_ind]
-			e_key = e_existing.duplicate()
 		# add edge to dict if its not in there
-		if not ret_edges.keys().has(e_key):
-			ret_edges[e_key] = []
-		ret_edges[e_key].append(curr_tile)
+		ret_edges.append(e_key.duplicate())
+		ret_locations.append(curr_tile)
 		curr_tile += tile_steps[step]
 		step = (step + 1)%len(tile_steps)
 		if x_first:
@@ -774,15 +994,6 @@ func edges_far3(start, end, draw_dir):
 		else:
 			curr = curr_tile.y
 	e_key = edge_steps[3]
-	if network_tiles.keys().has(curr_tile):
-		var e_existing = network_tiles[curr_tile].edges
-		for e_ind in range(len(e_existing)):
-			# if one of them is 0 they override, if they are the same the also override
-			if e_existing[e_ind] == 0:
-				# if they are the same don't add
-					e_existing[e_ind] += e_key[e_ind]
-		e_key = e_existing.duplicate()
-	if not ret_edges.keys().has(e_key):
-		ret_edges[e_key] = []
-	ret_edges[e_key].append(curr_tile)
-	return ret_edges
+	ret_edges.append(e_key.duplicate())
+	ret_locations.append(curr_tile)
+	return [ret_edges, ret_locations]

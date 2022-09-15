@@ -115,19 +115,14 @@ func load(file, dbdf=null):
 	while i < len(raw_split)-1:
 		var line = raw_split[i].strip_edges(true, true)
 		if len(line) > 1 and line[0] == '1':
-			var wnes_keys = line.split(",")
-			var w = int(wnes_keys[1])
-			var n = int(wnes_keys[2])
-			var e = int(wnes_keys[3])
-			var s = int(wnes_keys[4])
-			if not self.RUL_wnes.keys().has(w):
-				self.RUL_wnes[w] = {}
-			if not self.RUL_wnes[w].keys().has(n):
-				self.RUL_wnes[w][n] = {}
-			if not self.RUL_wnes[w][n].keys().has(e):
-				self.RUL_wnes[w][n][e] = {}
-			if not self.RUL_wnes[w][n][e].keys().has(s):
-				self.RUL_wnes[w][n][e][s] = []
+			var split = line.split(",")
+			var wnes_keys = []
+			wnes_keys.append(int(split[1]))
+			wnes_keys.append(int(split[2]))
+			wnes_keys.append(int(split[3]))
+			wnes_keys.append(int(split[4]))
+			if not self.RUL_wnes.has(wnes_keys):
+				self.RUL_wnes[wnes_keys] = []
 			i+=1
 			line = raw_split[i].strip_edges(true, true)
 			var entry = []
@@ -149,7 +144,7 @@ func load(file, dbdf=null):
 					var hexstr_to_int = 0
 					if len(string) > 4:
 						hexstr_to_int = ("0x00" + string.substr(0, len(string)-4)).hex_to_int()<<16
-					hexstr_to_int += ("0x00" + string.substr(len(string)-4, len(string))).hex_to_int()
+					hexstr_to_int += ("0x00" + string.substr(max(len(string)-4, 0), len(string))).hex_to_int()
 					entry.append([
 						int(wnes3_keys[0]), 
 						int(wnes3_keys[1]),
@@ -165,7 +160,7 @@ func load(file, dbdf=null):
 					i+=1
 				if len(raw_split[i]) > 8:
 					line = raw_split[i].strip_edges(true, true)
-			self.RUL_wnes[w][n][e][s].append(entry)
+			self.RUL_wnes[wnes_keys].append(entry)
 		else:
 			i+=1
 	return OK

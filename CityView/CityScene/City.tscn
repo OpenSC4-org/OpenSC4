@@ -203,6 +203,10 @@ uniform float beach_ht_range;
 varying float norm_x;
 varying float norm_y;
 varying float norm_z;
+varying flat float layer_i_0; 
+varying flat float layer_i_1; 
+varying flat float layer_i_2; 
+varying float beach_str;
 //varying flat vec3 normal;
 
 void vertex()
@@ -214,6 +218,10 @@ void vertex()
 	norm_x = w_norm.x;
 	norm_y = w_norm.y;
 	norm_z = w_norm.z;
+	layer_i_0 = COLOR.a * 255.0;
+	layer_i_1 = UV2.x * 255.0;
+	layer_i_2 = UV2.y * 255.0;
+	beach_str = pow(min((texelFetch(watermap, ivec2(coord_pass.xz).yx, 0).r) * 100.0, 1.0), 4.0);
 	//normal = normalize((inverse(WORLD_MATRIX) * vec4(NORMAL, 0.0)).rgb);
 	//if (map_str < (beach_ht_range/2.0)){
 	//	map_str = min(map_str, 1.0);
@@ -227,28 +235,20 @@ void fragment()
 {
 	float zoom_ind = min( float(zoom-1), 4.0);
 	vec2 coord = coord_pass.xz;
+	
+	float layer_w_0 = COLOR.r;
+	float layer_w_1 = COLOR.g;
+	float layer_w_2 = COLOR.b;
 	// might not be the fastest way of doing this
 	ivec2 icoord1 = ivec2(coord);
 	ivec2 icoord2 = icoord1 + ivec2(0, 1);
 	ivec2 icoord3 = icoord1 + ivec2(1, 0);
-	ivec2 icoord4 = icoord1 + ivec2(1, 1);
-	
-	float beach_str1 = pow(min((texelFetch(watermap, icoord1.yx, 0).r) * 100.0, 1.0), 4.0);
-	float beach_str2 = pow(min((texelFetch(watermap, icoord2.yx, 0).r) * 100.0, 1.0), 4.0);
-	float beach_str3 = pow(min((texelFetch(watermap, icoord3.yx, 0).r) * 100.0, 1.0), 4.0);
-	float beach_str4 = pow(min((texelFetch(watermap, icoord4.yx, 0).r) * 100.0, 1.0), 4.0);
-	
-	float index1 = texelFetch(layer, icoord1, 0).r*255.0;
-	float index2 = texelFetch(layer, icoord2, 0).r*255.0;
-	float index3 = texelFetch(layer, icoord3, 0).r*255.0;
-	float index4 = texelFetch(layer, icoord4, 0).r*255.0;
 	
 	vec3 beach_col = texture(terrain, vec3(UV.y*tiling_factor, UV.x*tiling_factor, float(zoom_ind)+beach_ind)).rgb;
 		
 	vec2 rem1 = abs(vec2(icoord1) - coord);
 	vec2 rem2 = abs(vec2(icoord2) - coord);
 	vec2 rem3 = abs(vec2(icoord3) - coord);
-	vec2 rem4 = abs(vec2(icoord4) - coord);
 	vec3 grid = vec3(1.0, 1.0, 1.0);
 	if (grid_bool){
 		if (rem1.x < (0.05 * max((5.0-float(zoom_ind)), 0.0)) ){
@@ -258,15 +258,10 @@ void fragment()
 			grid = vec3(0.6, 0.6, 0.6);
 		}
 	}
-	float str1 = ((cos((rem1.x)*PI)*0.5+0.5) * (cos((rem1.y)*PI)*0.5+0.5));
-	float str2 = ((cos((rem2.x)*PI)*0.5+0.5) * (cos((rem2.y)*PI)*0.5+0.5));
-	float str3 = ((cos((rem3.x)*PI)*0.5+0.5) * (cos((rem3.y)*PI)*0.5+0.5));
-	float str4 = ((cos((rem4.x)*PI)*0.5+0.5) * (cos((rem4.y)*PI)*0.5+0.5));
-	float sum_str = str1 + str2 + str3 + str4;
-	vec3 col1 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index1)).rgb * (1.0 - beach_str1) + (beach_str1 * beach_col)) * (str1/sum_str);
-	vec3 col2 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index2)).rgb * (1.0 - beach_str2) + (beach_str2 * beach_col)) * (str2/sum_str);
-	vec3 col3 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index3)).rgb * (1.0 - beach_str3) + (beach_str3 * beach_col)) * (str3/sum_str);
-	vec3 col4 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+index4)).rgb * (1.0 - beach_str4) + (beach_str4 * beach_col)) * (str4/sum_str);
+	float sum_str = layer_w_0 + layer_w_1 + layer_w_2;
+	vec3 col1 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+layer_i_0)).rgb * (1.0 - beach_str) + (beach_str * beach_col)) * (layer_w_0/sum_str);
+	vec3 col2 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+layer_i_1)).rgb * (1.0 - beach_str) + (beach_str * beach_col)) * (layer_w_1/sum_str);
+	vec3 col3 = (texture(terrain, vec3(UV.x*tiling_factor, UV.y*tiling_factor, float(zoom_ind)+layer_i_2)).rgb * (1.0 - beach_str) + (beach_str * beach_col)) * (layer_w_2/sum_str);
 	//cliffs
 	vec3 overlay = vec3(0.0, 0.0, 0.0);
 	vec3 underlay = vec3(0.0, 0.0, 0.0);
@@ -285,7 +280,7 @@ void fragment()
 	ALBEDO = (
 				(
 				(
-					(col1 + col2 + col3 + col4) * (1.0-over_str)
+					(col1 + col2 + col3) * (1.0-over_str)
 					) 
 				+ (overlay * over_str)
 				)
@@ -456,6 +451,7 @@ margin_bottom = 1194.0
 texture = SubResource( 14 )
 
 [node name="Terrain" type="MeshInstance" parent="Spatial"]
+visible = false
 material_override = SubResource( 5 )
 skeleton = NodePath("../..")
 software_skinning_transform_normals = false

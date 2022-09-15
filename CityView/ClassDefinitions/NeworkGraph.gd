@@ -7,7 +7,7 @@ var routes : Dictionary
 func _init():
 	pass
 
-func _tiles_to_edges(tiles : Array):
+func _tiles_to_graph_edges(tiles : Array):
 	for tilepath in tiles[0].tilepaths:
 		if not self.edges.keys().has(tilepath.type):
 			self.edges[tilepath.type] = []
