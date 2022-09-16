@@ -2,6 +2,7 @@ extends Node
 
 var subfile_indices : Dictionary
 var sub_by_type_and_group : Dictionary
+var game_dir = null
 
 func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) -> DBPFSubfile:
 	if not subfile_indices.has([type_id, group_id, instance_id]):

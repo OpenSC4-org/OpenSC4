@@ -428,7 +428,6 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -64, 0, -64 )
 
 [node name="WaterPlane" type="MeshInstance" parent="Spatial"]
-visible = false
 material_override = SubResource( 10 )
 skeleton = NodePath("../..")
 software_skinning_transform_normals = false
@@ -451,7 +450,6 @@ margin_bottom = 1194.0
 texture = SubResource( 14 )
 
 [node name="Terrain" type="MeshInstance" parent="Spatial"]
-visible = false
 material_override = SubResource( 5 )
 skeleton = NodePath("../..")
 software_skinning_transform_normals = false

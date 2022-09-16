@@ -1,6 +1,5 @@
 extends Control
 	
-var game_dir = null
 var cfg_file
 
 var loading_thread : Thread
@@ -19,20 +18,20 @@ func _ready():
 	#_generate_types_dict_from_XML()
 	cfg_file = INISubfile.new("user://cfg.ini")
 	if cfg_file.sections.size() > 0:
-		game_dir = cfg_file.sections["paths"]["sc4_files"]
+		Core.game_dir = cfg_file.sections["paths"]["sc4_files"]
 	else:
 		$dialog.popup_centered(get_viewport_rect().size / 2)
 		yield($dialog, "popup_hide")
 		print("todo: store path in cfg.ini")
 		cfg_file.sections["paths"] = {}
-		cfg_file.sections["paths"]["sc4_files"] = game_dir
+		cfg_file.sections["paths"]["sc4_files"] = Core.game_dir
 		cfg_file.save_file()
 	
-	#TODO check if files exist in current game_dir
+	#TODO check if files exist in current Core.game_dir
 	var dir = Directory.new()
 	var dir_complete = true
 	while not dir_complete:
-		if dir.open(game_dir) == OK:
+		if dir.open(Core.game_dir) == OK:
 			dir.list_dir_begin()
 			var files = []
 			var file_name = dir.get_next()
@@ -47,8 +46,8 @@ func _ready():
 						folder_dir += ("/" + folders[folder])
 					var file_n = folders[-1]
 					var subdir = Directory.new()
-					print(game_dir+folder_dir)
-					if subdir.open(game_dir+folder_dir) == OK:
+					print(Core.game_dir+folder_dir)
+					if subdir.open(Core.game_dir+folder_dir) == OK:
 						subdir.list_dir_begin()
 						var subfile_name = subdir.get_next()
 						var found = false
@@ -75,7 +74,7 @@ func _ready():
 			yield($dialog, "popup_hide")
 			print("todo: store path in cfg.ini")
 			cfg_file.sections["paths"] = {}
-			cfg_file.sections["paths"]["sc4_files"] = game_dir
+			cfg_file.sections["paths"]["sc4_files"] = Core.game_dir
 			cfg_file.save_file()
 	$dialog.deselect_items()
 	loading_thread = Thread.new()
@@ -92,7 +91,7 @@ func load_DATs():
 	print("Loading DAT files...")
 	$LoadProgress.value = 0
 	for dat_file in dat_files :
-		load_single_DAT(game_dir + "/" + dat_file)
+		load_single_DAT(Core.game_dir + "/" + dat_file)
 	finish_loading()
 
 func finish_loading():
@@ -109,7 +108,7 @@ func load_single_DAT(src : String):
 
 
 func _on_dialog_confirmed():
-	game_dir = $dialog.current_dir
+	Core.game_dir = $dialog.current_dir
 	
 func _generate_types_dict_from_XML():
 	"""

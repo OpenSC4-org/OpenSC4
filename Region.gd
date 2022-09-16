@@ -32,7 +32,7 @@ func _init():
 func play_new_random_music():
 	self.current_music = self.radio[rng.randi_range(0, len(self.radio)- 1)]
 	var file = File.new()
-	file.open('res://Radio/Stations/Region/Music/%s' % self.current_music, File.READ)
+	file.open(Core.game_dir + '/Radio/Stations/Region/Music/%s' % self.current_music, File.READ)
 
 	var audiostream = AudioStreamMP3.new()
 	audiostream.set_data(file.get_buffer(file.get_len()))
@@ -58,7 +58,7 @@ func _ready():
 	# City files end in .sc4
 	var files = []
 	var dir = Directory.new()
-	var err = dir.open('res://Regions/%s/' % REGION_NAME)
+	var err = dir.open(Core.game_dir + '/Regions/%s/' % REGION_NAME)
 	if err != OK:
 		print('Error opening region directory: %s' % err)
 		return

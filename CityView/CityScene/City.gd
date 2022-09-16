@@ -12,8 +12,6 @@ const WATER_HEIGHT : float = 250.0 / TILE_SIZE
 var terr_tile_ind = {}
 # translator from fsh-iid to texturearray layer
 var ind_layer
-# stores texturearray layer per tile
-var layer_arr = []
 # for cursor
 var cur_img
 var vec_hot
@@ -47,13 +45,6 @@ func load_city_terrain(svfile : DBPF):
 	size_h = city_info.size[1]
 	self.width = size_w * 64 + 1
 	self.height = size_h * 64 + 1
-	self.layer_arr.resize(width)
-	var row = []
-	row.resize(self.height)
-	for coll in range(len(self.layer_arr)):
-		self.layer_arr[coll] = []
-		for _cell in range(len(self.layer_arr)):
-			self.layer_arr[coll].append(null)
 		
 	terrain_info.set_dimensions(self.width, self.height)
 	for i in range(width):
@@ -96,7 +87,6 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 		if heightmap:
 			var weight = [0.0, 0.0, 0.0, 0.0]
 			weight[i] = 1.0
-			self.layer_arr[vert.z][vert.x] = res[1]
 			vertex_layers.append(res[1])
 			vertex_weights.append([weight[0], weight[1], weight[2], weight[3]])
 			normalz.append(get_normal(vert, heightmap))
