@@ -128,9 +128,39 @@ func load_textures_to_uv_dict():
 	mat_e.set_shader_param("mid_ind", float(mid_edge))
 	mat_e.set_shader_param("bot_ind", float(bot_edge))
 	return ind_to_layer
-		
-		
 	
+func update_terrain(locations : PoolVector3Array, rot_flipped_UVs : PoolVector2Array):
+	var neighbours = [
+		Vector3(-1, 0, -1),Vector3(0, 0, -1),Vector3(1, 0, -1),
+		Vector3(-1, 0, 0),Vector3(0, 0, 0),Vector3(1, 0, 0),
+		Vector3(-1, 0, 1),Vector3(0, 0, 1),Vector3(1, 0, 1)
+		]
+	var surface_ind = self.mesh.get_surface_count() - 1
+	if surface_ind != 0:
+		print("error: terrain somehow has more than one surface!")
+	var arrays = self.mesh.surface_get_arrays(0).duplicate(true)
+	self.mesh.surface_remove(0)
+	var vertices_copy = arrays[ArrayMesh.ARRAY_VERTEX]
+	var UVs_copy = arrays[ArrayMesh.ARRAY_TEX_UV]
+	# iterate locations per quad
+	var updated_vertices = []
+	for i in range(0, len(locations), 6):
+		var tile_loc = locations[i]
+		for neigh in neighbours:
+			var index = self.get_parent().get_parent().terr_tile_ind[Vector2(tile_loc.x+neigh.x, tile_loc.z+neigh.z)]
+			# update vertices per quad
+			for j in range(6):
+				for k in range(6):
+					if vertices_copy[index+j].x == locations[i+k].x and vertices_copy[index+j].z == locations[i+k].z:
+						vertices_copy[index+j] = locations[i+k] - Vector3(0.0, 0.01, 0.0)
+						# Vertex order can be different, therefore UVs needs updating
+						if neigh == Vector3(0,0,0):
+							UVs_copy[index+j] = rot_flipped_UVs[i+j]
+				
+	arrays[ArrayMesh.ARRAY_VERTEX] = vertices_copy
+	arrays[ArrayMesh.ARRAY_TEX_UV] = UVs_copy
+	self.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

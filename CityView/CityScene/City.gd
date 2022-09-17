@@ -394,10 +394,15 @@ func create_terrain():
 	$Spatial/WaterPlane.mesh = warray_mesh
 	
 	"test s3d"
-	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16910410}
+	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16620430}
 	var s3dobj = Core.subfile(TGI_s3d["T"], TGI_s3d["G"], TGI_s3d["I"], S3DSubfile)
 	var location = Vector3(width/2, heightmap[int(width/2)][int(self.height/2)] / TILE_SIZE, self.height/2)
-	s3dobj.add_to_mesh($Spatial/TestS3D, location)
+	for x in range(5):
+		for z in range(5):
+			var x_rand = (x-2.5) + randf()
+			var z_rand = (z-2.5) + randf()
+			var loc_rand = location + Vector3(x_rand, 0, z_rand)
+			s3dobj.add_to_mesh($Spatial/TestS3D, loc_rand)
 	test_exemplar()
 	var s3dmat = $Spatial/TestS3D.get_material_override()
 	s3dmat.set_shader_param("nois_texture", $Spatial/WaterPlane/NoiseTexture.texture)

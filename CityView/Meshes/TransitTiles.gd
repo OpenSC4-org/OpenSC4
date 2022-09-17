@@ -523,7 +523,7 @@ func _drag_network(start, end, type):
 	var MaxNetworkHtAdjustment = 10.0/16.0
 	var numSmoothingProgressionSteps = 2
 	#var distAddedPerSmoothingProgressionStep = 4 # idk, i guess its supposed to take the average of more tiles?
-	
+	"""
 	var max_height_change = tan(deg2rad(MaxSlopeAlongNetwork))*step_length
 	var max_slope_change = tan(deg2rad(MaxNetworkSlopeChange))*step_length
 	for _step in range(numSmoothingProgressionSteps):
@@ -538,7 +538,7 @@ func _drag_network(start, end, type):
 				var step_height = 0.5 * (average-curr)
 				curr += min(step_height, MaxNetworkHtAdjustment)
 				strip_heights[h_i] = curr
-	
+	"""
 	"""
 	I should have smooth heights now, next is to turn them into vertices
 	corner heights would be i, i+1, i+1, i+2 for diagonals
@@ -647,9 +647,11 @@ func _build_network():#start, end, type):
 		if len(self.built_arrays) == 0:
 			self.built_arrays = []
 			self.built_arrays.resize(ArrayMesh.ARRAY_MAX)
-		#for i in len(drag_arrays[ArrayMesh.ARRAY_VERTEX]):
+		var built = Vector2(0, 128) # used to swap from yellow color to basic with tile colors
+		var verts_to_terrain = PoolVector3Array(self.drag_arrays[ArrayMesh.ARRAY_VERTEX])
+		var UVs_to_terrain = PoolVector2Array(self.drag_arrays[ArrayMesh.ARRAY_TEX_UV])
+		self.get_parent().get_node("Terrain").update_terrain(verts_to_terrain, UVs_to_terrain)
 		for i in len(self.drag_arrays):
-			var built = Vector2(0, 128)
 			if self.built_arrays[i] == null and not self.drag_arrays[i] == null:
 				self.built_arrays[i] = []
 			if not self.drag_arrays[i] == null:

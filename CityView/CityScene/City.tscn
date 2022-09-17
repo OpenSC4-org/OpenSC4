@@ -405,6 +405,7 @@ void fragment(){
 }"
 
 [sub_resource type="ShaderMaterial" id=19]
+render_priority = 1
 shader = SubResource( 18 )
 
 [node name="City" type="Spatial"]
