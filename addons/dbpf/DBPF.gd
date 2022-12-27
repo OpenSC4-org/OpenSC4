@@ -1,5 +1,8 @@
 extends Resource
-class_name DBPF
+
+# See details: https://wiki.sc4devotion.com/index.php?title=DBPF
+
+class_name DBPF # Database Packed File
 
 var subfiles : Dictionary
 var compressed_files : Dictionary

@@ -4,40 +4,16 @@ var REGION_NAME = "Timbuktu"
 var region_w = 0
 var region_h = 0
 var cities = {}
-var radio = []
-var current_music 
-var rng = RandomNumberGenerator.new()
+
+
+
 
 func _init():
 	print("Initializing the region view")
-	rng.randomize()
+	
 	# Open the region INI file
 	var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
 
-	# Load the music list
-	var dir = Directory.new()
-	var err = dir.open('res://Radio/Stations/Region/Music')
-	if err != OK:
-		print('Error opening radio directory: %s' % err)
-		return
-	dir.list_dir_begin()
-	while true:
-		var file = dir.get_next()
-		if file == "":
-			break
-		if file.ends_with('.mp3'):
-			self.radio.append(file)
-	dir.list_dir_end()
-
-func play_new_random_music():
-	self.current_music = self.radio[rng.randi_range(0, len(self.radio)- 1)]
-	var file = File.new()
-	file.open(Core.game_dir + '/Radio/Stations/Region/Music/%s' % self.current_music, File.READ)
-
-	var audiostream = AudioStreamMP3.new()
-	audiostream.set_data(file.get_buffer(file.get_len()))
-	$RadioPlayer.set_stream(audiostream)
-	#$RadioPlayer.play()
 
 func anchror_sort(a, b):
 	if a[0] != b[0]: # non draw
@@ -46,9 +22,8 @@ func anchror_sort(a, b):
 		return a[2] > b[2]
 
 func _ready():
-	print("Region node is ready")
-	$RadioPlayer.connect("finished", self, "play_new_random_music")
-	play_new_random_music()
+	print("Region node is ready")	
+	$RadioPlayer.play_music()
 	var total_pop = 0
 	for city in self.get_children():
 		if city is RegionCityView:

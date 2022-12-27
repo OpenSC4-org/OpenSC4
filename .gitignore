@@ -20,7 +20,8 @@ EULA/*
 fontconfig/*
 Fonts/*
 Plugins/*
-Radio/*
+Radio/Stations/Mayor/
+Radio/Stations/Region/
 ReadMe/*
 Sku_Data/*
 Support/*

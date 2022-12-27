@@ -1,6 +1,8 @@
 extends Reference
 
-class_name DBDF
+# See details: https://wiki.sc4devotion.com/index.php?title=DBDF
+
+class_name DBDF #Database Directory Files
 
 var entries = []
 
