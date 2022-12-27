@@ -10,6 +10,7 @@ func _init(path):
 	var err = file.open(file_path, File.READ)
 	var current_section = ""
 	if err != OK:
+		Logger.error("Couldn't load file %s. Error: %s " % file_path, err )
 		return err
 	while ! file.eof_reached():
 		var line = file.get_line()
@@ -26,11 +27,8 @@ func _init(path):
 			var value = line.split('=')[1]
 			sections[current_section][key] = value
 	
-	# Debug: show all values
-	for key in sections:
-		print(key)
-		for key2 in sections[key]:
-			print("\t" + key2 + " = " + sections[key][key2])
+	DebugUtils.print_dict(sections, self)
+	
 
 func save_file():
 	var file = File.new()

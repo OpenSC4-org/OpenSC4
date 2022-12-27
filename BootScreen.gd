@@ -4,15 +4,15 @@ var cfg_file
 
 var loading_thread : Thread
 var dat_files : Array = [
-						 "Apps/SimCity 4.ini",
-						 "Sound.dat",
-						 "Intro.dat",
-						 "SimCity_1.dat",
-						 "SimCity_2.dat",
-						 "SimCity_3.dat",
-						 "SimCity_4.dat",
-						 "SimCity_5.dat",
-						 "EP1.dat",]
+						 "original_data_files/SimCity 4.ini",
+						 "original_data_files/Sound.dat",
+						 "original_data_files/Intro.dat",
+						 "original_data_files/SimCity_1.dat",
+						 "original_data_files/SimCity_2.dat",
+						 "original_data_files/SimCity_3.dat",
+						 "original_data_files/SimCity_4.dat",
+						 "original_data_files/SimCity_5.dat",
+						 "original_data_files/EP1.dat",]
 
 func _ready():
 	#_generate_types_dict_from_XML()

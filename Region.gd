@@ -22,7 +22,7 @@ func anchror_sort(a, b):
 		return a[2] > b[2]
 
 func _ready():
-	print("Region node is ready")	
+	Logger.info("Region node is ready")	
 	$RadioPlayer.play_music()
 	var total_pop = 0
 	for city in self.get_children():
@@ -35,7 +35,7 @@ func _ready():
 	var dir = Directory.new()
 	var err = dir.open(Core.game_dir + '/Regions/%s/' % REGION_NAME)
 	if err != OK:
-		print('Error opening region directory: %s' % err)
+		Logger.error('Error opening region directory: %s' % err)
 		return
 	dir.list_dir_begin()
 	while true:

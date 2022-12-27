@@ -197,6 +197,8 @@ config/icon="res://icon.png"
 
 Boot="*res://Boot.gd"
 Core="*res://Core.gd"
+Logger="*res://utils/logger.gd"
+DebugUtils="*res://utils/debug_utils.gd"
 
 [display]
 
@@ -216,6 +218,12 @@ singletons=[  ]
 import=false
 scene=false
 class=false
+debug=false
+
+[network]
+
+limits/debugger_stdout/max_chars_per_second=20000
+limits/debugger_stdout/max_messages_per_frame=100
 
 [physics]
 
