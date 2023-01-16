@@ -21,13 +21,20 @@ func _ready():
 	self.set_mesh(tmpMesh)
 
 	
-func load_textures_to_uv_dict():
-	var type_ini = 0x00000000
-	var group_ini = 0x8a5971c5
-	var instance_ini = 0xAA597172
-	var file = Core.subfile(type_ini, group_ini, instance_ini, DBPFSubfile)
+	
+func load_into_config_file(file):	
+	# In Godot there can't be used ConfigFile it results in error 43 (parse error)
+	# It expect's values surounded by "" and they are not in DBPF file
+	# so custom parse has to be there	
 	var ini_str = file.raw_data.get_string_from_ascii()
-	var ini = {}
+	
+	# Uncomment to see data in file - for debug purpose only
+	#var file2 = File.new()
+	#file2.open("user://terrain_params.ini", File.WRITE)
+	#file2.store_string(ini_str)
+	#file2.close()
+	var configFile = ConfigFile.new()
+	var dict = {}
 	var current_section = ''
 	for line in ini_str.split('\n'):
 		line = line.strip_edges(true, true)
@@ -37,11 +44,33 @@ func load_textures_to_uv_dict():
 			continue
 		if line[0] == '[':
 			current_section = line.substr(1, line.length() - 2)
-			ini[current_section] = {}
+			dict[current_section] = {}
 		else:
 			var key = line.split('=')[0]
 			var value = line.split('=')[1]
-			ini[current_section][key] = value
+			dict[current_section][key] = value
+			configFile.set_value(current_section,key,value)
+	return { "configFile": configFile, "dict": dict }
+
+func remove_comma_at_end_of_line(line):
+	line = line.left(line.length() - 1)
+	return line
+	
+func load_textures_to_uv_dict():
+	
+	# Load file from SubFile
+	var type_ini = 0x00000000
+	var group_ini = 0x8a5971c5
+	var instance_ini = 0xAA597172
+	var file = Core.subfile(type_ini, group_ini, instance_ini, DBPFSubfile)
+	
+	# File	- Read parameters related to the terrain
+	var json = load_into_config_file(file)
+	var ini = json.dict
+	var config = json.configFile
+	config.save("user://new.ini")
+
+	
 	var textures = [17, 16, 21]
 	var tm_dict = ini["TropicalTextureMapTable"]
 	var cliff_index
