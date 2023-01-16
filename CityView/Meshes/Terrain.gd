@@ -56,6 +56,38 @@ func remove_comma_at_end_of_line(line):
 	line = line.left(line.length() - 1)
 	return line
 	
+func array_unique(array: Array) -> Array:
+	var unique: Array = []
+
+	for item in array:
+		if not unique.has(item):
+			unique.append(item)
+
+	return unique
+	
+func read_textures_numbers_and_build_tm_table(config):
+	tm_table = []	
+	var textures = [17, 16, 21]
+	
+	var keys = config.get_section_keys("TropicalMiscTextures")
+	for key in keys:
+		if key == "LowCliff" or key == "Beach":
+			textures.append(config.get_value("TropicalMiscTextures", key).hex_to_int())
+		
+	keys = config.get_section_keys("TropicalTextureMapTable")
+	for key in keys:
+		var value = config.get_value("TropicalTextureMapTable", key)
+		value = remove_comma_at_end_of_line(value)
+		var numbers = value.split(",")
+		var list_of_numbers = []
+		for number in numbers:
+			number = number.hex_to_int()
+			list_of_numbers.append(number)
+			if not textures.has(number):
+				textures.append(number)
+		tm_table.append(list_of_numbers)
+	return textures
+	
 func load_textures_to_uv_dict():
 	
 	# Load file from SubFile
@@ -71,31 +103,28 @@ func load_textures_to_uv_dict():
 	# See how the data actually looks like
 	config.save("user://new.ini")
 
-	
-	var textures = [17, 16, 21]
+	var textures = read_textures_numbers_and_build_tm_table(config)
+		
+		
+	# Old Approach
 	var tm_dict = ini["TropicalTextureMapTable"]
 	var cliff_index
 	var beach_index
 	var top_edge
 	var mid_edge
-	var bot_edge
-	tm_table = []
+	var bot_edge	
 	for line in ini["TropicalMiscTextures"].keys():
 		if line == "LowCliff":
-			textures.append((ini["TropicalMiscTextures"][line]).hex_to_int())
+			
 			cliff_index = (ini["TropicalMiscTextures"][line]).hex_to_int()
 		elif line == "Beach":
-			textures.append((ini["TropicalMiscTextures"][line]).hex_to_int())
+			
 			beach_index = (ini["TropicalMiscTextures"][line]).hex_to_int()
-	for line in tm_dict.keys():
-		var line_r = []
-		for val_i in range(len(tm_dict[line].split(','))):
-			var val = (tm_dict[line].split(',')[val_i]).hex_to_int()
-			if val != 0: # space at end of line returned 0 value from hex_to_int
-				line_r.append(val)
-				if not textures.has(val):
-					textures.append(val)
-		tm_table.append(line_r)
+			
+	print("TEXTURES : ", textures)
+
+	print("tm_table : ", tm_table)
+	#print("tm_table2: ", tm_table2)
 	var type_tex = 0x7ab50e44
 	var group_tex = 0x891B0E1A
 	var img_dict = {}
@@ -104,10 +133,6 @@ func load_textures_to_uv_dict():
 	var formats = []
 	var d_len = 0
 	for instance in textures:
-		while true: # set array index for textures to be used in shader
-			var ind = tm_table.find(instance)
-			if ind == -1:
-				break
 		for zoom in range(5):
 			var inst_z = instance + (zoom * 256)
 			var fsh_subfile = Core.subfile(
