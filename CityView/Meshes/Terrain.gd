@@ -28,7 +28,7 @@ func load_into_config_file(file):
 	# so custom parse has to be there	
 	var ini_str = file.raw_data.get_string_from_ascii()
 	
-	# Uncomment to see data in file - for debug purpose only
+	# Uncomment to see raw data in file - for debug purpose only
 	#var file2 = File.new()
 	#file2.open("user://terrain_params.ini", File.WRITE)
 	#file2.store_string(ini_str)
@@ -68,6 +68,7 @@ func load_textures_to_uv_dict():
 	var json = load_into_config_file(file)
 	var ini = json.dict
 	var config = json.configFile
+	# See how the data actually looks like
 	config.save("user://new.ini")
 
 	
