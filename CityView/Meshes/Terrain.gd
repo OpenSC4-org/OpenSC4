@@ -78,8 +78,7 @@ func read_textures_numbers_and_build_tm_table(config):
 	
 	
 func build_image_dict_and_texture_array(textures):
-	# This function will create a dictionary with images(textures) and
-	# Arrray with textures
+	# This function will create a dictionary with images(textures) and	
 	var type_tex = 0x7ab50e44
 	var group_tex = 0x891B0E1A
 	var images_dict = {}
@@ -157,7 +156,7 @@ func create_ind_to_layer(config, images_dict, texture_array):
 func load_textures_to_uv_dict():
 	# Output from this function is
 	# tm_table
-	# ind_to_layer
+	# ind_to_layer - This is the UV dictionary?
 	# mat
 	# self
 	
