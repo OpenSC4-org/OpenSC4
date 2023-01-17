@@ -111,9 +111,56 @@ func build_image_dict_and_texture_array(textures):
 		"texture_array":texture_array,
 		"images_dict": images_dict
 	}
-			
+	
+func create_ind_to_layer(config, images_dict, texture_array):	
+	var dict = {}
+	var layer = 0
+	var cliff_index = config.get_value("TropicalMiscTextures", "LowCliff").hex_to_int()
+	var beach_index = config.get_value("TropicalMiscTextures", "Beach").hex_to_int()	
+	var top_edge
+	var mid_edge
+	var bot_edge
+	
+	for key in images_dict:
+		var image = images_dict[key].img
+		texture_array.set_layer_data(image, layer)
+		if key < 256:
+			dict[key] = layer
+			if key == cliff_index:
+				cliff_index = layer
+			elif key == beach_index:
+				beach_index = layer
+			elif key == 17:
+				top_edge = layer
+			elif key == 16:
+				mid_edge = layer
+			elif key == 21:
+				bot_edge = layer
+		var test = texture_array.get_layer_data(layer)
+		if len(test.data["data"]) == 0:
+			Logger.error("failed to load layer %s with image %s" % [layer, key])
+		layer += 1
+	
+	self.mat.set_shader_param("cliff_ind", float(cliff_index))
+	self.mat.set_shader_param("beach_ind", float(beach_index))
+	self.mat.set_shader_param("terrain", texture_array)
+	self.set_material_override(self.mat)
+	var mat_e = self.get_parent().get_node("Border").get_material_override()
+	mat_e.set_shader_param("terrain", texture_array)
+		
+	mat_e.set_shader_param("top_ind", float(top_edge))
+	mat_e.set_shader_param("mid_ind", float(mid_edge))
+	mat_e.set_shader_param("bot_ind", float(bot_edge))
+	
+	return dict
 
 func load_textures_to_uv_dict():
+	# Output from this function is
+	# tm_table
+	# ind_to_layer
+	# mat
+	# self
+	
 	# Load file from SubFile
 	var type_ini = 0x00000000
 	var group_ini = 0x8a5971c5
@@ -128,50 +175,15 @@ func load_textures_to_uv_dict():
 	
 	var textures = read_textures_numbers_and_build_tm_table(config)
 
-
 	var results = build_image_dict_and_texture_array(textures)
-	var img_dict = results.images_dict
-	var textarr = results.texture_array
-
-	# Old Approach
-
-	var layer = 0
-	var cliff_index = config.get_value("TropicalMiscTextures", "LowCliff").hex_to_int()
-	var beach_index = config.get_value("TropicalMiscTextures", "Beach").hex_to_int()
-	var ind_to_layer = {}
-	var top_edge
-	var mid_edge
-	var bot_edge
-	for im_ind in img_dict.keys():
-		var image = img_dict[im_ind].img
-		textarr.set_layer_data(image, layer)
-		if im_ind < 256:
-			ind_to_layer[im_ind] = layer
-			if im_ind == cliff_index:
-				cliff_index = layer
-			elif im_ind == beach_index:
-				beach_index = layer
-			elif im_ind == 17:
-				top_edge = layer
-			elif im_ind == 16:
-				mid_edge = layer
-			elif im_ind == 21:
-				bot_edge = layer
-		var test = textarr.get_layer_data(layer)
-		if len(test.data["data"]) == 0:
-			print("failed to load layer", layer, "with image", im_ind)
-		layer += 1
-	
-	self.mat.set_shader_param("cliff_ind", float(cliff_index))
-	self.mat.set_shader_param("beach_ind", float(beach_index))
-	self.mat.set_shader_param("terrain", textarr)
-	self.set_material_override(self.mat)
-	var mat_e = self.get_parent().get_node("Border").get_material_override()
-	mat_e.set_shader_param("terrain", textarr)
 		
-	mat_e.set_shader_param("top_ind", float(top_edge))
-	mat_e.set_shader_param("mid_ind", float(mid_edge))
-	mat_e.set_shader_param("bot_ind", float(bot_edge))
+	var ind_to_layer = create_ind_to_layer(config, results.images_dict, results.texture_array)
+	
+	#var f = File.new()
+	#f.open("user://uv_dict.txt", File.WRITE)
+	#f.store_line(to_json(ind_to_layer))
+	#f.close()
+	
 	return ind_to_layer
 	
 func update_terrain(locations : PoolVector3Array, rot_flipped_UVs : PoolVector2Array):
