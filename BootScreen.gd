@@ -1,6 +1,6 @@
 extends Control
-	
-var cfg_file
+
+var config
 
 var loading_thread : Thread
 var dat_files : Array = [
@@ -13,89 +13,60 @@ var dat_files : Array = [
 						 "original_data_files/SimCity_4.dat",
 						 "original_data_files/SimCity_5.dat",
 						 "original_data_files/EP1.dat",]
-
-func _ready():
-	#_generate_types_dict_from_XML()
-	cfg_file = INISubfile.new("user://cfg.ini")
-	if cfg_file.sections.size() > 0:
-		Core.game_dir = cfg_file.sections["paths"]["sc4_files"]
-	else:
-		$dialog.popup_centered(get_viewport_rect().size / 2)
-		yield($dialog, "popup_hide")
-		print("todo: store path in cfg.ini")
-		cfg_file.sections["paths"] = {}
-		cfg_file.sections["paths"]["sc4_files"] = Core.game_dir
-		cfg_file.save_file()
-	
-	#TODO check if files exist in current Core.game_dir
-	var dir = Directory.new()
-	var dir_complete = true
-	while not dir_complete:
-		if dir.open(Core.game_dir) == OK:
-			dir.list_dir_begin()
-			var files = []
-			var file_name = dir.get_next()
-			while file_name != "":
-				files.append(file_name)
-				file_name = dir.get_next()
-			for dat in dat_files:
-				if "/" in dat:
-					var folders = dat.split('/')
-					var folder_dir = ""
-					for folder in range(len(folders)-1):
-						folder_dir += ("/" + folders[folder])
-					var file_n = folders[-1]
-					var subdir = Directory.new()
-					print(Core.game_dir+folder_dir)
-					if subdir.open(Core.game_dir+folder_dir) == OK:
-						subdir.list_dir_begin()
-						var subfile_name = subdir.get_next()
-						var found = false
-						while subfile_name != "":
-							if subfile_name == file_n:
-								found = true
-								break
-							subfile_name = subdir.get_next()
-						if not found:
-							dir_complete = false
-							print(dat, "not found")
-					else:
-						dir_complete = false
-						print(dat, "not found")
 						
-				elif not files.has(dat):
-					dir_complete = false
-					print(dat, "not found")
-		else:
-			dir_complete = false
-		if not dir_complete:
-			$dialog.window_title = "dir was incomplete, select the SC4 installation folder"
-			$dialog.popup_centered(get_viewport_rect().size / 2)
-			yield($dialog, "popup_hide")
-			print("todo: store path in cfg.ini")
-			cfg_file.sections["paths"] = {}
-			cfg_file.sections["paths"]["sc4_files"] = Core.game_dir
-			cfg_file.save_file()
-	$dialog.deselect_items()
+func load_user_configuration():
+	config = ConfigFile.new()
+	var error = config.load("user://config.ini")
+	if error == ERR_FILE_NOT_FOUND:
+		Logger.warn("File config.ini was not found.")
+		Logger.warn("New configuration file will be created.")
+	elif error != 0:
+		Logger.error("An error occured: %d." %[error])
+		Logger.warn("New configuration file will be created.")
+	return config
+	
+func get_gamedir_path(config):
+	# Try to get the game dir path from configuration
+	# if it is not there then dialog popups
+	var path = config.get_value("paths", "sc4_files")
+	if not path:
+		$dialog.popup_centered(get_viewport_rect().size / 2)		
+		yield($dialog, "popup_hide")
+		path = $dialog.current_dir
+		config.set_value("paths", "sc4_files", path)
+		config.save("user://config.ini")
+	return path
+		
+func _ready():
+	
+	var config = load_user_configuration()
+	
+	Core.game_dir = get_gamedir_path(config)
+
+
+	
+
+
+
 	loading_thread = Thread.new()
-	print("Booting OpenSC4...")
+	Logger.info("Booting OpenSC4...")
 	var err = loading_thread.start(self, 'load_DATs')
 	if err != OK:
-		print("Error starting thread: " % err)
+		Logger.erorr("Error starting thread: " % err)
 		return
 
 func _exit_tree():
 	loading_thread.wait_to_finish()
 
 func load_DATs():
-	print("Loading DAT files...")
+	Logger.info("Loading DAT files...")
 	$LoadProgress.value = 0
 	for dat_file in dat_files :
 		load_single_DAT(Core.game_dir + "/" + dat_file)
 	finish_loading()
 
 func finish_loading():
-	print("DAT files loaded")
+	Logger.info("DBPF files loaded")
 	var err = get_tree().change_scene("res://Region.tscn")
 	if err != OK:
 		print("Error: %s" % err)
@@ -110,46 +81,4 @@ func load_single_DAT(src : String):
 func _on_dialog_confirmed():
 	Core.game_dir = $dialog.current_dir
 	
-func _generate_types_dict_from_XML():
-	"""
-	Used to generate exemplar_types.dict from properties.xml
-	since this is quite slow I chose to store the results in a dict file that I assume loads faster
-	The hex values are stored as int to make matching easyer in ExemplarSubfile
-	"""
-	var xml_file = File.new()
-	xml_file.open("res://properties.xml", File.READ)
-	var xml_text = xml_file.get_as_text()
-	xml_file.close()
-	var type_dict = {}
-	var reg_key = RegEx.new()
-	reg_key.compile("(?:num=\\D)(\\w*)")
-	var reg_val = RegEx.new()
-	reg_val.compile("((?<!(group\\s))name=\")((?:(?!\").)*)")
-	var keys = []
-	for key in reg_key.search_all(xml_text):
-		var string = key.get_string(1).split("x")[1]
-		var str_int = ("0x00" + string.substr(0, 4)).hex_to_int()<<16
-		str_int += ("0x00" + string.substr(4, 4)).hex_to_int()
-		keys.append(str_int)
-	var vals = []
-	for val in reg_val.search_all(xml_text):
-		vals.append(val.get_string(3))
-		
-	var xml_file_tropod = File.new()
-	xml_file_tropod.open("res://tropod_Properties.xml", File.READ)
-	xml_text = xml_file_tropod.get_as_text()
-	xml_file_tropod.close()
-	for key in reg_key.search_all(xml_text):
-		var string = key.get_string(1).split("x")[1]
-		var str_int = ("0x00" + string.substr(0, 4)).hex_to_int()<<16
-		str_int += ("0x00" + string.substr(4, 4)).hex_to_int()
-		keys.append(str_int)
-	for val in reg_val.search_all(xml_text):
-		vals.append(val.get_string(3))
-		
-	for i in range(len(keys)):
-		type_dict[keys[i]] = vals[i]
-	var t_file = File.new()
-	t_file.open("res://exemplar_types.dict", File.WRITE)
-	t_file.store_string(var2str(type_dict))
-	t_file.close()
+
