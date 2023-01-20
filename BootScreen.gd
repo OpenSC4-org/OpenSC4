@@ -38,29 +38,25 @@ func get_gamedir_path(config):
 	return path
 		
 func _ready():
-	
 	var config = load_user_configuration()
 	
 	Core.game_dir = get_gamedir_path(config)
 
-
-	
-
-
-
+	$LoadProgress.value = 0
 	loading_thread = Thread.new()
-	Logger.info("Booting OpenSC4...")
+	Logger.info("Loading OpenSC4...")
+	# Would be nice to start multiple threads here not only one
 	var err = loading_thread.start(self, 'load_DATs')
 	if err != OK:
 		Logger.erorr("Error starting thread: " % err)
 		return
+	
+
 
 func _exit_tree():
-	loading_thread.wait_to_finish()
+	loading_thread.wait_to_finish()	
 
 func load_DATs():
-	Logger.info("Loading DAT files...")
-	$LoadProgress.value = 0
 	for dat_file in dat_files :
 		load_single_DAT(Core.game_dir + "/" + dat_file)
 	finish_loading()
@@ -69,11 +65,10 @@ func finish_loading():
 	Logger.info("DBPF files loaded")
 	var err = get_tree().change_scene("res://Region.tscn")
 	if err != OK:
-		print("Error: %s" % err)
-		return
+		Logger.error("Error: %s" % err)
 
 func load_single_DAT(src : String):
-	$CurrentFileLabel.text = "Loading: %s" % src
+	$CurrentFileLabel.text = "Loading: %s" % src 
 	Core.add_dbpf(DBPF.new(src))
 	$LoadProgress.value += 100.0/len(dat_files)
 
