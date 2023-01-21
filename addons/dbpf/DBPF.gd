@@ -85,6 +85,22 @@ func dbg_show_all_subfiles():
 	for index in indices.values():
 		print("%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size])
 	print("====================")
+	
+func DEBUG_show_all_subfiles_to_file(filename):
+	print("=== %s" % self.path)
+	print("=== ALL SUBFILES ===")
+	var file = File.new()
+	var name = "user://%s.txt" % [filename.split('/')[1]]
+	print(name)
+	var err = file.open(name, file.WRITE)
+	print("error", err)
+	file.seek(0)
+	for index in indices.values():
+		var string = "%s (%d B)" % [SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id), index.size]
+		file.store_line(string)
+		#print(string)
+	file.close()
+	print("====================")
 
 func all_subfiles_by_group(group_id : int):
 	print("=== ALL SUBFILES BY GROUP %08x ===" % group_id)

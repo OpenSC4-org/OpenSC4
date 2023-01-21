@@ -9,10 +9,10 @@ var cities = {}
 
 
 func _init():
-	print("Initializing the region view")
+	Logger.info("Initializing the region view")
 	
 	# Open the region INI file
-	var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
+	#var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
 
 
 func anchror_sort(a, b):
@@ -29,6 +29,7 @@ func _ready():
 		if city is RegionCityView:
 			city.display()
 			total_pop += city.get_total_pop()
+	Logger.info("Total population: %d" % [total_pop])
 	# Count the city files in the region folder
 	# City files end in .sc4
 	var files = []
@@ -68,6 +69,7 @@ func _ready():
 			for j in range(y, y+height): 
 				$BaseGrid.cities[i][j] = city
 		$BaseGrid.add_child(city)
+	load_ui()
 
 func read_config_bmp():
 	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
@@ -103,8 +105,76 @@ func close_all_prompts():
 			var prompt = city.get_node_or_null("UnincorporatedCityPrompt")
 			if prompt != null:
 				prompt.queue_free()
+				
+func _DEBUG_extract_files(type_id, group_id):
+	var list_of_instances = Core.get_list_instances(type_id, group_id)
+	if type_id == "PNG":
+		for item in list_of_instances:
+			# Filter bad numbers, maybe holes? I don't know
+			if item in [1269886195,339829152, 339829153, 
+						339829154, 339829155, 1809881377, 
+						1809881378, 1809881379, 1809881380,
+						1809881381, 1809881382, 3929989376,
+						3929989392, 3929989408, 3929989424,
+						3929989440, 3929989456, 338779648,
+						338779664, 338779680, 338779696,
+						338779712, 338779728, 338779729,
+						733031711, 3413654842]:
+				continue
+			var subfile = Core.get_subfile(type_id, group_id, item)
+			var img = subfile.get_as_texture().get_data()
+			var path = "user://%s/%s/%s.png" % [type_id, group_id, item]
+			#var path = "user://UI/%s.png" % [item]
+			img.save_png(path)
+	else:
+		Logger.wanr("Type: %s is not yet implemented." % type_id)
 
-#func load_ui():
+func build_button(button, instance_id):
+	var btn_img = Core.get_subfile("PNG", "UI_IMAGE", instance_id)
+	button.texture_disabled = AtlasTexture.new()
+	button.texture_disabled.atlas = btn_img.get_as_texture()
+	button.texture_disabled.region = Rect2(0, 0, 80 ,60)
+	
+	button.texture_normal = AtlasTexture.new()
+	button.texture_normal.atlas = btn_img.get_as_texture()
+	button.texture_normal.region = Rect2(80, 0, 80 ,60)
+	
+	button.texture_pressed = AtlasTexture.new()
+	button.texture_pressed.atlas = btn_img.get_as_texture()
+	button.texture_pressed.region = Rect2(160, 0, 80 ,60)
+	
+	button.texture_hover = AtlasTexture.new()
+	button.texture_hover.atlas = btn_img.get_as_texture()
+	button.texture_hover.region = Rect2(240, 0, 80 ,60)
+
+
+func build_top_buttons():
+	build_button($UICanvas.get_child(2).get_child(1).get_child(0), 339829505)
+	build_button($UICanvas.get_child(2).get_child(1).get_child(1), 339829506)
+	build_button($UICanvas.get_child(2).get_child(1).get_child(2), 339829507)
+
+func load_ui():
+	Logger.info("Starting to load some UI pictures...")
+	
+	
+	#var subfile = Core.get_FSH_subfile(0x46a006b0, 0xab7052bd)
+	#var subfile = Core.subfile(0x856ddbac,0x1ABE787D, 0xcc1a735d, ImageSubfile)
+	var type_id = "PNG"
+	var groups = Core.get_list_groups(type_id)
+	print(groups)
+	var group_id = "UI_IMAGE"
+	
+	var bottom_left_menu_img = Core.get_subfile("PNG", "UI_IMAGE", 339829504)
+	$UICanvas.get_child(1).get_child(0).texture = bottom_left_menu_img.get_as_texture()
+	
+	var top_menu_image = Core.get_subfile("PNG", "UI_IMAGE", 339829519)
+	$UICanvas.get_child(2).get_child(0).texture = top_menu_image.get_as_texture()
+	build_top_buttons()	
+	
+	# self._DEBUG_extract_files(type_id, group_id)
+	
+	
+			
 	#pass
 	#var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	#$UICanvas.add_child(ui.root)

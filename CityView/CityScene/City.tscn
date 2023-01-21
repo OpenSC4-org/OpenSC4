@@ -291,13 +291,6 @@ void fragment()
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = SubResource( 4 )
-shader_param/zoom = null
-shader_param/cliff_ind = null
-shader_param/beach_ind = null
-shader_param/tiling_factor = null
-shader_param/water_height = 15.625
-shader_param/grid_bool = true
-shader_param/beach_ht_range = null
 
 [sub_resource type="Shader" id=16]
 code = "shader_type spatial;
