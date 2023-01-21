@@ -1,5 +1,10 @@
 extends Control
 
+"""
+Once everything is loaded the it changes to Region scene.
+"""
+
+
 var config
 
 var loading_thread : Thread
@@ -58,7 +63,7 @@ func _exit_tree():
 
 func load_DATs():
 	for dat_file in dat_files :
-		load_single_DAT(Core.game_dir + "/" + dat_file)
+		load_single_DAT(dat_file)
 	finish_loading()
 
 func finish_loading():
@@ -67,9 +72,12 @@ func finish_loading():
 	if err != OK:
 		Logger.error("Error: %s" % err)
 
-func load_single_DAT(src : String):
+func load_single_DAT(dat_file : String):
+	var src = Core.game_dir + "/" + dat_file
 	$CurrentFileLabel.text = "Loading: %s" % src 
-	Core.add_dbpf(DBPF.new(src))
+	var dbpf = DBPF.new(src)
+	#dbpf.DEBUG_show_all_subfiles_to_file(dat_file)
+	Core.add_dbpf(dbpf)
 	$LoadProgress.value += 100.0/len(dat_files)
 
 

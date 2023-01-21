@@ -46,3 +46,5 @@ stretch_mode = 2
 [node name="UICanvas" type="CanvasLayer" parent="."]
 
 [node name="UI" parent="UICanvas" instance=ExtResource( 1 )]
+
+[node name="obr" type="Sprite" parent="."]

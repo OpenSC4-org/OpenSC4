@@ -9,10 +9,10 @@ var cities = {}
 
 
 func _init():
-	print("Initializing the region view")
+	Logger.info("Initializing the region view")
 	
 	# Open the region INI file
-	var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
+	#var _ini = INISubfile.new("res://Regions/%s/region.ini" % REGION_NAME)
 
 
 func anchror_sort(a, b):
@@ -29,6 +29,7 @@ func _ready():
 		if city is RegionCityView:
 			city.display()
 			total_pop += city.get_total_pop()
+	Logger.info("Total population: %d" % [total_pop])
 	# Count the city files in the region folder
 	# City files end in .sc4
 	var files = []
@@ -68,6 +69,7 @@ func _ready():
 			for j in range(y, y+height): 
 				$BaseGrid.cities[i][j] = city
 		$BaseGrid.add_child(city)
+	load_ui()
 
 func read_config_bmp():
 	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
@@ -104,7 +106,12 @@ func close_all_prompts():
 			if prompt != null:
 				prompt.queue_free()
 
-#func load_ui():
+func load_ui():
+	Logger.info("Starting to load some UI pictures...")
+	#var subfile = Core.get_FSH_subfile(0x46a006b0, 0xab7052bd)
+	#var subfile = Core.subfile(0x856ddbac,0x1ABE787D, 0xcc1a735d, ImageSubfile)
+	var subfile = Core.get_subfile("PNG", "UI_IMAGE", 0xcbb16e5c)
+	$obr.texture = subfile.get_as_texture()
 	#pass
 	#var ui = Core.subfile(0x0, 0x96a006b0, 0xaa920991, SC4UISubfile)
 	#$UICanvas.add_child(ui.root)
