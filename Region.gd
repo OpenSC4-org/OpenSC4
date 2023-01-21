@@ -139,9 +139,12 @@ func load_ui():
 	var groups = Core.get_list_groups(type_id)
 	print(groups)
 	var group_id = "UI_IMAGE"
-	var image = Core.get_subfile("PNG", "UI_IMAGE", 339829504)
-	var tex = image.get_as_texture()
-	$UICanvas.get_child(1).get_child(0).texture = tex
+	
+	var bottom_left_menu_img = Core.get_subfile("PNG", "UI_IMAGE", 339829504)	
+	$UICanvas.get_child(1).get_child(0).texture = bottom_left_menu_img.get_as_texture()
+	
+	var top_menu_image = Core.get_subfile("PNG", "UI_IMAGE", 339829519)
+	$UICanvas.get_child(2).get_child(0).texture = top_menu_image.get_as_texture()
 	# self._DEBUG_extract_files(type_id, group_id)
 	
 	

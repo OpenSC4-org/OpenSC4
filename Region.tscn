@@ -57,7 +57,7 @@ anchor_bottom = 1.0
 margin_top = -194.0
 margin_right = 305.0
 
-[node name="menu" type="TextureRect" parent="UICanvas/Control"]
+[node name="bottom_left_menu" type="TextureRect" parent="UICanvas/Control"]
 material = SubResource( 1 )
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -67,7 +67,7 @@ margin_right = 418.0
 margin_bottom = -10.0
 texture = SubResource( 2 )
 
-[node name="Label" type="Label" parent="UICanvas/Control/menu"]
+[node name="Label" type="Label" parent="UICanvas/Control/bottom_left_menu"]
 modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
 use_parent_material = true
 margin_left = 71.0
@@ -76,7 +76,7 @@ margin_right = 114.0
 margin_bottom = 29.0
 text = "Region"
 
-[node name="total_population" type="Label" parent="UICanvas/Control/menu"]
+[node name="total_population" type="Label" parent="UICanvas/Control/bottom_left_menu"]
 modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
 margin_left = 36.0
 margin_top = 42.0
@@ -84,12 +84,26 @@ margin_right = 76.0
 margin_bottom = 56.0
 text = "0"
 
-[node name="region_name" type="Label" parent="UICanvas/Control/menu"]
+[node name="region_name" type="Label" parent="UICanvas/Control/bottom_left_menu"]
 modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
 margin_left = 24.0
 margin_top = 77.0
 margin_right = 84.0
 margin_bottom = 91.0
 text = "Timbuktu"
+
+[node name="Control2" type="Control" parent="UICanvas"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -20.0
+margin_right = 20.0
+margin_bottom = 40.0
+
+[node name="top_menu" type="TextureRect" parent="UICanvas/Control2"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -577.0
+margin_right = 577.0
+margin_bottom = 41.0
 
 [node name="obr" type="Sprite" parent="."]
