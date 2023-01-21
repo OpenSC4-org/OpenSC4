@@ -129,6 +129,30 @@ func _DEBUG_extract_files(type_id, group_id):
 	else:
 		Logger.wanr("Type: %s is not yet implemented." % type_id)
 
+func build_button(button, instance_id):
+	var btn_img = Core.get_subfile("PNG", "UI_IMAGE", instance_id)
+	button.texture_disabled = AtlasTexture.new()
+	button.texture_disabled.atlas = btn_img.get_as_texture()
+	button.texture_disabled.region = Rect2(0, 0, 80 ,60)
+	
+	button.texture_normal = AtlasTexture.new()
+	button.texture_normal.atlas = btn_img.get_as_texture()
+	button.texture_normal.region = Rect2(80, 0, 80 ,60)
+	
+	button.texture_pressed = AtlasTexture.new()
+	button.texture_pressed.atlas = btn_img.get_as_texture()
+	button.texture_pressed.region = Rect2(160, 0, 80 ,60)
+	
+	button.texture_hover = AtlasTexture.new()
+	button.texture_hover.atlas = btn_img.get_as_texture()
+	button.texture_hover.region = Rect2(240, 0, 80 ,60)
+
+
+func build_top_buttons():
+	build_button($UICanvas.get_child(2).get_child(1).get_child(0), 339829505)
+	build_button($UICanvas.get_child(2).get_child(1).get_child(1), 339829506)
+	build_button($UICanvas.get_child(2).get_child(1).get_child(2), 339829507)
+
 func load_ui():
 	Logger.info("Starting to load some UI pictures...")
 	
@@ -140,11 +164,13 @@ func load_ui():
 	print(groups)
 	var group_id = "UI_IMAGE"
 	
-	var bottom_left_menu_img = Core.get_subfile("PNG", "UI_IMAGE", 339829504)	
+	var bottom_left_menu_img = Core.get_subfile("PNG", "UI_IMAGE", 339829504)
 	$UICanvas.get_child(1).get_child(0).texture = bottom_left_menu_img.get_as_texture()
 	
 	var top_menu_image = Core.get_subfile("PNG", "UI_IMAGE", 339829519)
 	$UICanvas.get_child(2).get_child(0).texture = top_menu_image.get_as_texture()
+	build_top_buttons()	
+	
 	# self._DEBUG_extract_files(type_id, group_id)
 	
 	

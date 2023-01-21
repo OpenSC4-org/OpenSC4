@@ -106,4 +106,31 @@ margin_left = -577.0
 margin_right = 577.0
 margin_bottom = 41.0
 
+[node name="HBoxContainer" type="HBoxContainer" parent="UICanvas/Control2"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -200.0
+margin_top = 20.0
+margin_right = 200.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 400, 60 )
+alignment = 1
+
+[node name="regions_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer"]
+margin_right = 80.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+
+[node name="link_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer"]
+margin_left = 160.0
+margin_right = 240.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+
+[node name="exit_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer"]
+margin_left = 320.0
+margin_right = 400.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+
 [node name="obr" type="Sprite" parent="."]
