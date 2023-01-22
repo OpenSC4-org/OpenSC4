@@ -60,6 +60,11 @@ _global_script_classes=[ {
 "path": "res://addons/dbpf/FSH_Entry.gd"
 }, {
 "base": "Node",
+"class": "INI",
+"language": "GDScript",
+"path": "res://ini.gd"
+}, {
+"base": "DBPFSubfile",
 "class": "INISubfile",
 "language": "GDScript",
 "path": "res://addons/dbpf/INISubfile.gd"
@@ -165,6 +170,7 @@ _global_script_class_icons={
 "ExemplarSubfile": "",
 "FSHSubfile": "",
 "FSH_Entry": "",
+"INI": "",
 "INISubfile": "",
 "ImageSubfile": "",
 "NetGraphEdge": "",

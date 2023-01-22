@@ -226,3 +226,6 @@ func add_dbpf(dbpf : DBPF):
 		if not sub_by_type_and_group.keys().has([index.type_id, index.group_id]):
 			sub_by_type_and_group[[index.type_id, index.group_id]] = {}
 		sub_by_type_and_group[[index.type_id, index.group_id]][index.instance_id] = (dbpf.indices[ind_key])
+
+func get_gamedata_path(path: String) -> String:
+	return "%s/%s" % [Core.game_dir, path]

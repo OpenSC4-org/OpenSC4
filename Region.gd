@@ -23,7 +23,6 @@ func anchror_sort(a, b):
 
 func _ready():
 	Logger.info("Region node is ready")	
-	$RadioPlayer.play_music()
 	var total_pop = 0
 	for city in self.get_children():
 		if city is RegionCityView:
@@ -34,7 +33,7 @@ func _ready():
 	# City files end in .sc4
 	var files = []
 	var dir = Directory.new()
-	var err = dir.open(Core.game_dir + '/Regions/%s/' % REGION_NAME)
+	var err = dir.open(Core.get_gamedata_path('Regions/%s/' % REGION_NAME))
 	if err != OK:
 		Logger.error('Error opening region directory: %s' % err)
 		return
@@ -50,7 +49,7 @@ func _ready():
 	var anchor = []
 	for f in files:
 		var city = load("res://RegionUI/RegionCityView.tscn").instance()
-		city.init('res://Regions/%s/%s' % [REGION_NAME, f])
+		city.init(Core.get_gamedata_path('Regions/%s/%s' % [REGION_NAME, f]))
 		var x : int = city.city_info.location[0]
 		var y : int = city.city_info.location[1]
 		var width : int = city.city_info.size[0]
@@ -69,10 +68,16 @@ func _ready():
 			for j in range(y, y+height): 
 				$BaseGrid.cities[i][j] = city
 		$BaseGrid.add_child(city)
+	$RadioPlayer.play_music()	
 	load_ui()
 
 func read_config_bmp():
-	var region_config = load("res://Regions/%s/config.bmp" % REGION_NAME).get_data()
+	var region_config_file = File.new()
+	region_config_file.open(Core.get_gamedata_path("Regions/%s/config.bmp" % REGION_NAME), File.READ)
+	var data = region_config_file.get_buffer(region_config_file.get_len())
+	var region_config = Image.new()
+	region_config.load_bmp_from_buffer(data)
+
 	# Iterate over the pixels
 	$BaseGrid.init_cities_array(region_config.get_width(), region_config.get_height())
 	region_w = region_config.get_width()
