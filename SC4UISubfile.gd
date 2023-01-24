@@ -2,101 +2,169 @@ extends DBPFSubfile
 
 class_name SC4UISubfile
 
-var root : Control = null
+var root : Control = Control.new()
 var rectRegex : RegEx = RegEx.new()
 var colorRegex : RegEx = RegEx.new()
+var imgGIRegex : RegEx = RegEx.new()
+var vec2Regex : RegEx = RegEx.new()
 var elementsByID : Dictionary = {}
+var lines : Array = []
 
 func _init(index).(index):
 	rectRegex.compile("\\((?<x>-?\\d+),(?<y>-?\\d+),(?<width>-?\\d+),(?<height>-?\\d+)\\)")
 	colorRegex.compile("\\((?<r>\\d+),(?<g>\\d+),(?<b>\\d+)\\)")
+	imgGIRegex.compile("\\{(?<group>[0-9a-fA-F]{8}),(?<instance>[0-9a-fA-F]{8})\\}")
+	vec2Regex.compile("\\((?<x>-?\\d+),(?<y>-?\\d+)\\)")
+
+func string2color(string : String) -> Color:
+	var result = colorRegex.search(string)
+	return Color8(int(result.get_string('r')), int(result.get_string('g')), int(result.get_string('b')))
+
+func string2rect(string : String) -> Rect2:
+	var result = rectRegex.search(string)
+	return Rect2(int(result.get_string('x')), int(result.get_string('y')), int(result.get_string('width')), int(result.get_string('height')))
+
+func string2intlist(string : String) -> Array:
+	var parts = string.lstrip("(").rstrip(")").split(",")
+	var result = Array()
+	for part in parts:
+		result.append(int(part))
+	return result
+
+func string2vec2(string : String) -> Vector2:
+	var result = vec2Regex.search(string)
+	return Vector2(int(result.get_string('x')), int(result.get_string('y')))
+
+func create_last_element(parts : Array, custom_classes : Dictionary) -> Control:
+	var attributes = {}
+	for i in range(1, len(parts)):
+		var attr = parts[i].split("=")
+		if len(attr) == 2:
+			attributes[attr[0]] = attr[1]
+	return create_element(attributes, custom_classes)
+
 
 func load(file, dbdf=null):
 	.load(file, dbdf)
-	var lines = stream.get_string(stream.get_available_bytes()).split("\n")
-	var current_element : Control = null
+	lines = stream.get_string(stream.get_available_bytes()).split("\n")
+
+func add_to_tree(parent : Node, custom_classes : Dictionary):
+	parent.add_child(self.root)
+	root.set_anchor(MARGIN_LEFT, 0)
+	root.set_anchor(MARGIN_TOP, 0)
+	root.set_anchor(MARGIN_RIGHT, 1)
+	root.set_anchor(MARGIN_BOTTOM, 1)
+	var current_element : Control = self.root
 	var last_element : Control = null
+	# We add children to current_element
+	# last_element is the last element we've created 
 	for l in lines:
 		if l.begins_with("#"):
 			continue
 		else:
 			var parts = l.strip_edges().rstrip(">").lstrip("<").split(" ")
 			var tag_name = parts[0]
-			print(tag_name)
-			if tag_name == 'LEGACY':
-				var attributes = {}
-				for i in range(1, len(tag_name)):
-					var attr = parts[i].split("=")
-					attributes[attr[0]] = attr[1]
-				last_element = create_element(attributes)
+			if tag_name == 'LEGACY': # Create a new element
+				last_element = create_last_element(parts, custom_classes)
+				# If current_element is null, then this is the root
 				if current_element != null:
 					current_element.add_child(last_element)
-				else:
-					current_element = last_element
-				if root == null:
-					root = current_element
+			# hierarchy navigation
 			elif tag_name == 'CHILDREN':
 				current_element = last_element
 			elif tag_name == '/CHILDREN':
 				current_element = current_element.get_parent()
-	print("DEBUG")
+	root.name = 'SC4 UI root'
 
-func create_element(attributes : Dictionary) -> Control:
-	var type = attributes['clsid']
-	var element : Control = null
-	if type == 'GZWinGen':
-		element = Control.new()
-	elif type == 'GZWinText':
-		element = Label.new()
-	elif type == 'GZWinTextEdit':
+func create_element(attributes : Dictionary, custom_classes : Dictionary) -> Control:
+	var type = attributes['iid']
+	var interpreted_attributes = interpret_attributes(attributes)
+	var element = null
+	# Check if this is a standard class without any particular behaviour,
+	# or a class that's linked to in-game code
+	#print(interpreted_attributes)
+	var class_id = attributes['clsid']
+	if attributes.get('id', '') in custom_classes: # magic number for a custom class?
+		var custom_class_id = attributes.get('id', 0)
+		element = custom_classes[custom_class_id].new(interpreted_attributes)
+	# else, standard class, instance with the GZcom implementation
+	elif type == 'IGZWinGen':
+		element = GZWinGen.new(interpreted_attributes)
+	elif type == 'IGZWinText':
+		element = GZWinText.new(interpreted_attributes)
+	elif type == 'IGZWinBtn':
+		element = GZWinBtn.new(interpreted_attributes)
+	elif type == 'IGZWinBMP': 
+		element = GZWinBMP.new(interpreted_attributes)
+	elif type == 'IGZWinFlatRect':
+		element = GZWinFlatRect.new(interpreted_attributes)
+	elif type == 'IGZWinTextEdit':
 		element = TextEdit.new()
-	elif type == 'GZWinBtn':
-		element = Button.new()
-	elif type == 'GZBmp':
-		element = TextureRect.new()
-	elif type == 'GZCustom':
+	elif type == 'IGZWinCustom':
 		element = Control.new()
-	elif type == 'GZWinGrid':
+	elif type == 'IGZWinGrid':
 		element = GridContainer.new()
-	elif type == 'GZWinFlatRect':
-		element = ColorRect.new()
-	elif type == 'GZWinSlider':
+	elif type == 'IGZWinSlider':
 		element = HSlider.new()
-	elif type == 'GZWinCombo':
+	elif type == 'IGZWinCombo':
 		element = CheckBox.new()
-	elif type == 'GZWinListBox':
+	elif type == 'IGZWinListBox':
 		element = ScrollContainer.new()
-	elif type == 'GZWinTreeView':
+	elif type == 'IGZWinTreeView':
 		element = Tree.new()
-	elif type == 'GZWinScrollbar2':
+	elif type == 'IGZWinScrollbar2':
 		element = HSlider.new()
-	elif type == 'GZWinFolders':
-		print("GZWinFolders")
+	elif type == 'IGZWinFolders':
 		element = FileDialog.new()
-	elif type == 'GZWinLineINput':
+	elif type == 'IGZWinLineINput':
 		element = LineEdit.new()
-	elif type == 'GZWinFileBrowser':
+	elif type == 'IGZWinFileBrowser':
 		element = FileDialog.new()
 	else:
 		print("Unknown element type %s" % type)
-		element = Control.new()
+		element = GZWinGen.new(interpreted_attributes)
+	if element.name == '':
+		if 'id' in interpreted_attributes:
+			element.name = "%s-%s-%s" % [interpreted_attributes['clsid'], interpreted_attributes['id'], type]
+		else:
+			element.name = type
+	if 'id' in attributes and not attributes['id'] in custom_classes:
+		print("Missing custom class for id ", attributes['id'])
 
-	interpret_attributes(element, attributes)
 	return element
 
-func interpret_attributes(element : Control, attributes : Dictionary):
+func interpret_attributes(attributes : Dictionary):
+	var interpreted_attributes : Dictionary = {}
 	for attr in attributes:
-		if attr == 'area':
-			var result = rectRegex.search(attributes[attr])
-			element.set_position(Vector2(int(result.get_string('x')), int(result.get_string('y'))))
-			element.set_size(Vector2(int(result.get_string('width')), int(result.get_string('height'))))
-		elif attr == 'fillcolor':
-			var result = colorRegex.search(attributes[attr])
+		if attr in ['area', 'imagerect', 'vscrollimagerect', 'hscrollimagerect']:
+			interpreted_attributes[attr] = string2rect(attributes[attr])
+		# TODO: get all color-type attributes from the Wiki
+		elif attr in ['color', 'fillcolor', 'forecolor', 'backcolor', 'bkgcolor',
+					  'colorfont?', 'highlightcolor', 'outlinecolor', 'caretcolor',
+					  'olinecolor', 'colgridclr', 'rowgridclr', 'coloroutlineb',
+					  'coloroutliner', 'coloroutlinet', 'coloroutlinel', 'coloroutline',
+					  'colorright', 'colorbottom', 'colorleft', 'colortop', 'backgroundcolor',
+					  'highlightcolor', 'backgroundcolor', 'highlightcolorbackground', 'highlightcolorforeground',
+					  'columngridcolor', 'linegridcolor']:
+			interpreted_attributes[attr] = string2color(attributes[attr])
 		elif attr == 'id':
-			var id = attributes[attr]
-			if elementsByID.has(id):
-				print("Warning: duplicate ID %s" % id)
-			elementsByID[id] = element
+			interpreted_attributes[attr] = attributes[attr]
+		elif attr in ['gutters']:
+			interpreted_attributes[attr] = string2intlist(attributes[attr])
+		elif attr.find('winflag_') != -1 or attr in ['edgeimage', 'moveable', 'sizeable', 'defaultkeys',
+			'defaultkeys', 'closevisible', 'gobackvisible', 'minmaxvisible']:
+			interpreted_attributes[attr] = attributes[attr] == 'yes'
+		elif attr == 'image':
+			var imgGI = imgGIRegex.search(attributes[attr])
+			var type_id = 0x856ddbac
+			# Godot hex_to_int function expects a 0x prefix
+			var group_id = ("0x%s" % imgGI.get_string('group')).hex_to_int()
+			var instance_id = ("0x%s" % imgGI.get_string('instance')).hex_to_int()
+			var image = Core.subfile(type_id, group_id, instance_id, ImageSubfile)
+			interpreted_attributes[attr] = image
 		else:
-			print("%s = '%s'" % [attr, attributes[attr]])
+			if false:
+				print("[%s] %s = '%s'" % [attributes['clsid'], attr, attributes[attr]])
+			interpreted_attributes[attr] = attributes[attr]
+	return interpreted_attributes
 
