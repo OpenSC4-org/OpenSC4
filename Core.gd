@@ -1,6 +1,12 @@
 extends Node 
 
 var subfile_indices : Dictionary
+# TODO: read region_settings from file
+var region_settings : Dictionary = {
+	"show_borders" : true,
+	"show_names" : true,
+	"view_mode" : "satellite",
+}
 var sub_by_type_and_group : Dictionary
 var game_dir = null
 
@@ -210,17 +216,18 @@ func get_subfile(type_id_str: String, group_id_str: String, instance_id : int) -
 		
 
 func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) -> DBPFSubfile:
-	if not subfile_indices.has([type_id, group_id, instance_id]):
+	if not subfile_indices.has(SubfileTGI.TGI2str(type_id, group_id, instance_id)):
 		Logger.error("Unknown subfile %s" % SubfileTGI.get_file_type(type_id, group_id, instance_id))
 		return null
 	else:
-		var index = subfile_indices[[type_id, group_id, instance_id]]
+		var index = subfile_indices[SubfileTGI.TGI2str(type_id, group_id, instance_id)]
 		return index.dbpf.get_subfile(type_id, group_id, instance_id, subfile_class)
 
 func add_dbpf(dbpf : DBPF):
 	for ind_key in dbpf.indices.keys():
 		var index = dbpf.indices[ind_key]
-		if subfile_indices.has(ind_key):# and not (index.type_id == "DBPF" and index.group_id == 0xe86b1eef and index.instance_id == 0x286b1f03):
+		# Don't report DBDF "overwrite" with the type id
+		if subfile_indices.has(ind_key) and index.type_id != 0xe86b1eef: # and not (index.type_id == "DBPF" and index.group_id == 0xe86b1eef and index.instance_id == 0x286b1f03):
 			Logger.error("File '%s' overwrites subfile %s" % [dbpf.path, SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id)])
 		subfile_indices[ind_key] = dbpf.indices[ind_key]
 		if not sub_by_type_and_group.keys().has([index.type_id, index.group_id]):

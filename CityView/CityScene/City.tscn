@@ -473,3 +473,11 @@ current = true
 size = 292.0
 near = 1.0
 far = 200.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="KinematicBody"]
+environment = SubResource( 1 )
+__meta__ = {
+"_editor_description_": "Default environment"
+}
+
+[node name="UICanvas" type="CanvasLayer" parent="."]

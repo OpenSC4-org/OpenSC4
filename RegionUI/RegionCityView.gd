@@ -4,7 +4,7 @@ class_name RegionCityView
 var region_view_thumbnails : Array = []
 var savefile : DBPF
 var city_info : SC4ReadRegionalCity
-var settings = {"borders":true}
+var city_name : String = ""
 
 # Size, in pixels, of the tile base
 
@@ -19,11 +19,18 @@ func init(filepath : String):
 	for instance_id in [0, 2]:
 		region_view_thumbnails.append(savefile.get_subfile(0x8a2482b9, 0x4a2482bb, instance_id, ImageSubfile).get_as_texture())
 	city_info = savefile.get_subfile(0xca027edb, 0xca027ee1, 0, SC4ReadRegionalCity)
+	self.city_name = filepath.get_file().get_basename()
+	if self.city_name.find("City - ") == 0:
+		self.city_name = self.city_name.substr(7)
 
 func _ready():
 	display()
 
 func display(): # TODO city edges override other cities causing glitches, can be solved by controlling the draw order or by adding a z value
+	if city_info.mode == 'god' or not Core.region_settings.get("show_names", true):
+		$InfoContainer/CityName.visible = false
+	else:
+		$InfoContainer/CityName.text = self.city_name
 	# Print city size
 	var pos_on_grid = get_parent().map_to_world(Vector2(city_info.location[0], city_info.location[1]))
 	#var thumbnail_texture : Texture = region_view_thumbnails[0]
@@ -42,7 +49,7 @@ func display(): # TODO city edges override other cities causing glitches, can be
 				if h < min_h: min_h = h
 				if w < min_w: min_w = w
 				var border = Color(0.0, 0.0, 0.0, 0.0)
-				if settings["borders"] == true:
+				if Core.region_settings.get("show_borders", true):
 					border = Color(m_pix.g/10, m_pix.g/10, m_pix.g/10, 0.0)
 				var r_pix = (Color(m_pix.b, m_pix.b, m_pix.b, 1.0) * region_img.get_pixel(w, h)) + border
 				region_img.set_pixel(w, h, r_pix)
@@ -60,6 +67,7 @@ func display(): # TODO city edges override other cities causing glitches, can be
 	self.translate(pos_on_grid)
 	$Thumbnail.texture = thumbnail_texture
 	$CollisionShape.shape.extents = Vector2(thumbnail_texture.get_width() / 2, thumbnail_texture.get_height() / 2)
+	$InfoContainer/CityName.set_position(Vector2(thumbnail_texture.get_width() / 2, expected_height / 2))
 
 func get_total_pop():
 	return city_info.population_residential
