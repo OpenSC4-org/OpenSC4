@@ -12,16 +12,12 @@ const WATER_HEIGHT : float = 250.0 / TILE_SIZE
 var terr_tile_ind = {}
 # translator from fsh-iid to texturearray layer
 var ind_layer
-# for cursor
-var cur_img
-var vec_hot
 
 func _ready():
 	rng.randomize()
 	savefile = Boot.current_city
 	create_terrain()
-	set_cursor()
-	pass
+	Player.set_cursor("normal")
 
 func gen_random_terrain(width : int, height : int) -> Array:
 	var heightmap : Array = []
@@ -198,7 +194,7 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 
 	return [vertices, normals, UVs, layer_ind, layer_weights]
 
-func create_edge(vert, n1, n2, normal):
+func create_edge(vert, _n1, _n2, normal):
 	"""
 	in: 4 vertices in array and two normals
 	out: appropriate triangle vertices for 3 levels of edge depth 
@@ -266,6 +262,13 @@ func create_terrain():
 		heightmap = load_city_terrain(savefile)
 	else:
 		heightmap = gen_random_terrain(size_w * 64 + 1, size_h * 64 + 1)
+		
+	# DEBUG heightmap = gen_random_terrain(size_w * 64 + 1, size_h * 64 + 1)
+	var h = File.new()
+	h.open("user://heightmap.txt", File.WRITE)
+	h.store_csv_line(heightmap)
+	h.close()
+		
 	$Spatial/WaterPlane.generate_wateredges(heightmap)
 	var tiles_w = size_w * 64
 	var tiles_h = size_h * 64
@@ -393,12 +396,14 @@ func create_terrain():
 	warray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, warrays)
 	$Spatial/WaterPlane.mesh = warray_mesh
 	
-	"test s3d"
+	"""
+	Plant some trees as a test
+	"""
 	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16620430}
 	var s3dobj = Core.subfile(TGI_s3d["T"], TGI_s3d["G"], TGI_s3d["I"], S3DSubfile)
 	var location = Vector3(width/2, heightmap[int(width/2)][int(self.height/2)] / TILE_SIZE, self.height/2)
-	for x in range(5):
-		for z in range(5):
+	for x in range(50):
+		for z in range(50):
 			var x_rand = (x-2.5) + randf()
 			var z_rand = (z-2.5) + randf()
 			var loc_rand = location + Vector3(x_rand, 0, z_rand)
@@ -406,14 +411,9 @@ func create_terrain():
 	test_exemplar()
 	var s3dmat = $Spatial/TestS3D.get_material_override()
 	s3dmat.set_shader_param("nois_texture", $Spatial/WaterPlane/NoiseTexture.texture)
-	$Spatial/TestS3D.set_material_override(s3dmat)
-	print("DEBUG")
+	$Spatial/TestS3D.set_material_override(s3dmat)	
 	
-func set_cursor():
-	var TGI_cur = {"T": 0xaa5c3144, "G": 0x00000032, "I":0x13b138d0}
-	self.vec_hot = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).entries[0].vec_hotspot
-	self.cur_img = Core.subfile(TGI_cur["T"], TGI_cur["G"], TGI_cur["I"], CURSubfile).get_as_texture()
-	Input.set_custom_mouse_cursor(cur_img, Input.CURSOR_ARROW, vec_hot)
+
 	
 func coord_to_uv(x, y, z):
 	var TerrainTexTilingFactor = 0.2 # 0x6534284a,0x88cd66e9,0x00000001 describes this as 100m of terrain corresponds to this fraction of texture in farthest zoom
@@ -464,7 +464,8 @@ func get_normal(vert : Vector3, heightmap):
 func test_exemplar():
 	var TGI = {"T": 0x6534284a, "G": 0xea12f32c, "I": 0x5}
 	var exemplar = Core.subfile(TGI["T"], TGI["G"], TGI["I"], ExemplarSubfile)
-	print("ParentCohort", exemplar.parent_cohort)
+	#print("ParentCohort", exemplar.parent_cohort)
 	for key in exemplar.properties.keys():
-		print(key, "\t", exemplar.key_description(key), "\t", exemplar.properties[key])
+		pass
+		#print(key, "\t", exemplar.key_description(key), "\t", exemplar.properties[key])
 		

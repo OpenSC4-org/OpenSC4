@@ -17,6 +17,7 @@ var layer_map = []
 var map_width : int
 var map_height : int
 var drag_first = true
+
 #input
 var start_l = false
 var hold_l = false
@@ -77,10 +78,40 @@ func _ready():
 	0x0000016 : "Monorail",
 	0x0000017 : "Ground Highway",
 	0x0000018 : "Ground Highway"}
+	
+	# Load all the rules and create files
+	var a = {}
+	for rule_id in rul_iid_types:
+		Core.get_subfile("BRIDGE_RULES", "BRIDGE_RULES", rule_id)
+	var files = ["user://rules/HighwayRules.txt", "user://rules/RailRules.txt", "user://rules/RoadRules.txt", "user://rules/Transmogrif.txt"]
+	for name in files:
+		var source = File.new()
+		var filtred = File.new()
+		source.open(name, File.READ)
+		var just_name = name.split('.')[0]
+		filtred.open("%s_filtred.txt " % just_name, File.WRITE)
+		a[just_name] = {}
+		while not source.eof_reached():
+			var line = source.get_line()
+			if len(line) > 0:
+				if line[0] != ';' and line[0] != '#':
+					filtred.store_line(line)
+		source.close()
+		filtred.close()
+	
+	
+	
+	
+	
+	
+	# OLD CODE
+	
+	
 	# it gets messy here, not sure how to make this not a tonne of loops without sacrificing fast lookups when drawing
 	# iter rul files
 	for RUL_id in rul_iid_types.keys():
 		var t_type = rul_iid_types[RUL_id]
+		#print("TRANSIT_TILES: ", transit_tiles)
 		if not self.transit_tiles.keys().has(t_type):
 			self.transit_tiles[t_type] = {}
 		var rul_dict = Core.subfile(0x0a5bcf4b, 0xaa5bcf57, RUL_id, RULSubfile).RUL_wnes
@@ -144,7 +175,7 @@ func _input(event):
 			if event.button_index == 1:
 				self.start_l = self.mouse_ray()
 				self.hold_l = self.mouse_ray()
-				self._drag_network(self.start_l, self.hold_l, "Road")
+				self._drag_network(self.start_l, self.hold_l, Player.current_type_selected)
 		if not event.is_pressed():
 			if event.button_index == 1 and self.hold_l:
 				_build_network()
@@ -152,12 +183,12 @@ func _input(event):
 				self.hold_l = false
 	elif event is InputEventMouseMotion and start_l:
 		self.hold_l = self.mouse_ray()
-		self._drag_network(self.start_l, self.hold_l, "Road")
+		self._drag_network(self.start_l, self.hold_l, Player.current_type_selected)
 	elif event is InputEventKey:
 		if event.pressed and event.scancode == KEY_CONTROL:
 			self.drag_first = not self.drag_first
 			if self.start_l:
-				self._drag_network(self.start_l, self.hold_l, "Road")
+				self._drag_network(self.start_l, self.hold_l, Player.current_type_selected)
 		
 
 func mouse_ray():
@@ -411,6 +442,8 @@ func _drag_network(start, end, type):
 		var best_t_i = 0
 		var b_loc = edges[1][i]
 		var override = false
+		#if type != "Road":
+		#	Logger.info(transit_tiles[type].keys())
 		for t_i in range(len(transit_tiles[type][edges[0][i]])):
 			var points = 0
 			var div = 0
@@ -641,7 +674,7 @@ func _drag_network(start, end, type):
 func _build_network():#start, end, type):
 	"TODO Register tiles to network_tiles and figure out how to copy PoolVector3Array"
 	if len(self.drag_arrays[ArrayMesh.ARRAY_VERTEX]) > 0:
-		var debug = false
+		var _debug = false
 		if self.mesh == null:
 			self.mesh = ArrayMesh.new()
 		if len(self.built_arrays) == 0:

@@ -10,23 +10,23 @@ func _init():
 	self.load_music_files()
 
 func _ready():
-	self.connect("finished", self, "play_music")
+	var _unused = self.connect("finished", self, "play_music")
 
 func play_music():
-	if len(self.music_list) != 0:
-		self.current_music = self.music_list[rng.randi_range(0, len(self.music_list)- 1)]
-		var file = File.new()
-		file.open(Core.game_dir + path_to_radio % self.current_music, File.READ)
+	self.current_music = self.music_list[rng.randi_range(0, len(self.music_list)- 1)]
+	var file = File.new()
+	file.open(Core.game_dir + path_to_radio % self.current_music, File.READ)
 
-		var audiostream = AudioStreamMP3.new()
-		audiostream.set_data(file.get_buffer(file.get_len()))
-		self.set_stream(audiostream)
-		self.play()
+	var audiostream = AudioStreamMP3.new()
+	audiostream.set_data(file.get_buffer(file.get_len()))
+	self.set_stream(audiostream)
+	self.play()
+
 
 func load_music_files():
 	# Load the music list
 	var dir = Directory.new()
-	var err = dir.open(Core.game_dir + '/Radio/Stations/Region/Music')
+	var err = dir.open('res://Radio/Stations/Region/Music')
 	if err != OK:
 		print('Error opening radio directory: %s' % err)
 		return

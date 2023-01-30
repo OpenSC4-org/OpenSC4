@@ -1,0 +1,718 @@
+[gd_scene load_steps=49 format=2]
+
+[ext_resource path="res://RegionUI/RegionUI.tscn" type="PackedScene" id=1]
+[ext_resource path="res://RegionView/Region.gd" type="Script" id=2]
+[ext_resource path="res://RegionView/RegionGrid.gd" type="Script" id=3]
+[ext_resource path="res://RegionView/CameraAnchor.gd" type="Script" id=4]
+[ext_resource path="res://Radio/Stations/RadioPlayer.gd" type="Script" id=5]
+[ext_resource path="res://scripts/regions/settings.gd" type="Script" id=6]
+[ext_resource path="res://scripts/regions/compass.gd" type="Script" id=7]
+[ext_resource path="res://scripts/regions/exit_btn.gd" type="Script" id=8]
+[ext_resource path="res://scripts/regions/link_btn.gd" type="Script" id=9]
+[ext_resource path="res://scripts/regions/regions_btn.gd" type="Script" id=10]
+[ext_resource path="res://scripts/regions/top_menu.gd" type="Script" id=11]
+[ext_resource path="res://scripts/regions/bottom_left_menu.gd" type="Script" id=12]
+[ext_resource path="res://scripts/regions/regions_menu.gd" type="Script" id=13]
+[ext_resource path="res://scripts/regions/settings_menu.gd" type="Script" id=14]
+[ext_resource path="res://scripts/regions/new_region_btn.gd" type="Script" id=15]
+[ext_resource path="res://scripts/regions/open_region_btn.gd" type="Script" id=16]
+[ext_resource path="res://scripts/regions/sound_btn.gd" type="Script" id=17]
+[ext_resource path="res://scripts/regions/screenshot_area_btn.gd" type="Script" id=18]
+[ext_resource path="res://scripts/regions/general_btn.gd" type="Script" id=19]
+[ext_resource path="res://scripts/regions/screenshot_btn.gd" type="Script" id=20]
+[ext_resource path="res://scripts/regions/screen_btn.gd" type="Script" id=21]
+[ext_resource path="res://scripts/regions/show_option1_btn.gd" type="Script" id=22]
+[ext_resource path="res://scripts/regions/show_city_boundaries_btn.gd" type="Script" id=23]
+[ext_resource path="res://scripts/regions/transport_btn.gd" type="Script" id=24]
+[ext_resource path="res://scripts/regions/satellite_btn.gd" type="Script" id=25]
+[ext_resource path="res://scripts/regions/legend.gd" type="Script" id=26]
+[ext_resource path="res://scripts/regions/display_legend_btn.gd" type="Script" id=27]
+[ext_resource path="res://scripts/regions/minimalize_btn.gd" type="Script" id=28]
+[ext_resource path="res://scripts/regions/delete_region_btn.gd" type="Script" id=29]
+[ext_resource path="res://scripts/regions/new_region_dialog.gd" type="Script" id=30]
+[ext_resource path="res://scripts/regions/plains_btn.gd" type="Script" id=31]
+[ext_resource path="res://scripts/regions/water_btn.gd" type="Script" id=32]
+[ext_resource path="res://scripts/regions/create_reagion_btn.gd" type="Script" id=33]
+[ext_resource path="res://scripts/regions/load_region_dialog.gd" type="Script" id=34]
+[ext_resource path="res://scripts/regions/regios_list.gd" type="Script" id=35]
+[ext_resource path="res://scripts/regions/cancel_btn.gd" type="Script" id=36]
+[ext_resource path="res://scripts/regions/load_btn.gd" type="Script" id=37]
+[ext_resource path="res://scene/screenshot_rect.tscn" type="PackedScene" id=38]
+[ext_resource path="res://shaders/region_outline.shader" type="Shader" id=39]
+[ext_resource path="res://scripts/regions/UICanvas.gd" type="Script" id=41]
+
+[sub_resource type="ShaderMaterial" id=8]
+resource_local_to_scene = true
+shader = ExtResource( 39 )
+shader_param/color = Color( 1, 1, 0, 0.9 )
+shader_param/width = 1.0
+shader_param/pattern = 1
+shader_param/inside = true
+shader_param/add_margins = false
+
+[sub_resource type="CanvasItemMaterial" id=1]
+
+[sub_resource type="ImageTexture" id=2]
+
+[sub_resource type="StyleBoxFlat" id=3]
+content_margin_left = 5.0
+bg_color = Color( 1, 1, 1, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.223529, 0.286275, 0.388235, 1 )
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0.160784, 0.105882, 0.105882, 1 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.168627, 0.152941, 0.407843, 1 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.521569, 0.45098, 0.45098, 0 )
+
+[sub_resource type="Theme" id=7]
+ToolButton/colors/font_color = Color( 0, 0, 0, 1 )
+ToolButton/styles/focus = SubResource( 4 )
+ToolButton/styles/normal = SubResource( 5 )
+ToolButton/styles/pressed = SubResource( 6 )
+
+[node name="Region" type="Node2D"]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_vertical_guides_": [ 802.0, 1184.0, 275.0, 460.0 ]
+}
+
+[node name="BaseGrid" type="TileMap" parent="."]
+position = Vector2( 1, 1 )
+mode = 2
+cell_quadrant_size = 64
+cell_custom_transform = Transform2D( 90, 18.7, -37.3, 45, 0, 0 )
+cell_tile_origin = 2
+format = 1
+script = ExtResource( 3 )
+
+[node name="CameraAnchor" type="KinematicBody2D" parent="."]
+script = ExtResource( 4 )
+
+[node name="MainCamera" type="Camera2D" parent="CameraAnchor"]
+anchor_mode = 0
+current = true
+drag_margin_left = 0.8
+drag_margin_top = 0.8
+drag_margin_right = 0.8
+drag_margin_bottom = 0.8
+
+[node name="RadioPlayer" type="AudioStreamPlayer" parent="."]
+script = ExtResource( 5 )
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_mirroring = Vector2( 128, 128 )
+
+[node name="Grid" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
+margin_right = 5433.0
+margin_bottom = 3155.0
+mouse_filter = 2
+stretch_mode = 2
+
+[node name="UICanvas" type="CanvasLayer" parent="."]
+script = ExtResource( 41 )
+
+[node name="UI" parent="UICanvas" instance=ExtResource( 1 )]
+material = SubResource( 8 )
+
+[node name="Control" type="Control" parent="UICanvas"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -194.0
+margin_right = 305.0
+
+[node name="bottom_left_menu" type="TextureRect" parent="UICanvas/Control"]
+material = SubResource( 1 )
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = -112.0
+margin_right = 418.0
+margin_bottom = -10.0
+texture = SubResource( 2 )
+script = ExtResource( 12 )
+
+[node name="Label" type="Label" parent="UICanvas/Control/bottom_left_menu"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+use_parent_material = true
+margin_left = 71.0
+margin_top = 15.0
+margin_right = 114.0
+margin_bottom = 29.0
+text = "Region"
+
+[node name="total_population" type="Label" parent="UICanvas/Control/bottom_left_menu"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 36.0
+margin_top = 42.0
+margin_right = 76.0
+margin_bottom = 56.0
+text = "0"
+
+[node name="region_name" type="Label" parent="UICanvas/Control/bottom_left_menu"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 24.0
+margin_top = 77.0
+margin_right = 84.0
+margin_bottom = 91.0
+text = "Timbuktu"
+
+[node name="Control2" type="Control" parent="UICanvas"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -20.0
+margin_right = 20.0
+margin_bottom = 40.0
+
+[node name="top_menu" type="TextureRect" parent="UICanvas/Control2"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -577.0
+margin_right = 577.0
+margin_bottom = 41.0
+script = ExtResource( 11 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UICanvas/Control2"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -200.0
+margin_top = 20.0
+margin_right = 200.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 400, 60 )
+alignment = 1
+
+[node name="regions_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer"]
+margin_right = 80.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+toggle_mode = true
+script = ExtResource( 10 )
+
+[node name="regions_menu" type="TextureRect" parent="UICanvas/Control2/HBoxContainer/regions_btn"]
+show_behind_parent = true
+margin_left = -176.0
+margin_top = -8.0
+margin_right = 572.0
+margin_bottom = 196.0
+script = ExtResource( 13 )
+
+[node name="new_region_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 42.0
+margin_top = 124.0
+margin_right = 82.0
+margin_bottom = 164.0
+script = ExtResource( 15 )
+
+[node name="open_region_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 115.0
+margin_top = 126.0
+margin_right = 155.0
+margin_bottom = 166.0
+script = ExtResource( 16 )
+
+[node name="delete_region_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 189.0
+margin_top = 122.0
+margin_right = 279.0
+margin_bottom = 177.0
+rect_min_size = Vector2( 90, 55 )
+script = ExtResource( 29 )
+
+[node name="show_city_names_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 320.0
+margin_top = 124.0
+margin_right = 337.0
+margin_bottom = 141.0
+rect_min_size = Vector2( 17, 17 )
+script = ExtResource( 22 )
+
+[node name="Label" type="Label" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/show_city_names_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 28.0
+margin_top = 3.0
+margin_right = 138.0
+margin_bottom = 17.0
+text = "Show City Names"
+
+[node name="show_city_boundaries_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 320.0
+margin_top = 158.0
+margin_right = 337.0
+margin_bottom = 175.0
+rect_min_size = Vector2( 17, 17 )
+script = ExtResource( 23 )
+
+[node name="Label" type="Label" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/show_city_boundaries_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 28.0
+margin_top = 3.0
+margin_right = 165.0
+margin_bottom = 17.0
+text = "Show City Boundaries"
+
+[node name="satellite_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 538.0
+margin_top = 125.0
+margin_right = 555.0
+margin_bottom = 142.0
+rect_min_size = Vector2( 17, 17 )
+script = ExtResource( 25 )
+
+[node name="Label" type="Label" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/satellite_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 33.0
+margin_top = 1.0
+margin_right = 119.0
+margin_bottom = 15.0
+text = "Satellite View"
+
+[node name="transport_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu"]
+margin_left = 538.0
+margin_top = 158.0
+margin_right = 555.0
+margin_bottom = 175.0
+rect_min_size = Vector2( 17, 17 )
+script = ExtResource( 24 )
+
+[node name="Label" type="Label" parent="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/transport_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 33.0
+margin_top = 1.0
+margin_right = 160.0
+margin_bottom = 15.0
+text = "Transportation  Map"
+
+[node name="Panel" type="Panel" parent="UICanvas/Control2/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 84.0
+margin_right = 164.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+
+[node name="link_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer"]
+margin_left = 168.0
+margin_right = 248.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+script = ExtResource( 9 )
+
+[node name="Panel2" type="Panel" parent="UICanvas/Control2/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 252.0
+margin_right = 332.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+
+[node name="exit_btn" type="TextureButton" parent="UICanvas/Control2/HBoxContainer"]
+margin_left = 336.0
+margin_right = 416.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 80, 60 )
+script = ExtResource( 8 )
+
+[node name="compass" type="TextureRect" parent="UICanvas"]
+margin_left = 20.0
+margin_top = 20.0
+rect_min_size = Vector2( 66, 43 )
+script = ExtResource( 7 )
+
+[node name="settings" type="TextureButton" parent="UICanvas"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -80.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = 66.0
+rect_min_size = Vector2( 60, 46 )
+toggle_mode = true
+script = ExtResource( 6 )
+
+[node name="settings_menu" type="TextureRect" parent="UICanvas/settings"]
+show_behind_parent = true
+margin_left = -212.0
+margin_top = -7.0
+margin_right = 59.0
+margin_bottom = 131.0
+script = ExtResource( 14 )
+
+[node name="screenshot_btn" type="TextureButton" parent="UICanvas/settings/settings_menu"]
+margin_left = 12.0
+margin_top = 102.0
+margin_right = 52.0
+margin_bottom = 131.0
+script = ExtResource( 20 )
+
+[node name="screenshot_area_btn" type="TextureButton" parent="UICanvas/settings/settings_menu"]
+margin_left = 60.0
+margin_top = 102.0
+margin_right = 100.0
+margin_bottom = 131.0
+script = ExtResource( 18 )
+
+[node name="screen_btn" type="TextureButton" parent="UICanvas/settings/settings_menu"]
+margin_left = 108.0
+margin_top = 102.0
+margin_right = 148.0
+margin_bottom = 131.0
+script = ExtResource( 21 )
+
+[node name="sound_btn" type="TextureButton" parent="UICanvas/settings/settings_menu"]
+margin_left = 148.0
+margin_top = 102.0
+margin_right = 188.0
+margin_bottom = 131.0
+script = ExtResource( 17 )
+
+[node name="general_btn" type="TextureButton" parent="UICanvas/settings/settings_menu"]
+margin_left = 188.0
+margin_top = 99.0
+margin_right = 228.0
+margin_bottom = 128.0
+script = ExtResource( 19 )
+
+[node name="legend" type="TextureRect" parent="UICanvas"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -159.0
+margin_top = -207.0
+margin_right = -5.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 154, 202 )
+script = ExtResource( 26 )
+
+[node name="Label" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 64.0
+margin_top = 42.0
+margin_right = 117.0
+margin_bottom = 56.0
+text = "Highway"
+
+[node name="Label2" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 64.0
+margin_top = 60.0
+margin_right = 104.0
+margin_bottom = 74.0
+text = "Road"
+
+[node name="Label3" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 64.0
+margin_top = 76.0
+margin_right = 104.0
+margin_bottom = 90.0
+text = "Rail"
+
+[node name="Label4" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 63.0
+margin_top = 95.0
+margin_right = 144.0
+margin_bottom = 109.0
+text = "Elevated Rail"
+
+[node name="Label5" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 64.0
+margin_top = 114.0
+margin_right = 104.0
+margin_bottom = 128.0
+text = "Ferry Route"
+
+[node name="Label6" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 64.0
+margin_top = 138.0
+margin_right = 104.0
+margin_bottom = 152.0
+text = "Airport"
+
+[node name="Label7" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 64.0
+margin_top = 166.0
+margin_right = 104.0
+margin_bottom = 180.0
+text = "Seaport"
+
+[node name="Label8" type="Label" parent="UICanvas/legend"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 11.0
+margin_top = 12.0
+margin_right = 104.0
+margin_bottom = 26.0
+text = "Region Legend"
+
+[node name="minimalize_btn" type="TextureButton" parent="UICanvas/legend"]
+margin_left = 121.0
+margin_top = 10.0
+margin_right = 142.0
+margin_bottom = 29.0
+rect_min_size = Vector2( 21, 19 )
+script = ExtResource( 28 )
+
+[node name="display_legend_btn" type="TextureButton" parent="UICanvas"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -26.0
+margin_top = -22.0
+margin_right = -5.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 21, 17 )
+script = ExtResource( 27 )
+
+[node name="new_region_dialog" type="Control" parent="UICanvas"]
+margin_left = 263.0
+margin_top = 164.0
+margin_right = 303.0
+margin_bottom = 204.0
+script = ExtResource( 30 )
+
+[node name="left_side_dialog" type="TextureRect" parent="UICanvas/new_region_dialog"]
+margin_right = 20.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 20, 180 )
+
+[node name="center_1" type="TextureRect" parent="UICanvas/new_region_dialog"]
+margin_left = 20.0
+margin_right = 160.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 140, 180 )
+
+[node name="center_2" type="TextureRect" parent="UICanvas/new_region_dialog"]
+margin_left = 160.0
+margin_right = 300.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 140, 180 )
+
+[node name="LineEdit" type="LineEdit" parent="UICanvas/new_region_dialog"]
+margin_left = 23.0
+margin_top = 49.0
+margin_right = 297.0
+margin_bottom = 73.0
+custom_colors/selection_color = Color( 0.223529, 0.286275, 0.388235, 1 )
+custom_colors/cursor_color = Color( 0.223529, 0.286275, 0.388235, 1 )
+custom_colors/clear_button_color_pressed = Color( 0, 0, 0, 1 )
+custom_colors/font_color_selected = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 0.223529, 0.286275, 0.388235, 1 )
+custom_colors/clear_button_color = Color( 0, 0, 0, 1 )
+custom_colors/font_color_uneditable = Color( 0, 0, 0, 1 )
+custom_styles/normal = SubResource( 3 )
+placeholder_text = "new region name"
+
+[node name="Label" type="Label" parent="UICanvas/new_region_dialog"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 20.0
+margin_top = 15.0
+margin_right = 105.0
+margin_bottom = 29.0
+text = "Region Name"
+
+[node name="Label2" type="Label" parent="UICanvas/new_region_dialog"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 23.0
+margin_top = 85.0
+margin_right = 106.0
+margin_bottom = 99.0
+text = "Initial terrain"
+
+[node name="plains_btn" type="TextureButton" parent="UICanvas/new_region_dialog"]
+margin_left = 22.0
+margin_top = 111.0
+margin_right = 39.0
+margin_bottom = 128.0
+rect_min_size = Vector2( 17, 17 )
+script = ExtResource( 31 )
+
+[node name="Label" type="Label" parent="UICanvas/new_region_dialog/plains_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 23.0
+margin_top = 2.0
+margin_right = 63.0
+margin_bottom = 16.0
+text = "Plains"
+
+[node name="water_btn" type="TextureButton" parent="UICanvas/new_region_dialog"]
+margin_left = 129.0
+margin_top = 111.0
+margin_right = 146.0
+margin_bottom = 128.0
+rect_min_size = Vector2( 17, 17 )
+script = ExtResource( 32 )
+
+[node name="Label" type="Label" parent="UICanvas/new_region_dialog/water_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 25.0
+margin_top = 2.0
+margin_right = 65.0
+margin_bottom = 16.0
+text = "Water"
+
+[node name="create_reagion_btn" type="TextureButton" parent="UICanvas/new_region_dialog"]
+margin_left = 10.0
+margin_top = 142.0
+margin_right = 150.0
+margin_bottom = 172.0
+rect_min_size = Vector2( 140, 30 )
+script = ExtResource( 33 )
+
+[node name="Label" type="Label" parent="UICanvas/new_region_dialog/create_reagion_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -44.0
+margin_top = -7.0
+margin_right = 44.0
+margin_bottom = 7.0
+text = "Create Region"
+
+[node name="cancel_btn" type="TextureButton" parent="UICanvas/new_region_dialog"]
+margin_left = 171.0
+margin_top = 142.0
+margin_right = 311.0
+margin_bottom = 172.0
+rect_min_size = Vector2( 140, 30 )
+script = ExtResource( 33 )
+
+[node name="Label" type="Label" parent="UICanvas/new_region_dialog/cancel_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -21.0
+margin_top = -7.0
+margin_right = 21.0
+margin_bottom = 7.0
+text = "Cancel"
+
+[node name="load_region_dialog" type="Control" parent="UICanvas"]
+margin_left = 683.0
+margin_top = 314.0
+margin_right = 723.0
+margin_bottom = 354.0
+script = ExtResource( 34 )
+
+[node name="left_side_dialog" type="TextureRect" parent="UICanvas/load_region_dialog"]
+margin_right = 20.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 20, 180 )
+
+[node name="center_1" type="TextureRect" parent="UICanvas/load_region_dialog"]
+margin_left = 20.0
+margin_right = 160.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 140, 180 )
+
+[node name="center_2" type="TextureRect" parent="UICanvas/load_region_dialog"]
+margin_left = 160.0
+margin_right = 300.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 140, 180 )
+
+[node name="Label" type="Label" parent="UICanvas/load_region_dialog"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 15.0
+margin_top = 14.0
+margin_right = 92.0
+margin_bottom = 28.0
+text = "Load Region"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="UICanvas/load_region_dialog"]
+margin_left = 18.0
+margin_top = 39.0
+margin_right = 308.0
+margin_bottom = 134.0
+
+[node name="regios_list" type="VBoxContainer" parent="UICanvas/load_region_dialog/ScrollContainer"]
+margin_right = 290.0
+margin_bottom = 95.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = SubResource( 7 )
+script = ExtResource( 35 )
+
+[node name="load_btn" type="TextureButton" parent="UICanvas/load_region_dialog"]
+margin_left = 9.0
+margin_top = 143.0
+margin_right = 149.0
+margin_bottom = 173.0
+rect_min_size = Vector2( 140, 30 )
+script = ExtResource( 37 )
+
+[node name="Label" type="Label" parent="UICanvas/load_region_dialog/load_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -38.5
+margin_top = -7.0
+margin_right = 38.5
+margin_bottom = 7.0
+text = "Load Region"
+
+[node name="cancel_btn" type="TextureButton" parent="UICanvas/load_region_dialog"]
+margin_left = 171.0
+margin_top = 143.0
+margin_right = 311.0
+margin_bottom = 173.0
+rect_min_size = Vector2( 140, 30 )
+script = ExtResource( 36 )
+
+[node name="Label" type="Label" parent="UICanvas/load_region_dialog/cancel_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -20.0
+margin_top = -7.0
+margin_right = 20.0
+margin_bottom = 7.0
+text = "Cancel"
+
+[node name="screenshot_rect" parent="UICanvas" instance=ExtResource( 38 )]
+
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn" to="UICanvas/Control2/HBoxContainer/regions_btn" method="_on_regions_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn" to="UICanvas/settings" method="_on_regions_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/new_region_btn" to="UICanvas/new_region_dialog" method="_on_new_region_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/new_region_btn" to="UICanvas/load_region_dialog" method="_on_new_region_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/open_region_btn" to="UICanvas/new_region_dialog" method="_on_open_region_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/open_region_btn" to="UICanvas/load_region_dialog" method="_on_open_region_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/show_city_names_btn" to="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/show_city_names_btn" method="_on_show_option1_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/show_city_boundaries_btn" to="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/show_city_boundaries_btn" method="_on_show_city_boundaries_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/satellite_btn" to="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/satellite_btn" method="_on_satellite_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/transport_btn" to="UICanvas/Control2/HBoxContainer/regions_btn/regions_menu/satellite_btn" method="_on_transport_btn_pressed"]
+[connection signal="pressed" from="UICanvas/Control2/HBoxContainer/exit_btn" to="UICanvas/Control2/HBoxContainer/exit_btn" method="_on_exit_btn_pressed"]
+[connection signal="pressed" from="UICanvas/settings" to="UICanvas/Control2/HBoxContainer/regions_btn" method="_on_settings_pressed"]
+[connection signal="pressed" from="UICanvas/settings" to="UICanvas/settings" method="_on_settings_pressed"]
+[connection signal="pressed" from="UICanvas/legend/minimalize_btn" to="UICanvas/legend" method="_on_minimalize_btn_pressed"]
+[connection signal="pressed" from="UICanvas/legend/minimalize_btn" to="UICanvas/display_legend_btn" method="_on_minimalize_btn_pressed"]
+[connection signal="pressed" from="UICanvas/display_legend_btn" to="UICanvas/legend" method="_on_display_legend_btn_pressed"]
+[connection signal="pressed" from="UICanvas/display_legend_btn" to="UICanvas/display_legend_btn" method="_on_display_legend_btn_pressed"]
+[connection signal="gui_input" from="UICanvas/new_region_dialog" to="UICanvas/new_region_dialog" method="_on_new_region_dialog_gui_input"]
+[connection signal="pressed" from="UICanvas/new_region_dialog/plains_btn" to="UICanvas/new_region_dialog/plains_btn" method="_on_plains_btn_pressed"]
+[connection signal="pressed" from="UICanvas/new_region_dialog/water_btn" to="UICanvas/new_region_dialog/plains_btn" method="_on_water_btn_pressed"]
+[connection signal="pressed" from="UICanvas/new_region_dialog/cancel_btn" to="UICanvas/new_region_dialog/cancel_btn" method="_on_cancel_btn_pressed"]
+[connection signal="gui_input" from="UICanvas/load_region_dialog" to="UICanvas/load_region_dialog" method="_on_load_region_dialog_gui_input"]
+[connection signal="pressed" from="UICanvas/load_region_dialog/load_btn" to="UICanvas/load_region_dialog/ScrollContainer/regios_list" method="_on_load_btn_pressed"]
+[connection signal="pressed" from="UICanvas/load_region_dialog/cancel_btn" to="UICanvas/load_region_dialog" method="_on_cancel_btn_pressed"]

@@ -10,10 +10,8 @@ var tm_table
 var heightmap : Array
 
 func _ready():
-	#mat.albedo_color = color
 	st.begin(Mesh.PRIMITIVE_TRIANGLE_FAN)
 	for v in vertices.size(): 
-		#st.add_color(color)
 		st.add_uv(UVs[v])
 		st.add_vertex(vertices[v])
 
@@ -170,7 +168,7 @@ func load_textures_to_uv_dict():
 	var config = load_into_config_file(file)
 	
 	# See how the data actually looks like - comment next line of not DEBUG
-	#config.save("user://new.ini")
+	config.save("user://new.ini")
 	
 	var textures = read_textures_numbers_and_build_tm_table(config)
 
@@ -178,10 +176,10 @@ func load_textures_to_uv_dict():
 		
 	var ind_to_layer = create_ind_to_layer(config, results.images_dict, results.texture_array)
 	
-	#var f = File.new()
-	#f.open("user://uv_dict.txt", File.WRITE)
-	#f.store_line(to_json(ind_to_layer))
-	#f.close()
+	var f = File.new()
+	f.open("user://uv_dict.txt", File.WRITE)
+	f.store_line(to_json(ind_to_layer))
+	f.close()
 	
 	return ind_to_layer
 	
@@ -199,7 +197,7 @@ func update_terrain(locations : PoolVector3Array, rot_flipped_UVs : PoolVector2A
 	var vertices_copy = arrays[ArrayMesh.ARRAY_VERTEX]
 	var UVs_copy = arrays[ArrayMesh.ARRAY_TEX_UV]
 	# iterate locations per quad
-	var updated_vertices = []
+	var _updated_vertices = []
 	for i in range(0, len(locations), 6):
 		var tile_loc = locations[i]
 		for neigh in neighbours:

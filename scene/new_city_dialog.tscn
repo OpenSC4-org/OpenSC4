@@ -1,0 +1,47 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scripts/regions/import_city_btn.gd" type="Script" id=1]
+[ext_resource path="res://scripts/regions/new_city_dialog.gd" type="Script" id=2]
+[ext_resource path="res://scripts/regions/delete_city_btn.gd" type="Script" id=3]
+[ext_resource path="res://scripts/regions/play_city_btn.gd" type="Script" id=4]
+
+[node name="new_city_dialog" type="TextureRect"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -108.0
+margin_top = -155.0
+margin_right = 108.0
+script = ExtResource( 2 )
+
+[node name="import_city_btn" type="TextureButton" parent="."]
+margin_left = 29.0
+margin_top = 75.0
+margin_right = 69.0
+margin_bottom = 115.0
+script = ExtResource( 1 )
+
+[node name="delete_city_btn" type="TextureButton" parent="."]
+margin_left = 70.0
+margin_top = 75.0
+margin_right = 110.0
+margin_bottom = 115.0
+script = ExtResource( 3 )
+
+[node name="Label" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 63.0
+margin_top = 34.0
+margin_right = 163.0
+margin_bottom = 55.0
+text = "Start New City"
+
+[node name="play_city_btn" type="TextureButton" parent="."]
+margin_left = 147.0
+margin_top = 74.0
+margin_right = 187.0
+margin_bottom = 114.0
+script = ExtResource( 4 )
+
+[connection signal="pressed" from="play_city_btn" to="." method="_on_play_city_btn_pressed"]

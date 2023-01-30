@@ -1,14 +1,16 @@
 extends Node 
 
 var subfile_indices : Dictionary
-# TODO: read region_settings from file
-var region_settings : Dictionary = {
-	"show_borders" : true,
-	"show_names" : true,
-	"view_mode" : "satellite",
-}
 var sub_by_type_and_group : Dictionary
 var game_dir = null
+
+# User settigns values are read from config.ini(BootScreen.gd)
+# if not read then tohose defaults are used
+var config_path = "user://config.ini"
+var show_city_names : bool = true
+var show_city_boundaries : bool = false
+var satellite_view : bool = true # true for SatelliteView, false for Transportation Map
+var current_region_name : String = "Timbuktu"
 
 var type_dict_to_text = {
 	0x6534284a: "LTEXT",
@@ -21,7 +23,9 @@ var type_dict_to_text = {
 	0x856ddbac: "PNG",
 	0xca63e2a3: "LUA",
 	0xe86b1eef: "DBDF",
-	0x00000000: "TEXT"
+	0x00000000: "TEXT",
+	0xaa5c3144: "unknown_type1",
+	0x0a5bcf4b: "BRIDGE_RULES"
 }
 var group_dict_to_text = {
 	0x00000001: "VIDEO,BW_CURSOR",
@@ -64,6 +68,7 @@ var group_dict_to_text = {
 	0x47bddf12: "DEVELOPER_COMMERCIAL",
 	0x96a006b0: "UI_XML",
 	0x08000600: "UI_800x600",
+	0x00000032: "CUR"
 }
 
 
@@ -78,7 +83,9 @@ var type_dict = {
 	"PNG": 0x856ddbac,
 	"LUA": 0xca63e2a3,
 	"DBDF": 0xe86b1eef,
-	"TEXT": 0x00000000
+	"TEXT": 0x00000000,
+	"unknown_type1": 0xaa5c3144,
+	"BRIDGE_RULES": 0x0a5bcf4b
 }
 var group_dict = {
 	"VIDEO,BW_CURSOR": 0x00000001,
@@ -120,7 +127,8 @@ var group_dict = {
 	"CLOUDS_PARENT": 0x7a4a8458,
 	"DEVELOPER_COMMERCIAL": 0x47bddf12,
 	"UI_XML": 0x96a006b0,
-	"UI_800x600": 0x08000600
+	"UI_800x600": 0x08000600,
+	"CUR" : 0x00000032
 }
 var class_dict = {
 	"LTEXT": null,
@@ -133,8 +141,13 @@ var class_dict = {
 	"PNG": ImageSubfile,
 	"LUA": null,
 	"DBDF": DBPFSubfile,
-	"TEXT": null
+	"TEXT": DBPFSubfile,
+	"unknown_type1": CURSubfile,
+	"BRIDGE_RULES": RULSubfile,
 }
+
+func _ready():
+	read_user_config()
 
 func _type_int_2_str(dict, number:int) -> String:
 	"""
@@ -142,7 +155,6 @@ func _type_int_2_str(dict, number:int) -> String:
 	Returns empty string if not found.
 	"""
 	var result : String
-	var keys = dict.keys()
 	if dict.has(number):
 		result = dict[number]
 	return result
@@ -216,23 +228,64 @@ func get_subfile(type_id_str: String, group_id_str: String, instance_id : int) -
 		
 
 func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) -> DBPFSubfile:
-	if not subfile_indices.has(SubfileTGI.TGI2str(type_id, group_id, instance_id)):
+	if not subfile_indices.has([type_id, group_id, instance_id]):
 		Logger.error("Unknown subfile %s" % SubfileTGI.get_file_type(type_id, group_id, instance_id))
 		return null
 	else:
-		var index = subfile_indices[SubfileTGI.TGI2str(type_id, group_id, instance_id)]
+		var index = subfile_indices[[type_id, group_id, instance_id]]
+		#Logger.error("DEBUG: Wrong instance: %d" % instance_id)
 		return index.dbpf.get_subfile(type_id, group_id, instance_id, subfile_class)
 
 func add_dbpf(dbpf : DBPF):
 	for ind_key in dbpf.indices.keys():
 		var index = dbpf.indices[ind_key]
-		# Don't report DBDF "overwrite" with the type id
-		if subfile_indices.has(ind_key) and index.type_id != 0xe86b1eef: # and not (index.type_id == "DBPF" and index.group_id == 0xe86b1eef and index.instance_id == 0x286b1f03):
+		if subfile_indices.has(ind_key):# and not (index.type_id == "DBPF" and index.group_id == 0xe86b1eef and index.instance_id == 0x286b1f03):
 			Logger.error("File '%s' overwrites subfile %s" % [dbpf.path, SubfileTGI.get_file_type(index.type_id, index.group_id, index.instance_id)])
 		subfile_indices[ind_key] = dbpf.indices[ind_key]
 		if not sub_by_type_and_group.keys().has([index.type_id, index.group_id]):
 			sub_by_type_and_group[[index.type_id, index.group_id]] = {}
 		sub_by_type_and_group[[index.type_id, index.group_id]][index.instance_id] = (dbpf.indices[ind_key])
 
-func get_gamedata_path(path: String) -> String:
-	return "%s/%s" % [Core.game_dir, path]
+
+
+
+func read_user_config():
+	"""
+	Read user configuration from config file
+	It's not optimal, maybe it should be moved to another script (like Player settings)
+	The same file is also opened from BootScreen, which is also not good approach
+	"""
+	var config = ConfigFile.new()
+	var error = config.load(config_path)
+	if error != 0:
+		Logger.error("Cannot open config. %d", error)
+		return
+	if config.has_section("PlayerSettings"):
+		if config.has_section_key("PlayerSettings", "show_city_names"):
+			self.show_city_names = config.get_value("PlayerSettings", "show_city_names")
+		if config.has_section_key("PlayerSettings", "show_city_boundaries"):
+			self.show_city_boundaries = config.get_value("PlayerSettings", "show_city_boundaries")
+		if config.has_section_key("PlayerSettings", "satellite_view"):
+			self.show_city_boundaries = config.get_value("PlayerSettings", "satellite_view")
+		if config.has_section_key("PlayerSettings", "region_name"):
+			self.current_region_name = config.get_value("PlayerSettings", "region_name")
+			
+
+func _exit_tree():
+	save_user_configuration()
+	
+func save_user_configuration():
+	"""
+	Save the options user selected in top menu in Region view
+	
+	"""
+	var config = ConfigFile.new()
+	var error = config.load(config_path)
+	if error != 0:
+		Logger.error("Cannot open config. %d", error)
+		return
+	config.set_value("PlayerSettings", "show_city_names", self.show_city_names)
+	config.set_value("PlayerSettings", "show_city_boundaries", self.show_city_boundaries)
+	config.set_value("PlayerSettings", "satellite_view", self.satellite_view)
+	config.set_value("PlayerSettings", "region_name", self.current_region_name)
+	config.save(config_path)

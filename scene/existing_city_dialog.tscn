@@ -1,0 +1,109 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://scripts/regions/existing_city_dialog.gd" type="Script" id=2]
+[ext_resource path="res://scripts/regions/delete_city_btn.gd" type="Script" id=3]
+[ext_resource path="res://scripts/regions/import_city_btn.gd" type="Script" id=4]
+[ext_resource path="res://scripts/regions/play_city_btn.gd" type="Script" id=5]
+[ext_resource path="res://scripts/regions/star_1.gd" type="Script" id=6]
+[ext_resource path="res://scripts/regions/star_2.gd" type="Script" id=7]
+[ext_resource path="res://scripts/regions/star_3.gd" type="Script" id=8]
+
+[node name="existing_city_dialog" type="TextureRect"]
+margin_right = 40.0
+margin_bottom = 40.0
+script = ExtResource( 2 )
+
+[node name="import_btn" type="TextureButton" parent="."]
+margin_left = 31.0
+margin_top = 154.0
+margin_right = 71.0
+margin_bottom = 194.0
+script = ExtResource( 4 )
+
+[node name="delete_city_btn" type="TextureButton" parent="."]
+margin_left = 84.0
+margin_top = 154.0
+margin_right = 124.0
+margin_bottom = 194.0
+script = ExtResource( 3 )
+
+[node name="play_city_btn" type="TextureButton" parent="."]
+margin_left = 192.0
+margin_top = 157.0
+margin_right = 232.0
+margin_bottom = 197.0
+script = ExtResource( 5 )
+
+[node name="pop_residential" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 176.0
+margin_top = 96.0
+margin_right = 216.0
+margin_bottom = 110.0
+text = "0"
+
+[node name="pop_commercial" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 176.0
+margin_top = 112.0
+margin_right = 216.0
+margin_bottom = 126.0
+text = "0"
+
+[node name="pop_industrail" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 176.0
+margin_top = 128.0
+margin_right = 216.0
+margin_bottom = 142.0
+text = "0"
+
+[node name="money" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 32.0
+margin_top = 128.0
+margin_right = 128.0
+margin_bottom = 142.0
+text = "$1000000"
+
+[node name="mayor_rating" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 18.0
+margin_top = 81.0
+margin_right = 100.0
+margin_bottom = 95.0
+text = "Mayor Rating:"
+
+[node name="city_name" type="Label" parent="."]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+margin_left = 80.0
+margin_top = 16.0
+margin_right = 176.0
+margin_bottom = 30.0
+text = "City Name"
+align = 1
+
+[node name="star_3" type="TextureRect" parent="."]
+visible = false
+margin_left = 111.0
+margin_top = 40.0
+margin_right = 144.0
+margin_bottom = 56.0
+script = ExtResource( 8 )
+
+[node name="star_2" type="TextureRect" parent="."]
+visible = false
+margin_left = 111.0
+margin_top = 40.0
+margin_right = 144.0
+margin_bottom = 56.0
+script = ExtResource( 7 )
+
+[node name="star_1" type="TextureRect" parent="."]
+margin_left = 111.0
+margin_top = 40.0
+margin_right = 144.0
+margin_bottom = 56.0
+script = ExtResource( 6 )
+
+[connection signal="pressed" from="play_city_btn" to="." method="_on_play_city_btn_pressed"]

@@ -74,7 +74,7 @@ func _input(event):
 			var old = self.transform.origin
 			self.transform.origin = Vector3(old.z, old.y, -old.x)
 func _physics_process(_delta):
-	self.move_and_slide(self.velocity)
+	var _unused = self.move_and_slide(self.velocity)
 
 func _set_view():
 	# Elevation angle, Azimuth is a class var since it doesn't change

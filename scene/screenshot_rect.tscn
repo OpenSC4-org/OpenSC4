@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scripts/regions/screenshot_rect.gd" type="Script" id=1]
+[ext_resource path="res://shaders/region_outline.shader" type="Shader" id=2]
+[ext_resource path="res://images/button/snapshot.png" type="Texture" id=3]
+
+[sub_resource type="ShaderMaterial" id=9]
+shader = ExtResource( 2 )
+shader_param/color = Color( 1, 1, 1, 1 )
+shader_param/width = 1.0
+shader_param/pattern = 1
+shader_param/inside = true
+shader_param/add_margins = false
+
+[node name="screenshot_rect" type="TextureRect"]
+material = SubResource( 9 )
+margin_left = 540.0
+margin_top = 313.0
+margin_right = 702.0
+margin_bottom = 435.0
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 162, 122 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 3 )
+script = ExtResource( 1 )
+
+[node name="Label" type="Label" parent="."]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 155.0
+margin_bottom = 87.0
+text = "Press C 
+to take snapshop.
+Press escape
+to cancel.
+"
+
+[connection signal="gui_input" from="." to="." method="_on_screenshot_rect_gui_input"]

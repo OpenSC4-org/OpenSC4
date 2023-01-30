@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=65 format=2]
 
 [ext_resource path="res://CityView/CityScene/City.gd" type="Script" id=1]
 [ext_resource path="res://CityView/CityScene/CameraAnchor3D.gd" type="Script" id=2]
@@ -6,6 +6,46 @@
 [ext_resource path="res://CityView/Meshes/WaterPlane.gd" type="Script" id=4]
 [ext_resource path="res://CityView/Meshes/TestS3D.gd" type="Script" id=5]
 [ext_resource path="res://CityView/Meshes/TransitTiles.gd" type="Script" id=6]
+[ext_resource path="res://CityView/UI_scripts/building_menu.gd" type="Script" id=7]
+[ext_resource path="res://CityView/UI_scripts/building_menu_btn.gd" type="Script" id=8]
+[ext_resource path="res://CityView/UI_scripts/nature_btn.gd" type="Script" id=9]
+[ext_resource path="res://CityView/UI_scripts/settings_menu.gd" type="Script" id=10]
+[ext_resource path="res://CityView/UI_scripts/lands_btn.gd" type="Script" id=11]
+[ext_resource path="res://CityView/UI_scripts/network_btn.gd" type="Script" id=12]
+[ext_resource path="res://CityView/UI_scripts/engineering_btn.gd" type="Script" id=13]
+[ext_resource path="res://CityView/UI_scripts/services_btn.gd" type="Script" id=14]
+[ext_resource path="res://images/left_bottom_menu.png" type="Texture" id=15]
+[ext_resource path="res://CityView/UI_scripts/networks_menu.gd" type="Script" id=16]
+[ext_resource path="res://CityView/UI_scripts/rails_btn.gd" type="Script" id=17]
+[ext_resource path="res://CityView/UI_scripts/seaport_btn.gd" type="Script" id=18]
+[ext_resource path="res://CityView/UI_scripts/roads_btn.gd" type="Script" id=19]
+[ext_resource path="res://CityView/UI_scripts/airport_btn.gd" type="Script" id=20]
+[ext_resource path="res://CityView/UI_scripts/comm_btn.gd" type="Script" id=21]
+[ext_resource path="res://CityView/UI_scripts/highway_btn.gd" type="Script" id=22]
+[ext_resource path="res://CityView/UI_scripts/bubble.gd" type="Script" id=23]
+[ext_resource path="res://CityView/UI_scripts/rails.gd" type="Script" id=24]
+[ext_resource path="res://CityView/UI_scripts/monorail_station.gd" type="Script" id=25]
+[ext_resource path="res://CityView/UI_scripts/monorail.gd" type="Script" id=26]
+[ext_resource path="res://CityView/UI_scripts/passanger_station.gd" type="Script" id=27]
+[ext_resource path="res://CityView/UI_scripts/big_station.gd" type="Script" id=28]
+[ext_resource path="res://CityView/UI_scripts/cargo_station.gd" type="Script" id=29]
+[ext_resource path="res://CityView/UI_scripts/settinngs_btn.gd" type="Script" id=30]
+[ext_resource path="res://CityView/UI_scripts/save_btn.gd" type="Script" id=31]
+[ext_resource path="res://CityView/UI_scripts/to_region_btn.gd" type="Script" id=32]
+[ext_resource path="res://CityView/UI_scripts/snapshot_btn.gd" type="Script" id=33]
+[ext_resource path="res://CityView/UI_scripts/sounds_btn.gd" type="Script" id=34]
+[ext_resource path="res://CityView/UI_scripts/snapshot_gallery_btn.gd" type="Script" id=35]
+[ext_resource path="res://CityView/UI_scripts/exit_btn.gd" type="Script" id=36]
+[ext_resource path="res://CityView/UI_scripts/graphics_btn.gd" type="Script" id=37]
+[ext_resource path="res://scene/screenshot_rect.tscn" type="PackedScene" id=38]
+[ext_resource path="res://CityView/UI_scripts/settings_btn.gd" type="Script" id=39]
+[ext_resource path="res://CityView/UI_scripts/confirm_exit_to_region_dialog.gd" type="Script" id=40]
+[ext_resource path="res://CityView/UI_scripts/cancel_btn.gd" type="Script" id=41]
+[ext_resource path="res://images/background.png" type="Texture" id=42]
+[ext_resource path="res://CityView/UI_scripts/save_to_region_btn.gd" type="Script" id=43]
+[ext_resource path="res://CityView/UI_scripts/without_save_to_region_btn.gd" type="Script" id=44]
+[ext_resource path="res://CityView/UI_scripts/hide_menu_btn.gd" type="Script" id=45]
+[ext_resource path="res://CityView/UI_scripts/left_bottom_menu.gd" type="Script" id=46]
 
 [sub_resource type="ProceduralSky" id=15]
 radiance_size = 0
@@ -251,11 +291,13 @@ void fragment()
 	vec2 rem3 = abs(vec2(icoord3) - coord);
 	vec3 grid = vec3(1.0, 1.0, 1.0);
 	if (grid_bool){
-		if (rem1.x < (0.05 * max((5.0-float(zoom_ind)), 0.0)) ){
+		if (rem1.x < (0.05 * max(5.0-float(zoom_ind), 0.0)) ){
 			grid = vec3(0.6, 0.6, 0.6);
 		}
-		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0)) and grid_bool == true){
-			grid = vec3(0.6, 0.6, 0.6);
+		if (rem1.y < (0.05 * max((5.0-float(zoom_ind)), 0.0))) {
+			if (grid_bool == true) {
+				grid = vec3(0.6, 0.6, 0.6);
+			}
 		}
 	}
 	float sum_str = layer_w_0 + layer_w_1 + layer_w_2;
@@ -291,6 +333,13 @@ void fragment()
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = SubResource( 4 )
+shader_param/zoom = null
+shader_param/cliff_ind = null
+shader_param/beach_ind = null
+shader_param/tiling_factor = null
+shader_param/water_height = 15.625
+shader_param/grid_bool = false
+shader_param/beach_ht_range = null
 
 [sub_resource type="Shader" id=16]
 code = "shader_type spatial;
@@ -401,8 +450,16 @@ void fragment(){
 render_priority = 1
 shader = SubResource( 18 )
 
+[sub_resource type="ButtonGroup" id=21]
+
+[sub_resource type="ButtonGroup" id=20]
+
 [node name="City" type="Spatial"]
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_horizontal_guides_": [ 168.0, 216.0, 264.0, 312.0, 368.0 ],
+"_edit_vertical_guides_": [ 23.0 ]
+}
 
 [node name="Sun" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 7.81531e-08, 0, -7.81531e-08, 1, 0, 0, 0 )
@@ -474,10 +531,472 @@ size = 292.0
 near = 1.0
 far = 200.0
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="KinematicBody"]
-environment = SubResource( 1 )
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="left_bottom_menu" type="TextureRect" parent="CanvasLayer/Control"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = -157.0
+margin_right = 240.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 235, 152 )
+texture = ExtResource( 15 )
+script = ExtResource( 46 )
+
+[node name="building_menu_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu"]
+margin_left = 97.0
+margin_top = -41.0
+margin_right = 157.0
+margin_bottom = 5.0
+rect_min_size = Vector2( 60, 46 )
+toggle_mode = true
+group = SubResource( 21 )
+script = ExtResource( 8 )
+
+[node name="building_menu" type="TextureRect" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn"]
+margin_left = -95.0
+margin_top = -441.0
+margin_right = 62.0
+margin_bottom = 48.0
+rect_min_size = Vector2( 157, 489 )
+script = ExtResource( 7 )
 __meta__ = {
-"_editor_description_": "Default environment"
+"_edit_lock_": true
 }
 
-[node name="UICanvas" type="CanvasLayer" parent="."]
+[node name="nature_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu"]
+margin_left = 9.0
+margin_top = 16.0
+margin_right = 73.0
+margin_bottom = 66.0
+rect_min_size = Vector2( 64, 50 )
+script = ExtResource( 9 )
+
+[node name="lands_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu"]
+margin_left = 9.0
+margin_top = 66.0
+margin_right = 73.0
+margin_bottom = 116.0
+rect_min_size = Vector2( 64, 50 )
+script = ExtResource( 11 )
+
+[node name="networks_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu"]
+margin_left = 9.0
+margin_top = 116.0
+margin_right = 73.0
+margin_bottom = 166.0
+rect_min_size = Vector2( 64, 50 )
+toggle_mode = true
+script = ExtResource( 12 )
+
+[node name="networks_menu" type="TextureRect" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn"]
+show_behind_parent = true
+margin_left = -3.0
+margin_top = -76.0
+margin_right = 86.0
+margin_bottom = 225.0
+rect_min_size = Vector2( 89, 301 )
+script = ExtResource( 16 )
+
+[node name="roads_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu"]
+margin_left = 73.0
+margin_top = 8.0
+margin_right = 120.0
+margin_bottom = 45.0
+rect_min_size = Vector2( 47, 37 )
+script = ExtResource( 19 )
+
+[node name="highway_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu"]
+margin_left = 73.0
+margin_top = 60.0
+margin_right = 120.0
+margin_bottom = 97.0
+rect_min_size = Vector2( 47, 37 )
+script = ExtResource( 22 )
+
+[node name="rails_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu"]
+margin_left = 73.0
+margin_top = 110.0
+margin_right = 120.0
+margin_bottom = 147.0
+rect_min_size = Vector2( 47, 37 )
+toggle_mode = true
+script = ExtResource( 17 )
+
+[node name="bubble" type="TextureRect" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn"]
+show_behind_parent = true
+margin_left = -4.0
+margin_top = -10.0
+margin_right = 36.0
+margin_bottom = 30.0
+script = ExtResource( 23 )
+
+[node name="rails" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble"]
+margin_left = 80.0
+margin_top = -140.0
+margin_right = 124.0
+margin_bottom = -96.0
+rect_min_size = Vector2( 44, 44 )
+toggle_mode = true
+group = SubResource( 20 )
+script = ExtResource( 24 )
+
+[node name="passanger_station" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble"]
+margin_left = 80.0
+margin_top = -92.0
+margin_right = 124.0
+margin_bottom = -48.0
+rect_min_size = Vector2( 44, 44 )
+toggle_mode = true
+group = SubResource( 20 )
+script = ExtResource( 27 )
+
+[node name="cargo_station" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble"]
+margin_left = 80.0
+margin_top = -44.0
+margin_right = 124.0
+rect_min_size = Vector2( 44, 44 )
+toggle_mode = true
+group = SubResource( 20 )
+script = ExtResource( 29 )
+
+[node name="big_station" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble"]
+margin_left = 80.0
+margin_top = 4.0
+margin_right = 124.0
+margin_bottom = 48.0
+rect_min_size = Vector2( 44, 44 )
+toggle_mode = true
+group = SubResource( 20 )
+script = ExtResource( 28 )
+
+[node name="monorail" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble"]
+margin_left = 80.0
+margin_top = 60.0
+margin_right = 124.0
+margin_bottom = 104.0
+rect_min_size = Vector2( 44, 44 )
+toggle_mode = true
+group = SubResource( 20 )
+script = ExtResource( 26 )
+
+[node name="monorail_station" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble"]
+margin_left = 80.0
+margin_top = 116.0
+margin_right = 124.0
+margin_bottom = 160.0
+rect_min_size = Vector2( 44, 44 )
+toggle_mode = true
+group = SubResource( 20 )
+script = ExtResource( 25 )
+
+[node name="comm_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu"]
+margin_left = 73.0
+margin_top = 162.0
+margin_right = 120.0
+margin_bottom = 199.0
+rect_min_size = Vector2( 47, 37 )
+script = ExtResource( 21 )
+
+[node name="airport_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu"]
+margin_left = 73.0
+margin_top = 212.0
+margin_right = 120.0
+margin_bottom = 249.0
+rect_min_size = Vector2( 47, 37 )
+script = ExtResource( 20 )
+
+[node name="seaport_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu"]
+margin_left = 73.0
+margin_top = 260.0
+margin_right = 120.0
+margin_bottom = 297.0
+rect_min_size = Vector2( 47, 37 )
+script = ExtResource( 18 )
+
+[node name="engineering_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu"]
+margin_left = 9.0
+margin_top = 167.0
+margin_right = 73.0
+margin_bottom = 217.0
+rect_min_size = Vector2( 64, 50 )
+script = ExtResource( 13 )
+
+[node name="services_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu"]
+margin_left = 9.0
+margin_top = 220.0
+margin_right = 73.0
+margin_bottom = 270.0
+rect_min_size = Vector2( 64, 50 )
+script = ExtResource( 14 )
+
+[node name="settings_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu"]
+margin_left = 193.0
+margin_top = 115.0
+margin_right = 253.0
+margin_bottom = 161.0
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 60, 46 )
+rect_scale = Vector2( 0.66, 0.66 )
+toggle_mode = true
+group = SubResource( 21 )
+script = ExtResource( 39 )
+
+[node name="settings_menu" type="TextureRect" parent="CanvasLayer/Control/left_bottom_menu"]
+margin_left = 228.0
+margin_top = 109.0
+margin_right = 704.0
+margin_bottom = 152.0
+rect_min_size = Vector2( 476, 43 )
+script = ExtResource( 10 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control/left_bottom_menu/settings_menu"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 3.0
+alignment = 1
+
+[node name="save_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 22.0
+margin_right = 62.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 31 )
+
+[node name="empty_space_1" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 66.0
+margin_right = 74.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="to_region_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 78.0
+margin_right = 118.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 32 )
+
+[node name="empty_space_2" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 122.0
+margin_right = 130.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="exit_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 134.0
+margin_right = 174.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 36 )
+
+[node name="empty_space_3" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 178.0
+margin_right = 186.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="snapshot_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 190.0
+margin_right = 230.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 33 )
+
+[node name="empty_space_4" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 234.0
+margin_right = 242.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="snapshot_gallery_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 246.0
+margin_right = 286.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 35 )
+
+[node name="empty_space_5" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 290.0
+margin_right = 298.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="graphics_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 302.0
+margin_right = 342.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 37 )
+
+[node name="empty_space_6" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 346.0
+margin_right = 354.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="VBoxContainer(intentional)" type="VBoxContainer" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 358.0
+margin_right = 398.0
+margin_bottom = 41.0
+
+[node name="empty_vertical_space" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/VBoxContainer(intentional)"]
+modulate = Color( 1, 1, 1, 0 )
+margin_right = 40.0
+margin_bottom = 1.0
+rect_min_size = Vector2( 0, 1 )
+
+[node name="sounds_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/VBoxContainer(intentional)"]
+margin_top = 5.0
+margin_right = 40.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 34 )
+
+[node name="empty_space_7" type="Panel" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 402.0
+margin_right = 410.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="settinngs_btn" type="TextureButton" parent="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer"]
+margin_left = 414.0
+margin_right = 454.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 40, 36 )
+script = ExtResource( 30 )
+
+[node name="hide_menu_btn" type="TextureButton" parent="CanvasLayer/Control"]
+margin_left = 15.0
+margin_top = 687.0
+margin_right = 36.0
+margin_bottom = 706.0
+rect_min_size = Vector2( 21, 19 )
+script = ExtResource( 45 )
+
+[node name="screenshot_rect" parent="CanvasLayer" instance=ExtResource( 38 )]
+visible = false
+margin_left = 575.0
+margin_top = 252.0
+margin_right = 737.0
+margin_bottom = 374.0
+
+[node name="confirm_exit_to_region_dialog" type="Control" parent="CanvasLayer"]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -80.0
+margin_top = -60.0
+margin_right = 80.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 178, 185 )
+script = ExtResource( 40 )
+
+[node name="background" type="TextureRect" parent="CanvasLayer/confirm_exit_to_region_dialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 42 )
+
+[node name="cancel_btn" type="TextureButton" parent="CanvasLayer/confirm_exit_to_region_dialog/background"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -70.0
+margin_top = 51.0
+margin_right = 70.0
+margin_bottom = 81.0
+rect_min_size = Vector2( 140, 30 )
+script = ExtResource( 41 )
+
+[node name="Label" type="Label" parent="CanvasLayer/confirm_exit_to_region_dialog/background/cancel_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -21.0
+margin_top = -7.0
+margin_right = 21.0
+margin_bottom = 7.0
+text = "Cancel"
+
+[node name="save_to_region_btn" type="TextureButton" parent="CanvasLayer/confirm_exit_to_region_dialog/background"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -70.0
+margin_top = 12.0
+margin_right = 70.0
+margin_bottom = 42.0
+rect_min_size = Vector2( 140, 30 )
+disabled = true
+script = ExtResource( 43 )
+
+[node name="Label" type="Label" parent="CanvasLayer/confirm_exit_to_region_dialog/background/save_to_region_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -67.0
+margin_top = -7.0
+margin_right = 67.0
+margin_bottom = 7.0
+text = "Exit and Save"
+align = 1
+
+[node name="without_save_to_region_btn" type="TextureButton" parent="CanvasLayer/confirm_exit_to_region_dialog/background"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -70.0
+margin_top = -39.0
+margin_right = 70.0
+margin_bottom = -9.0
+rect_min_size = Vector2( 140, 30 )
+script = ExtResource( 44 )
+
+[node name="Label" type="Label" parent="CanvasLayer/confirm_exit_to_region_dialog/background/without_save_to_region_btn"]
+modulate = Color( 0.223529, 0.286275, 0.388235, 1 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -54.0
+margin_top = -7.0
+margin_right = 54.0
+margin_bottom = 7.0
+text = "Exit without save"
+align = 1
+
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/building_menu_btn" to="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu" method="_on_building_menu_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/building_menu_btn" to="CanvasLayer/Control/left_bottom_menu/settings_menu" method="_on_building_menu_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn" to="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu" method="_on_networks_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn" to="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble" method="_on_rails_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble/rails" to="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble/rails" method="_on_rails_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble/monorail" to="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu/networks_btn/networks_menu/rails_btn/bubble/monorail" method="_on_monorail_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/settings_btn" to="CanvasLayer/Control/left_bottom_menu/building_menu_btn/building_menu" method="_on_settings_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/settings_btn" to="CanvasLayer/Control/left_bottom_menu/settings_menu" method="_on_settings_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/save_btn" to="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/save_btn" method="_on_save_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/to_region_btn" to="CanvasLayer/confirm_exit_to_region_dialog" method="_on_to_region_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/exit_btn" to="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/exit_btn" method="_on_exit_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/left_bottom_menu/settings_menu/HBoxContainer/snapshot_btn" to="CanvasLayer/screenshot_rect" method="_on_snapshot_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/hide_menu_btn" to="CanvasLayer/Control/left_bottom_menu" method="_on_hide_menu_btn_pressed"]
+[connection signal="gui_input" from="CanvasLayer/confirm_exit_to_region_dialog" to="CanvasLayer/confirm_exit_to_region_dialog" method="_on_confirm_exit_to_region_dialog_gui_input"]
+[connection signal="pressed" from="CanvasLayer/confirm_exit_to_region_dialog/background/cancel_btn" to="CanvasLayer/confirm_exit_to_region_dialog" method="_on_cancel_btn_pressed"]
+[connection signal="pressed" from="CanvasLayer/confirm_exit_to_region_dialog/background/without_save_to_region_btn" to="CanvasLayer/confirm_exit_to_region_dialog/background/without_save_to_region_btn" method="_on_without_save_to_region_btn_pressed"]

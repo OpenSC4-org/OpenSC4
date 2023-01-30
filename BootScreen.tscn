@@ -8,20 +8,30 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 1 )
 
+[node name="background" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -540.0
+margin_right = 960.0
+margin_bottom = 540.0
+size_flags_horizontal = 5
+size_flags_vertical = 5
+texture = ExtResource( 2 )
+stretch_mode = 1
+
 [node name="dialog" type="FileDialog" parent="."]
 margin_left = 228.0
 margin_top = 87.0
 margin_right = 1045.0
 margin_bottom = 649.0
-rect_min_size = Vector2( 150, 52.5 )
 popup_exclusive = true
 window_title = "set the SimCity 4 directory"
 mode_overrides_title = false
 mode = 2
 access = 2
-show_hidden_files = true
-current_dir = "/home/sammy/Files/Projects/OpenSC4"
-current_path = "/home/sammy/Files/Projects/OpenSC4/"
 
 [node name="LoadProgress" type="ProgressBar" parent="."]
 anchor_left = 0.25
@@ -45,12 +55,6 @@ margin_left = 310.0
 margin_top = 631.0
 margin_right = 350.0
 margin_bottom = 645.0
-
-[node name="background" type="Sprite" parent="."]
-position = Vector2( 636, 366 )
-scale = Vector2( 0.6625, 0.675 )
-z_index = -1
-texture = ExtResource( 2 )
 
 [connection signal="confirmed" from="dialog" to="." method="_on_dialog_confirmed"]
 [connection signal="dir_selected" from="dialog" to="." method="_on_dialog_dir_selected"]

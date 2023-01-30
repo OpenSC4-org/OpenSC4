@@ -6,12 +6,6 @@ class_name SubfileTGI
 const TYPE_PNG = 0x856ddbac
 const GROUP_UI_IMAGE = 0x46a006b0
 
-static func TGI2str(type_id : int, group_id : int, instance_id : int) -> String:
-	return "%08x%08x%08x" % [type_id, group_id, instance_id]
-
-static func TG2int(type_id : int, group_id : int) -> int:
-	return type_id << 32 | group_id
-
 static func get_file_type(type_id : int, group_id : int, instance_id : int) -> String:
 	var type = "0x%08x" % type_id
 	var group = "0x%08x" % group_id
@@ -26,7 +20,8 @@ static func get_file_type(type_id : int, group_id : int, instance_id : int) -> S
 		0x856ddbac: "PNG",
 		0xca63e2a3: "LUA",
 		0xe86b1eef: "DBDF",
-		0x00000000: "TEXT"
+		0x00000000: "TEXT",
+		0x0a5bcf4b: "BRIDGE_RULES"
 	}
 	var group_dict = {
 		0x00000001: "VIDEO,BW_CURSOR",

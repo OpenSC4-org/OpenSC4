@@ -111,6 +111,22 @@ func load(file, dbdf=null):
 	var ini_str = raw_data.get_string_from_ascii()
 	var i = 0
 	var raw_split = ini_str.split('\n')
+	var name = raw_split[0].substr(1, len(raw_split[0]) - 3)
+	
+	# SAVE original data
+	var f = File.new()
+	var filename = "user://rules/%s.txt" % str(name)
+	var err = f.open(filename, File.READ_WRITE)	
+	if err:
+		f.open(filename, File.WRITE)
+	else:
+		f.seek_end()
+	f.store_line(ini_str)
+	f.close()
+	
+
+	
+	## OLD code
 	var ids_found = []
 	while i < len(raw_split)-1:
 		var line = raw_split[i].strip_edges(true, true)
