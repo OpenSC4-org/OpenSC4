@@ -5,4 +5,4 @@ func _init(attributes).(attributes):
 	self.connect("clicked", self, "_on_clicked")
 
 func _on_clicked():
-	OS.shell_open("https://github.com/AJEKsoft/OpenSC4")
+	OS.shell_open("https://github.com/OpenSC4-org/OpenSC4")
