@@ -1,34 +1,47 @@
 extends KinematicBody2D
 
 var velocity = Vector2(0, 0)
+var viewport = 0
+var margin_w = 0
+var margin_h = 0
+var move = Vector2(0, 0)
+#dk Should move one screen width every 4 seconds
+#var move_speed = viewport.size.x / 4
+var move_speed = 16834 # just manually setting it idk
 
 func _ready():
 	pass
 
 func _input(event):
-	var viewport = self.get_viewport()
-	var margin_w = viewport.size.x / 15
-	var margin_h = viewport.size.y / 15
-	var move_x = 0
-	var move_y = 0
-	# Should move one screen width every 4 seconds
-	var move_vel = viewport.size.x / 4
+	viewport = self.get_viewport()
+	margin_w = viewport.size.x / 15
+	margin_h = viewport.size.y / 15
+	
 	if event is InputEventMouseMotion:
 		if event.position.x < margin_w:
-			move_x = -1
+			move.x = -move_speed
 		elif event.position.x > viewport.size.x - margin_w:
-			move_x = 1
-		else:
-			move_x = 0
+			move.x = move_speed
 
 		if event.position.y < margin_h:
-			move_y = -1
+			move.y = -move_speed
 		elif event.position.y > viewport.size.y - margin_h:
-			move_y = 1
-		else:
-			move_y = 0
-		
-		self.velocity = Vector2(move_x * move_vel, move_y * move_vel)
+			move.y = move_speed
+	if Input.is_action_pressed("camera_up"):
+		move.y = -move_speed
+	if Input.is_action_pressed("camera_down"):
+		move.y = move_speed
+	if Input.is_action_pressed("camera_left"):
+		move.x = -move_speed
+	if Input.is_action_pressed("camera_right"):
+		move.x = move_speed
+	
+	# `normalized() * move_speed` so no fast diagonal movement
+	self.velocity = Vector2(move.x, move.y).normalized() * move_speed
+	
+	# reset variables
+	move.x = 0
+	move.y = 0
 
-func _physics_process(_delta):
-	self.move_and_slide(self.velocity)
+func _process(delta):
+	self.move_and_slide(self.velocity * delta)
