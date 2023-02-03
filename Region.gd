@@ -64,9 +64,10 @@ func _ready():
 	# City files end in .sc4
 	var files = []
 	var dir = Directory.new()
-	var err = dir.open(Core.get_gamedata_path('Regions/%s/' % REGION_NAME))
+	var region_dir_full_path = Core.get_gamedata_path('Regions/%s/' % REGION_NAME)
+	var err = dir.open(region_dir_full_path)
 	if err != OK:
-		Logger.error('Error opening region directory: %s' % err)
+		Logger.error('Error opening region directory \'%s\': %s' % [region_dir_full_path, err])
 		return
 	dir.list_dir_begin()
 	while true:
