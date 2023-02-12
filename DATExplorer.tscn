@@ -1,15 +1,16 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://DATExplorer.gd" type="Script" id=1]
+[ext_resource path="res://utils/debug_ui/loading_icon_spinning.tres" type="Texture" id=2]
 
 [node name="DATExplorerContainer" type="VBoxContainer"]
-margin_right = 1026.0
-margin_bottom = 602.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource( 1 )
 
 [node name="TypeFilter" type="HBoxContainer" parent="."]
 visible = false
-margin_right = 1026.0
+margin_right = 1280.0
 margin_bottom = 24.0
 
 [node name="TypeID" type="Label" parent="TypeFilter"]
@@ -34,8 +35,9 @@ text = "Filter by type"
 
 [node name="InstanceFilter" type="HBoxContainer" parent="."]
 visible = false
-margin_right = 1026.0
-margin_bottom = 24.0
+margin_top = 28.0
+margin_right = 1280.0
+margin_bottom = 52.0
 
 [node name="InstanceID" type="Label" parent="InstanceFilter"]
 margin_top = 5.0
@@ -57,13 +59,15 @@ text = "Filter by instance"
 
 [node name="DATTree" type="Tree" parent="."]
 visible = false
-margin_right = 1026.0
-margin_bottom = 500.0
-rect_min_size = Vector2( 1, 500 )
+margin_top = 56.0
+margin_right = 1280.0
+margin_bottom = 306.0
+rect_min_size = Vector2( 1, 250 )
+columns = 4
 
 [node name="DirectoryChoice" type="FileDialog" parent="."]
 visible = true
-margin_right = 1026.0
+margin_right = 1280.0
 margin_bottom = 149.0
 rect_min_size = Vector2( 300, 105 )
 window_title = "Ouvrir un répertoire"
@@ -73,4 +77,49 @@ mode = 2
 access = 2
 show_hidden_files = true
 
+[node name="FilePreview" type="CenterContainer" parent="."]
+visible = false
+margin_top = 153.0
+margin_right = 1280.0
+margin_bottom = 153.0
+
+[node name="TextView" type="TextEdit" parent="FilePreview"]
+visible = false
+margin_left = 640.0
+margin_right = 640.0
+readonly = true
+highlight_current_line = true
+syntax_highlighting = true
+show_line_numbers = true
+draw_tabs = true
+draw_spaces = true
+context_menu_enabled = false
+shortcut_keys_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+
+[node name="Loading" type="TextureRect" parent="FilePreview"]
+visible = false
+margin_left = 640.0
+margin_right = 640.0
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 3
+
+[node name="UI" type="Control" parent="FilePreview"]
+margin_left = 640.0
+margin_right = 640.0
+
+[node name="Loading" type="TextureRect" parent="."]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+texture = ExtResource( 2 )
+
+[connection signal="item_selected" from="DATTree" to="." method="_on_DATTree_item_selected"]
 [connection signal="dir_selected" from="DirectoryChoice" to="." method="_on_DirectoryChoice_dir_selected"]

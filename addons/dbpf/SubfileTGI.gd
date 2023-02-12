@@ -76,3 +76,30 @@ static func get_file_type(type_id : int, group_id : int, instance_id : int) -> S
 		group = group_dict[group_id]
 	
 	return "%s    %s    0x%08x" % [type, group, instance_id]
+
+# TODO: change this terrible name
+static func get_type_from_type(type_id : int) -> String:
+	var type = "0x%08x" % type_id
+	var type_dict = {
+		0x6534284a: "LTEXT",
+		0x5ad0e817: "S3D",
+		0x05342861: "Cohorts",
+		0x29a5d1ec: "ATC",
+		0x09ADCD75: "AVP",
+		0x7ab50e44: "FSH",
+		0xea5118b0: "EFFDIR",
+		0x856ddbac: "PNG",
+		0xca63e2a3: "LUA",
+		0xe86b1eef: "DBDF",
+		0x00000000: "TEXT"
+	}
+	if type_dict.has(type_id):
+		type = type_dict[type_id]
+	return type
+
+static func visualize_standalone(file : DBPFSubfile) -> void:
+	var file_type = get_type_from_type(file.index.type_id)
+	if file_type == "TEXT":
+		print(file.data)
+
+
