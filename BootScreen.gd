@@ -88,7 +88,7 @@ func _ready():
 	# Would be nice to start multiple threads here not only one
 	var err = loading_thread.start(self, 'load_DATs')
 	if err != OK:
-		Logger.erorr("Error starting thread: " % err)
+		Logger.error("Error starting thread: " % err)
 		return
 
 func _exit_tree():
