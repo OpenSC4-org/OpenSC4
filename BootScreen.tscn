@@ -50,5 +50,50 @@ scale = Vector2( 0.6625, 0.675 )
 z_index = -1
 texture = ExtResource( 2 )
 
+[node name="NextScene" type="Panel" parent="."]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -381.0
+margin_top = -139.0
+margin_right = 381.0
+margin_bottom = 139.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="NextScene"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -122.0
+margin_top = -19.0
+margin_right = -122.0
+margin_bottom = -19.0
+
+[node name="Label" type="Label" parent="NextScene/VBoxContainer"]
+margin_right = 244.0
+margin_bottom = 14.0
+text = "Game files loaded"
+align = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="NextScene/VBoxContainer"]
+margin_top = 18.0
+margin_right = 244.0
+margin_bottom = 38.0
+
+[node name="GameButton" type="Button" parent="NextScene/VBoxContainer/HBoxContainer"]
+margin_right = 96.0
+margin_bottom = 20.0
+text = "Launch game"
+
+[node name="DATExplorerButton" type="Button" parent="NextScene/VBoxContainer/HBoxContainer"]
+margin_left = 100.0
+margin_right = 244.0
+margin_bottom = 20.0
+text = "Launch DAT explorer"
+
 [connection signal="confirmed" from="dialog" to="." method="_on_dialog_confirmed"]
 [connection signal="dir_selected" from="dialog" to="." method="_on_dialog_dir_selected"]
+[connection signal="pressed" from="NextScene/VBoxContainer/HBoxContainer/GameButton" to="." method="_on_GameButton_pressed"]
+[connection signal="pressed" from="NextScene/VBoxContainer/HBoxContainer/DATExplorerButton" to="." method="_on_DATExplorerButton_pressed"]

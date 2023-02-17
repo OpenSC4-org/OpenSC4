@@ -104,6 +104,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/dbpf/ImageSubfile.gd"
 }, {
+"base": "DBPFSubfile",
+"class": "LTEXTSubfile",
+"language": "GDScript",
+"path": "res://addons/dbpf/LTEXTSubfile.gd"
+}, {
 "base": "Reference",
 "class": "NetGraphEdge",
 "language": "GDScript",
@@ -199,6 +204,7 @@ _global_script_class_icons={
 "INI": "",
 "INISubfile": "",
 "ImageSubfile": "",
+"LTEXTSubfile": "",
 "NetGraphEdge": "",
 "NetGraphNode": "",
 "NetTile": "",
@@ -251,6 +257,7 @@ import=false
 scene=false
 class=false
 debug=false
+edit=false
 
 [input]
 

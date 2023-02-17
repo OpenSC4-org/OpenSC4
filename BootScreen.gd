@@ -1,7 +1,7 @@
 extends Control
 
 """
-Once everything is loaded the it changes to Region scene.
+Once everything is loaded the it changes to Region scene or the DAT explorer
 """
 
 
@@ -101,9 +101,7 @@ func load_DATs():
 
 func finish_loading():
 	Logger.info("DBPF files loaded")
-	var err = get_tree().change_scene("res://Region.tscn")
-	if err != OK:
-		Logger.error("Error: %s" % err)
+	$NextScene.visible = true
 
 func load_single_DAT(dat_file : String):
 	var src = Core.game_dir + "/" + dat_file
@@ -116,5 +114,16 @@ func load_single_DAT(dat_file : String):
 
 func _on_dialog_confirmed():
 	Core.game_dir = $dialog.current_dir
+
+func _on_DATExplorerButton_pressed():
+	print("here")
+	var err = get_tree().change_scene("res://DATExplorer/DATExplorer.tscn")
+	if err != OK:
+		Logger.error("Error: %s" % err)
+
+func _on_GameButton_pressed():
+	var err = get_tree().change_scene("res://Region.tscn")
+	if err != OK:
+		Logger.error("Error: %s" % err)
 	
 

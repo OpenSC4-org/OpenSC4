@@ -1,0 +1,25 @@
+[gd_scene format=2]
+
+[node name="TypeFilter" type="VBoxContainer"]
+margin_right = 64.0
+margin_bottom = 98.0
+
+[node name="Label" type="Label" parent="."]
+margin_right = 64.0
+margin_bottom = 14.0
+text = "Filter"
+
+[node name="ID" type="LineEdit" parent="."]
+margin_top = 18.0
+margin_right = 64.0
+margin_bottom = 42.0
+max_length = 8
+placeholder_text = "id"
+
+[node name="Mask" type="LineEdit" parent="."]
+margin_top = 46.0
+margin_right = 64.0
+margin_bottom = 70.0
+text = "00000000"
+max_length = 8
+placeholder_text = "mask"

@@ -1,0 +1,51 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://SubfilePreview.gd" type="Script" id=2]
+
+[node name="SubfilePreview" type="PanelContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+
+[node name="Text" type="TextEdit" parent="."]
+visible = false
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1273.0
+margin_bottom = 713.0
+rect_min_size = Vector2( 500, 200 )
+text = "Text preview"
+readonly = true
+highlight_current_line = true
+draw_tabs = true
+draw_spaces = true
+context_menu_enabled = false
+shortcut_keys_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+caret_block_mode = true
+
+[node name="UI" type="Control" parent="."]
+visible = false
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1273.0
+margin_bottom = 713.0
+
+[node name="NoPreview" type="Label" parent="."]
+visible = false
+margin_left = 7.0
+margin_top = 353.0
+margin_right = 1273.0
+margin_bottom = 367.0
+text = "No preview available"
+align = 1
+valign = 1
+
+[node name="Image" type="TextureRect" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1273.0
+margin_bottom = 713.0

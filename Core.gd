@@ -1,3 +1,19 @@
+# OpenSC4 - Open source reimplementation of Sim City 4
+# Copyright (C) 2023 The OpenSC4 contributors
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 extends Node 
 
 var subfile_indices : Dictionary
@@ -8,12 +24,14 @@ var region_settings : Dictionary = {
 	"view_mode" : "satellite",
 }
 var sub_by_type_and_group : Dictionary
+var dbpf_files: Dictionary
 var game_dir = null
 
 var type_dict_to_text = {
-	0x6534284a: "LTEXT",
+	0x6534284a: "exemplar",
+	0x2026960b: "LTEXT",
 	0x5ad0e817: "S3D",
-	0x05342861: "Cohorts",
+	0x05342861: "cohorts",
 	0x29a5d1ec: "ATC",
 	0x09ADCD75: "AVP",
 	0x7ab50e44: "FSH",
@@ -21,13 +39,19 @@ var type_dict_to_text = {
 	0x856ddbac: "PNG",
 	0xca63e2a3: "LUA",
 	0xe86b1eef: "DBDF",
-	0x00000000: "TEXT"
+	0x00000000: "text",
+	0x0a5bCf4b: "RUL",
+	0xaa5c3144: "Cursor",
+	0xa2e3d533: "KeyCursor",
+	0x296678f7: "SC4Path",
 }
+
+# This dictionary should actually be a dictionary of dictionaries (type -> group)
 var group_dict_to_text = {
 	0x00000001: "VIDEO,BW_CURSOR",
 	0x46a006b0: "UI_IMAGE",
-	0x1ABE787D: "UI_IMAGE2",
-	0x22DEC92D: "UI_TOOLSIMAGE",
+	0x1abe787d: "UI_IMAGE2",
+	0x22dec92d: "UI_TOOLSIMAGE",
 	0x8a5971c5: "UDI_SOUNDS_DATA",
 	0x2a2458f9: "PROPS_ANIM",
 	0x49a593e7: "NONPROPS_ANIM",
@@ -48,10 +72,10 @@ var group_dict_to_text = {
 	0x9dbdbf74: "SOUND_HITLISTS",
 	0x4a4d1946: "PLOP_BUTTON_CLICK_DECAY_WIRE_FIRE_TOOLS",
 	0xca88cc85: "ABANDONED",
-	0xCB6B7BD9: "LE_ARROW_IMAGE",
-	0x891B0E1A: "TERRAIN_FOUNDATION",
-	0x2BC2759A: "TRANSIT_NETWORK_SHADOW",
-	0x0986135E: "BASE_OVERLAY",
+	0xcb6b7bd9: "LE_ARROW_IMAGE",
+	0x891b0e1a: "TERRAIN_FOUNDATION",
+	0x2bc2759a: "TRANSIT_NETWORK_SHADOW",
+	0x0986135e: "BASE_OVERLAY",
 	0xbadb57f1: "SIMGLIDE",
 	0x69668828: "TEXTURED_NETWORK_PATH",
 	0xa966883f: "3D_NETWORK_PATH",
@@ -64,11 +88,31 @@ var group_dict_to_text = {
 	0x47bddf12: "DEVELOPER_COMMERCIAL",
 	0x96a006b0: "UI_XML",
 	0x08000600: "UI_800x600",
+	0x0a554af5: "LTEXT/Audio UI Panel texts",
+	0x0a554ae8: "LTEXT/General UI texts",
+	0x0a554ae0: "LTEXT/Item visible name and description texts",
+	0x0a419226: "LTEXT/In game error texts",
+	0x2a592fd1: "LTEXT/Item plop/draw notification texts",
+	0x4a5e093c: "LTEXT/Terrain tool texts",
+	0x4a5cb171: "LTEXT/Funny random city loading message texts",
+	0x6a231eaa: "LTEXT/Interactivity Feature Texts (MySim, UDriveIt, etc.)",
+	0x6a231ea4: "LTEXT/News ticker message texts",
+	0x6a3ff01c: "LTEXT/Game UI Texts",
+	0x6a4eb3f7: "LTEXT/Population Text",
+	0x6a554afd: "LTEXT/Misc. Item Names/Descriptions (2)",
+	0x8a635d24: "LTEXT/Audio filename to description texts",
+	0x8a5e03ec: "LTEXT/Disaster texts",
+	0x8a4924f3: "LTEXT/About SC4 window HTML text",
+	0xca554b03: "LTEXT/Popup window HTML texts",
+	0xea231e96: "LTEXT/Misc. Texts",
+	0xea5524eb: "LTEXT/Misc. Item Names/Descriptions (1)",
+	0xeafcb180: "LTEXT/Plugin Install Text",
 }
 
 
+# TODO Generate these dictionaries from the above
 var type_dict = {
-	"LTEXT": 0x6534284a,
+	"LTEXT": 0x2026960b,
 	"S3D": 0x5ad0e817,
 	"Cohorts" : 0x05342861,
 	"ATC": 0x29a5d1ec,
@@ -78,7 +122,7 @@ var type_dict = {
 	"PNG": 0x856ddbac,
 	"LUA": 0xca63e2a3,
 	"DBDF": 0xe86b1eef,
-	"TEXT": 0x00000000
+	"TEXT": 0x00000000,
 }
 var group_dict = {
 	"VIDEO,BW_CURSOR": 0x00000001,
@@ -224,6 +268,8 @@ func subfile(type_id : int, group_id : int, instance_id : int, subfile_class) ->
 		return index.dbpf.get_subfile(type_id, group_id, instance_id, subfile_class)
 
 func add_dbpf(dbpf : DBPF):
+	if not dbpf_files.has(dbpf.path):
+		dbpf_files[dbpf.path] = dbpf
 	for ind_key in dbpf.indices.keys():
 		var index = dbpf.indices[ind_key]
 		# Don't report DBDF "overwrite" with the type id

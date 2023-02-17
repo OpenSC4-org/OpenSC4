@@ -1,3 +1,19 @@
+# OpenSC4 - Open source reimplementation of Sim City 4
+# Copyright (C) 2023 The OpenSC4 contributors
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 extends DBPFSubfile
 
 class_name SC4UISubfile
@@ -77,13 +93,13 @@ func add_to_tree(parent : Node, custom_classes : Dictionary):
 	root.name = 'SC4 UI root'
 
 func create_element(attributes : Dictionary, custom_classes : Dictionary) -> Control:
-	var type = attributes['iid']
+	var type = attributes.get('iid', 'none')
 	var interpreted_attributes = interpret_attributes(attributes)
 	var element = null
 	# Check if this is a standard class without any particular behaviour,
 	# or a class that's linked to in-game code
 	#print(interpreted_attributes)
-	var class_id = attributes['clsid']
+	var class_id = attributes.get('clsid', 'none')
 	if attributes.get('id', '') in custom_classes: # magic number for a custom class?
 		var custom_class_id = attributes.get('id', 0)
 		element = custom_classes[custom_class_id].new(interpreted_attributes)
