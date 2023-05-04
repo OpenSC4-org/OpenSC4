@@ -1,8 +1,8 @@
-extends MeshInstance
+extends MeshInstance3D
 
 var tmpMesh = ArrayMesh.new();
-var vertices = PoolVector3Array()
-var UVs = PoolVector2Array()
+var vertices = PackedVector3Array()
+var UVs = PackedVector2Array()
 var color = Color(0.9, 0.1, 0.1)
 var mat = self.get_material_override()
 var st = SurfaceTool.new()

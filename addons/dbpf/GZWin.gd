@@ -9,4 +9,4 @@ func _init(attributes : Dictionary):
 	self.set_position(area.position)
 	self.set_size(area.size)
 	if 'tipstext' in attributes:
-		self.hint_tooltip = attributes.get('hint_tooltip')
+		self.tooltip_text = attributes.get('tooltip_text')

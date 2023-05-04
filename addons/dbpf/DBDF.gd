@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 # See details: https://wiki.sc4devotion.com/index.php?title=DBDF
 

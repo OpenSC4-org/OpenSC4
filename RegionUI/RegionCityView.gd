@@ -32,14 +32,14 @@ func display(): # TODO city edges override other cities causing glitches, can be
 	else:
 		$InfoContainer/CityName.text = self.city_name
 	# Print city size
-	var pos_on_grid = get_parent().map_to_world(Vector2(city_info.location[0], city_info.location[1]))
-	#var thumbnail_texture : Texture = region_view_thumbnails[0]
+	var pos_on_grid = get_parent().map_to_local(Vector2(city_info.location[0], city_info.location[1]))
+	#var thumbnail_texture : Texture2D = region_view_thumbnails[0]
 	# The height of a tile if it were completely flat
 	#print(region_view_thumbnails[0].get_data().data["height"], region_view_thumbnails[0].get_data().data["width"], "\t", region_view_thumbnails[1].get_data().data["height"], region_view_thumbnails[1].get_data().data["width"])
 	var mystery_img = region_view_thumbnails[1].get_data()
 	var region_img = region_view_thumbnails[0].get_data()
-	mystery_img.lock()
-	region_img.lock()
+	false # mystery_img.lock() # TODOConverter40, Image no longer requires locking, `false` helps to not break one line if/else, so it can freely be removed
+	false # region_img.lock() # TODOConverter40, Image no longer requires locking, `false` helps to not break one line if/else, so it can freely be removed
 	var min_h = mystery_img.data["height"]
 	var min_w = mystery_img.data["width"]
 	for w in range(mystery_img.data["width"]):
@@ -58,7 +58,7 @@ func display(): # TODO city edges override other cities causing glitches, can be
 	#var trim = Rect2(Vector2(float(min_w), float(min_h)), Vector2(mystery_img.data["width"], mystery_img.data["height"]))
 	#var trimmed = region_img.get_rect(trim)
 	var thumbnail_texture = ImageTexture.new()
-	thumbnail_texture.create_from_image(region_img, 0)
+	thumbnail_texture.create_from_image(region_img) #,0
 	var expected_height = 63.604 * city_info.size[1]
 	# Adjust the tile placement
 	var extra_height = thumbnail_texture.get_height() - expected_height
@@ -66,7 +66,7 @@ func display(): # TODO city edges override other cities causing glitches, can be
 	pos_on_grid.x -= 37.305 * city_info.size[1]
 	self.translate(pos_on_grid)
 	$Thumbnail.texture = thumbnail_texture
-	$CollisionShape.shape.extents = Vector2(thumbnail_texture.get_width() / 2, thumbnail_texture.get_height() / 2)
+	$CollisionShape3D.shape.size = Vector2(thumbnail_texture.get_width() / 2, thumbnail_texture.get_height() / 2)
 	$InfoContainer/CityName.set_position(Vector2(thumbnail_texture.get_width() / 2, expected_height / 2))
 
 func get_total_pop():
@@ -77,6 +77,6 @@ func save_thumbnail():
 
 func open_city():
 	Boot.current_city = savefile
-	var err = get_tree().change_scene("res://CityView/CityScene/City.tscn")
+	var err = get_tree().change_scene_to_file("res://CityView/CityScene/City.tscn")
 	if err != OK:
 		print("Error trying to change the scene to the city")

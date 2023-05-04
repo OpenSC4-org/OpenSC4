@@ -26,7 +26,7 @@ var vec2Regex : RegEx = RegEx.new()
 var elementsByID : Dictionary = {}
 var lines : Array = []
 
-func _init(index).(index):
+func _init(index):
 	rectRegex.compile("\\((?<x>-?\\d+),(?<y>-?\\d+),(?<width>-?\\d+),(?<height>-?\\d+)\\)")
 	colorRegex.compile("\\((?<r>\\d+),(?<g>\\d+),(?<b>\\d+)\\)")
 	imgGIRegex.compile("\\{(?<group>[0-9a-fA-F]{8}),(?<instance>[0-9a-fA-F]{8})\\}")
@@ -61,7 +61,7 @@ func create_last_element(parts : Array, custom_classes : Dictionary) -> Control:
 
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	lines = stream.get_string(stream.get_available_bytes()).split("\n")
 
 func add_to_tree(parent : Node, custom_classes : Dictionary):

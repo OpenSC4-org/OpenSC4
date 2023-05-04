@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
 var velocity = Vector2(0, 0)
 var viewport = 0
@@ -63,4 +63,6 @@ func right_click_movement():
 
 func _process(delta):
 	right_click_movement()
-	self.move_and_slide(self.velocity * delta)
+	self.set_velocity(self.velocity * delta)
+	self.move_and_slide()
+	self.velocity

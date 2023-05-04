@@ -6,11 +6,11 @@ var current_music
 var music_list = []
 var rng = RandomNumberGenerator.new()
 
-func _init():	
+func _init():
 	self.load_music_files()
 
 func _ready():
-	self.connect("finished", self, "play_music")
+	self.connect("finished",Callable(self,"play_music"))
 
 func play_music():
 	if len(self.music_list) != 0:
@@ -19,7 +19,7 @@ func play_music():
 		file.open(Core.game_dir + path_to_radio % self.current_music, File.READ)
 
 		var audiostream = AudioStreamMP3.new()
-		audiostream.set_data(file.get_buffer(file.get_len()))
+		audiostream.set_data(file.get_buffer(file.get_length()))
 		self.set_stream(audiostream)
 		self.play()
 
@@ -30,7 +30,7 @@ func load_music_files():
 	if err != OK:
 		print('Error opening radio directory: %s' % err)
 		return
-	dir.list_dir_begin()
+	dir.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 	while true:
 		var file = dir.get_next()
 		if file == "":

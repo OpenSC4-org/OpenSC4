@@ -6,7 +6,7 @@ var tilepaths : Dictionary
 var text_arr_layers : Dictionary
 var UVs : Dictionary
 
-func _init(edges_ : Dictionary, ids_ : Dictionary, layers_ : Dictionary):
+func _init(edges_ : Dictionary,ids_ : Dictionary,layers_ : Dictionary):
 	self.edges = edges_
 	self.ids = ids_
 	self.tilepaths = self.set_tile_paths()
@@ -41,7 +41,7 @@ func set_UVs(tile_ind : int, dir : Vector2):
 	else:
 		flip_uvs = rot_uvs
 	# will need to use the same order when assigning vectors
-	var ret_uvs = PoolVector2Array([
+	var ret_uvs = PackedVector2Array([
 		flip_uvs[0],
 		flip_uvs[2],
 		flip_uvs[1],
@@ -50,7 +50,7 @@ func set_UVs(tile_ind : int, dir : Vector2):
 		flip_uvs[2]
 	])
 	if (dir.x>0 and dir.y>0) or (dir.x<0 and dir.y<0):
-		ret_uvs = PoolVector2Array([
+		ret_uvs = PackedVector2Array([
 			flip_uvs[0],
 			flip_uvs[3],
 			flip_uvs[1],

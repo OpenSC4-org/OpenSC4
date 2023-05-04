@@ -9,11 +9,11 @@ script = ExtResource( 2 )
 
 [node name="Text" type="TextEdit" parent="."]
 visible = false
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 1273.0
-margin_bottom = 713.0
-rect_min_size = Vector2( 500, 200 )
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 1273.0
+offset_bottom = 713.0
+custom_minimum_size = Vector2( 500, 200 )
 text = "Text preview"
 readonly = true
 highlight_current_line = true
@@ -29,23 +29,23 @@ caret_block_mode = true
 
 [node name="UI" type="Control" parent="."]
 visible = false
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 1273.0
-margin_bottom = 713.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 1273.0
+offset_bottom = 713.0
 
 [node name="NoPreview" type="Label" parent="."]
 visible = false
-margin_left = 7.0
-margin_top = 353.0
-margin_right = 1273.0
-margin_bottom = 367.0
+offset_left = 7.0
+offset_top = 353.0
+offset_right = 1273.0
+offset_bottom = 367.0
 text = "No preview available"
 align = 1
 valign = 1
 
 [node name="Image" type="TextureRect" parent="."]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 1273.0
-margin_bottom = 713.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 1273.0
+offset_bottom = 713.0

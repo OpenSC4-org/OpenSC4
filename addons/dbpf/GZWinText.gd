@@ -3,8 +3,9 @@ class_name GZWinText
 
 var text : String 
 var font = null
+var default_font_size = ThemeDB.fallback_font_size
 
-func _init(attributes).(attributes):
+func _init(attributes):
 	# hack to get the default font while we can't decode the Simcity 4 ones
 	var label = Label.new()
 	self.font = label.get_font("")
@@ -26,8 +27,7 @@ func _init(attributes).(attributes):
 
 func set_text(text : String):
 	self.text = text
-	self.update()
+	self.queue_redraw()
 
 func _draw():
-	draw_string(font, Vector2(0, font.get_height()), self.text, Color.white)
-
+	draw_string(font, Vector2(0, font.get_height()), self.text, HORIZONTAL_ALIGNMENT_LEFT, -1, default_font_size, Color.WHITE)

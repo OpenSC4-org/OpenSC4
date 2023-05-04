@@ -21,16 +21,16 @@ cell_tile_origin = 2
 format = 1
 script = ExtResource( 3 )
 
-[node name="CameraAnchor" type="KinematicBody2D" parent="."]
+[node name="CameraAnchor" type="CharacterBody2D" parent="."]
 script = ExtResource( 4 )
 
 [node name="MainCamera" type="Camera2D" parent="CameraAnchor"]
 anchor_mode = 0
 current = true
-drag_margin_left = 0.8
-drag_margin_top = 0.8
-drag_margin_right = 0.8
-drag_margin_bottom = 0.8
+drag_left_margin = 0.8
+drag_top_margin = 0.8
+drag_right_margin = 0.8
+drag_bottom_margin = 0.8
 
 [node name="RadioPlayer" type="AudioStreamPlayer" parent="."]
 script = ExtResource( 5 )
@@ -41,8 +41,8 @@ script = ExtResource( 5 )
 motion_mirroring = Vector2( 128, 128 )
 
 [node name="Grid" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
-margin_right = 5433.0
-margin_bottom = 3155.0
+offset_right = 5433.0
+offset_bottom = 3155.0
 mouse_filter = 2
 stretch_mode = 2
 

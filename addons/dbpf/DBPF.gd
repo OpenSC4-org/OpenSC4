@@ -26,33 +26,35 @@ var indices : Dictionary
 var indices_by_type : Dictionary
 var indices_by_type_and_group : Dictionary
 var all_types : Dictionary
-var file : File
+var file : FileAccess
 var path : String
 var print_load_times : bool = false
 
-export (Dictionary) var ui_region_textures: Dictionary = {}
+@export var ui_region_textures: Dictionary = {}
 
 func _init(filepath : String):
 	self.path = filepath
-	var total_time_start = OS.get_system_time_msecs()
+	var total_time_start = Time.get_unix_time_from_system()
 	# Open the file
-	self.file = File.new()
-	var err = file.open(filepath, File.READ)
+	self.file = FileAccess.open(filepath, FileAccess.READ)
+	var err = file.get_error()
 	if err != OK:
-		return err
+		push_error(err)
+		return
 	# Read the file
 	# Check that the first four bytes are DBPF
 	var dbpf = self.file.get_buffer(4).get_string_from_ascii();
 	if (dbpf != "DBPF"):
-		return ERR_INVALID_DATA
+		push_error(ERR_INVALID_DATA)
+		return
 	# Get the version
 	var _version_major = self.file.get_32()
 	var _version_minor = self.file.get_32()
 	# useless bytes
 	for _i in range(3):
 		file.get_32()
-	var _date_created = OS.get_datetime_from_unix_time(self.file.get_32())
-	var _date_modified = OS.get_datetime_from_unix_time(self.file.get_32())
+	var _date_created = Time.get_datetime_dict_from_unix_time(self.file.get_32())
+	var _date_modified = Time.get_datetime_dict_from_unix_time(self.file.get_32())
 	var _index_major_version = self.file.get_32()
 	var index_entry_count = self.file.get_32()
 	var index_first_offset = self.file.get_32()
@@ -66,7 +68,7 @@ func _init(filepath : String):
 	self.file.seek(index_first_offset)
 	var index_buffer = StreamPeerBuffer.new()
 	index_buffer.data_array = self.file.get_buffer(index_entry_count * 20)
-	var time_start = OS.get_system_time_msecs()
+	var time_start = Time.get_unix_time_from_system()
 	for _i in range(index_entry_count):
 		var index = SubfileIndex.new(self, index_buffer)
 		self.indices[SubfileTGI.TGI2str(index.type_id, index.group_id, index.instance_id)] = index
@@ -81,7 +83,7 @@ func _init(filepath : String):
 		#	indices_by_type_and_group[SubfileTGI.TG2int(index.type_id, index.group_id)] = [index]
 		#else:
 		#	indices_by_type_and_group[SubfileTGI.TG2int(index.type_id, index.group_id)].append(index)
-	var time_now = OS.get_system_time_msecs()
+	var time_now = Time.get_unix_time_from_system()
 	if self.print_load_times:
 		print("Took ", time_now - time_start, "ms to read ", index_entry_count, " indices from ", filepath)
 
@@ -91,7 +93,7 @@ func _init(filepath : String):
 		dbdf.load(file, index.location, index.size)
 		for compressed_file in dbdf.entries:
 			compressed_files[SubfileTGI.TGI2str(compressed_file.type_id, compressed_file.group_id, compressed_file.instance_id)] = compressed_file 
-	var total_time_now = OS.get_system_time_msecs()
+	var total_time_now = Time.get_unix_time_from_system()
 	if self.print_load_times:
 		print("Took ", total_time_now - total_time_start, "ms to load ", filepath)
 
@@ -118,10 +120,10 @@ func dbg_show_all_subfiles():
 func DEBUG_show_all_subfiles_to_file(filename):
 	print("=== %s" % self.path)
 	print("=== ALL SUBFILES ===")
-	var file = File.new()
 	var name = "user://%s.txt" % [filename.split('/')[1]]
 	print(name)
-	var err = file.open(name, file.WRITE)
+	var file = FileAccess.open(name, FileAccess.WRITE)
+	var err = file.get_error()
 	print("error", err)
 	file.seek(0)
 	for index in indices.values():
@@ -139,8 +141,10 @@ func all_subfiles_by_group(group_id : int):
 	print("====================")
 
 func get_subfile(type_id : int, group_id : int, instance_id : int, subfile_class) -> DBPFSubfile: 
-	assert(SubfileTGI.TGI2str(type_id, group_id, instance_id) in self.indices,
-		   "Subfile not found (%08x %08x %08x)" % [type_id, group_id, instance_id])
+	assert(
+		SubfileTGI.TGI2str(type_id, group_id, instance_id) in self.indices,
+		"Subfile not found (%08x %08x %08x)" % [type_id, group_id, instance_id]
+	)
 
 	if subfiles.has([type_id, group_id, instance_id]) and subfiles[[type_id, group_id, instance_id]] != null:
 		return subfiles[[type_id, group_id, instance_id]]

@@ -1,4 +1,4 @@
-extends MeshInstance
+extends MeshInstance3D
 
 
 var mat = self.get_material_override()
@@ -12,7 +12,7 @@ var drag_arrays : Array = []
 var built_arrays : Array = []
 var drag_tracker : Array = []
 var built_tracker : Array = []
-var drag_meshinst = MeshInstance.new()
+var drag_meshinst = MeshInstance3D.new()
 var layer_map = []
 var map_width : int
 var map_height : int
@@ -118,7 +118,7 @@ func _ready():
 		if not format:
 			format = t_FSH.img.get_format()
 		if not self.textarr:
-			self.textarr = TextureArray.new()
+			self.textarr = Texture2DArray.new()
 			self.textarr.create (
 				t_FSH.width, 
 				t_FSH.height, 
@@ -131,11 +131,11 @@ func _ready():
 		else:
 			textarr.set_layer_data(t_FSH.img, i)
 	self.mat = self.get_material_override()
-	self.mat.set_shader_param("textarr", textarr)
+	self.mat.set_shader_parameter("textarr", textarr)
 	self.add_child(drag_meshinst)
-	#self.mat.set_shader_param("built", false)
+	#self.mat.set_shader_parameter("built", false)
 	drag_meshinst.set_material_override(mat)
-	#self.mat.set_shader_param("built", true)
+	#self.mat.set_shader_parameter("built", true)
 	self.set_material_override(mat)
 	
 func _input(event):
@@ -154,7 +154,7 @@ func _input(event):
 		self.hold_l = self.mouse_ray()
 		self._drag_network(self.start_l, self.hold_l, "Road")
 	elif event is InputEventKey:
-		if event.pressed and event.scancode == KEY_CONTROL:
+		if event.pressed and event.keycode == KEY_CTRL:
 			self.drag_first = not self.drag_first
 			if self.start_l:
 				self._drag_network(self.start_l, self.hold_l, "Road")
@@ -162,9 +162,9 @@ func _input(event):
 
 func mouse_ray():
 	var ray_length = 2000
-	var space = get_parent().get_world().direct_space_state
+	var space = get_parent().get_world_3d().direct_space_state
 	var mouse_pos = get_viewport().get_mouse_position()
-	var camera = get_tree().root.get_camera()
+	var camera = get_tree().root.get_camera_3d()
 	var from = camera.project_ray_origin(mouse_pos)
 	var to = from + camera.project_ray_normal(mouse_pos) * ray_length
 	var ray_dict = space.intersect_ray(from, to)
@@ -524,8 +524,8 @@ func _drag_network(start, end, type):
 	var numSmoothingProgressionSteps = 2
 	#var distAddedPerSmoothingProgressionStep = 4 # idk, i guess its supposed to take the average of more tiles?
 	"""
-	var max_height_change = tan(deg2rad(MaxSlopeAlongNetwork))*step_length
-	var max_slope_change = tan(deg2rad(MaxNetworkSlopeChange))*step_length
+	var max_height_change = tan(deg_to_rad(MaxSlopeAlongNetwork))*step_length
+	var max_slope_change = tan(deg_to_rad(MaxNetworkSlopeChange))*step_length
 	for _step in range(numSmoothingProgressionSteps):
 		for h_i in range(len(strip_heights)):
 			var from = strip_heights[max(h_i-1, 0)]
@@ -639,7 +639,7 @@ func _drag_network(start, end, type):
 	"""
 	
 func _build_network():#start, end, type):
-	"TODO Register tiles to network_tiles and figure out how to copy PoolVector3Array"
+	"TODO Register tiles to network_tiles and figure out how to copy PackedVector3Array"
 	if len(self.drag_arrays[ArrayMesh.ARRAY_VERTEX]) > 0:
 		var debug = false
 		if self.mesh == null:
@@ -648,8 +648,8 @@ func _build_network():#start, end, type):
 			self.built_arrays = []
 			self.built_arrays.resize(ArrayMesh.ARRAY_MAX)
 		var built = Vector2(0, 128) # used to swap from yellow color to basic with tile colors
-		var verts_to_terrain = PoolVector3Array(self.drag_arrays[ArrayMesh.ARRAY_VERTEX])
-		var UVs_to_terrain = PoolVector2Array(self.drag_arrays[ArrayMesh.ARRAY_TEX_UV])
+		var verts_to_terrain = PackedVector3Array(self.drag_arrays[ArrayMesh.ARRAY_VERTEX])
+		var UVs_to_terrain = PackedVector2Array(self.drag_arrays[ArrayMesh.ARRAY_TEX_UV])
 		self.get_parent().get_node("Terrain").update_terrain(verts_to_terrain, UVs_to_terrain)
 		for i in len(self.drag_arrays):
 			if self.built_arrays[i] == null and not self.drag_arrays[i] == null:
@@ -690,11 +690,11 @@ func _build_network():#start, end, type):
 func get_mesh_arrays(arrays):
 	var ret_array = []
 	ret_array.resize(ArrayMesh.ARRAY_MAX)
-	ret_array[ArrayMesh.ARRAY_VERTEX] = PoolVector3Array(arrays[ArrayMesh.ARRAY_VERTEX])
-	ret_array[ArrayMesh.ARRAY_NORMAL] = PoolVector3Array(arrays[ArrayMesh.ARRAY_NORMAL])
-	ret_array[ArrayMesh.ARRAY_COLOR] = PoolColorArray(arrays[ArrayMesh.ARRAY_COLOR])
-	ret_array[ArrayMesh.ARRAY_TEX_UV] = PoolVector2Array(arrays[ArrayMesh.ARRAY_TEX_UV])
-	ret_array[ArrayMesh.ARRAY_TEX_UV2] = PoolVector2Array(arrays[ArrayMesh.ARRAY_TEX_UV2])
+	ret_array[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(arrays[ArrayMesh.ARRAY_VERTEX])
+	ret_array[ArrayMesh.ARRAY_NORMAL] = PackedVector3Array(arrays[ArrayMesh.ARRAY_NORMAL])
+	ret_array[ArrayMesh.ARRAY_COLOR] = PackedColorArray(arrays[ArrayMesh.ARRAY_COLOR])
+	ret_array[ArrayMesh.ARRAY_TEX_UV] = PackedVector2Array(arrays[ArrayMesh.ARRAY_TEX_UV])
+	ret_array[ArrayMesh.ARRAY_TEX_UV2] = PackedVector2Array(arrays[ArrayMesh.ARRAY_TEX_UV2])
 	return ret_array
 
 func get_uvs(rot : int, flip : int):
@@ -724,7 +724,7 @@ func get_uvs(rot : int, flip : int):
 	else:
 		flip_uvs = rot_uvs
 	# will need to use the same order when assigning vectors
-	var ret_uvs = PoolVector2Array([
+	var ret_uvs = PackedVector2Array([
 		flip_uvs[0],
 		flip_uvs[2],
 		flip_uvs[1],
