@@ -8,7 +8,7 @@ func format_thousands(val):
 		val /= 1000
 	return res
 
-func _init(attributes).(attributes):
+func _init(attributes,attributes):
 	self.name = "RegionNameDisplay"
 
 func _ready():

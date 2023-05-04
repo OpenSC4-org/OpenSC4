@@ -1,8 +1,8 @@
-extends MeshInstance
+extends MeshInstance3D
 
 var tmpMesh = ArrayMesh.new();
-var vertices = PoolVector3Array()
-var UVs = PoolVector2Array()
+var vertices = PackedVector3Array()
+var UVs = PackedVector2Array()
 var color = Color(0.9, 0.1, 0.1)
 var mat = self.get_material_override()
 var st = SurfaceTool.new()
@@ -36,7 +36,7 @@ func generate_wateredges(HeightMap):
 	var max_depth_water_alpha = 30.0
 	
 	var depth_range = max_depth_water_alpha + max_beach_height
-	var watermap = PoolByteArray([])
+	var watermap = PackedByteArray([])
 	var watercoords = []
 	for w in range(len(HeightMap)):
 		watercoords.append([])
@@ -97,7 +97,7 @@ func generate_wateredges(HeightMap):
 		water_imgs.append(Core.subfile(TGI_waterT["T"], TGI_waterT["G"], TGI_waterT["I"]+zoom, FSHSubfile))
 		
 	
-	var water_text = TextureArray.new()
+	var water_text = Texture2DArray.new()
 	var w_w = water_imgs[4].width
 	var w_h = water_imgs[4].height
 	var format = water_imgs[4].img.get_format()
@@ -120,19 +120,19 @@ func generate_wateredges(HeightMap):
 	#shoreimg.flip_x()
 	#shoreimg.flip_y()
 	var shoretex = ImageTexture.new()
-	shoretex.create_from_image(shoreimg, 0)
+	shoretex.create_from_image(shoreimg) #,0
 	mat = self.get_material_override()
-	mat.set_shader_param("watermap", shoretex)
-	mat.set_shader_param("watertexture", water_text)
-	mat.set_shader_param("depth_range", depth_range)
-	mat.set_shader_param("max_depth", max_depth_water_alpha)
-	mat.set_shader_param("noise_texture", $NoiseTexture.texture)
-	mat.set_shader_param("noise_normals", $NoiseNormals.texture)	
+	mat.set_shader_parameter("watermap", shoretex)
+	mat.set_shader_parameter("watertexture", water_text)
+	mat.set_shader_parameter("depth_range", depth_range)
+	mat.set_shader_parameter("max_depth", max_depth_water_alpha)
+	mat.set_shader_parameter("noise_texture", $NoiseTexture.texture)
+	mat.set_shader_parameter("noise_normals", $NoiseNormals.texture)	
 	self.set_material_override(mat)
 	var matT = self.get_parent().get_node("Terrain").get_material_override()
-	matT.set_shader_param("watermap", shoretex)
-	matT.set_shader_param("max_beach_ht", max_beach_height)
-	matT.set_shader_param("beach_ht_range", depth_range)
+	matT.set_shader_parameter("watermap", shoretex)
+	matT.set_shader_parameter("max_beach_ht", max_beach_height)
+	matT.set_shader_parameter("beach_ht_range", depth_range)
 	self.get_parent().get_node("Terrain").set_material_override(matT)
 
 

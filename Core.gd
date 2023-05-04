@@ -109,7 +109,6 @@ var group_dict_to_text = {
 	0xeafcb180: "LTEXT/Plugin Install Text",
 }
 
-
 # TODO Generate these dictionaries from the above
 var type_dict = {
 	"LTEXT": 0x2026960b,
@@ -191,7 +190,6 @@ func _type_int_2_str(dict, number:int) -> String:
 		result = dict[number]
 	return result
 
-
 func _type_str_2_int(dict, text: String) -> int:
 	"""
 	Tries to translate string into number based on dicionary
@@ -203,7 +201,6 @@ func _type_str_2_int(dict, text: String) -> int:
 	else:
 		Logger.error("Could not translate %s into number. Not found." % text)
 	return number
-
 
 func get_list_instances(type_id_str:String, group_id_str: String):
 	"""

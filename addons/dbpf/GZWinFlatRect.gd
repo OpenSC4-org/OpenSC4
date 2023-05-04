@@ -5,11 +5,11 @@ var color : Color = Color(1, 1, 1)
 
 var nofill = false
 
-func _init(attributes : Dictionary).(attributes):
+func _init(attributes : Dictionary):
 	print(attributes)
 	if attributes.get("style", "") == "nofill":
 		nofill = true
-	update()
+	queue_redraw()
 
 func _draw():
 	pass

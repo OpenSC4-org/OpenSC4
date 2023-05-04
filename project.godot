@@ -6,226 +6,13 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
-
-_global_script_classes=[ {
-"base": "DBPFSubfile",
-"class": "CURSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/CURSubfile.gd"
-}, {
-"base": "Node",
-"class": "CUR_Entry",
-"language": "GDScript",
-"path": "res://addons/dbpf/CUR_Entry.gd"
-}, {
-"base": "Reference",
-"class": "DBDF",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBDF.gd"
-}, {
-"base": "Node",
-"class": "DBDFEntry",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBDFEntry.gd"
-}, {
-"base": "Resource",
-"class": "DBPF",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBPF.gd"
-}, {
-"base": "EditorPlugin",
-"class": "DBPFPlugin",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBPFPlugin.gd"
-}, {
-"base": "Reference",
-"class": "DBPFSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/DBPFSubfile.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "ExemplarSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/ExemplarSubfile.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "FSHSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/FSHSubfile.gd"
-}, {
-"base": "Node",
-"class": "FSH_Entry",
-"language": "GDScript",
-"path": "res://addons/dbpf/FSH_Entry.gd"
-}, {
-"base": "Control",
-"class": "GZWin",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWin.gd"
-}, {
-"base": "GZWin",
-"class": "GZWinBMP",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWinBMP.gd"
-}, {
-"base": "GZWin",
-"class": "GZWinBtn",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWinBtn.gd"
-}, {
-"base": "GZWin",
-"class": "GZWinFlatRect",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWinFlatRect.gd"
-}, {
-"base": "GZWin",
-"class": "GZWinGen",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWinGen.gd"
-}, {
-"base": "GZWin",
-"class": "GZWinText",
-"language": "GDScript",
-"path": "res://addons/dbpf/GZWinText.gd"
-}, {
-"base": "Node",
-"class": "INI",
-"language": "GDScript",
-"path": "res://ini.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "INISubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/INISubfile.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "ImageSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/ImageSubfile.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "LTEXTSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/LTEXTSubfile.gd"
-}, {
-"base": "Reference",
-"class": "NetGraphEdge",
-"language": "GDScript",
-"path": "res://CityView/ClassDefinitions/NetGraphEdge.gd"
-}, {
-"base": "Reference",
-"class": "NetGraphNode",
-"language": "GDScript",
-"path": "res://CityView/ClassDefinitions/NetGraphNode.gd"
-}, {
-"base": "Reference",
-"class": "NetTile",
-"language": "GDScript",
-"path": "res://CityView/ClassDefinitions/NetTile.gd"
-}, {
-"base": "Reference",
-"class": "NetworkGraph",
-"language": "GDScript",
-"path": "res://CityView/ClassDefinitions/NeworkGraph.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "RULSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/RULSubfile.gd"
-}, {
-"base": "Area2D",
-"class": "RegionCityView",
-"language": "GDScript",
-"path": "res://RegionUI/RegionCityView.gd"
-}, {
-"base": "Sprite",
-"class": "RegionViewCityThumbnail",
-"language": "GDScript",
-"path": "res://RegionViewCityThumbnail.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "S3DSubfile",
-"language": "GDScript",
-"path": "res://addons/dbpf/S3DSubfile.gd"
-}, {
-"base": "Node",
-"class": "S3D_Group",
-"language": "GDScript",
-"path": "res://addons/dbpf/S3D_Group.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "SC4ReadRegionalCity",
-"language": "GDScript",
-"path": "res://SC4ReadRegionalCity.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "SC4UISubfile",
-"language": "GDScript",
-"path": "res://SC4UISubfile.gd"
-}, {
-"base": "Node",
-"class": "SubfileIndex",
-"language": "GDScript",
-"path": "res://addons/dbpf/SubfileIndex.gd"
-}, {
-"base": "Node",
-"class": "SubfileTGI",
-"language": "GDScript",
-"path": "res://addons/dbpf/SubfileTGI.gd"
-}, {
-"base": "Reference",
-"class": "TransitTile",
-"language": "GDScript",
-"path": "res://CityView/ClassDefinitions/TransitTile.gd"
-}, {
-"base": "DBPFSubfile",
-"class": "cSTETerrain__SaveAltitudes",
-"language": "GDScript",
-"path": "res://cSTETerrain__SaveAltitudes.gd"
-} ]
-_global_script_class_icons={
-"CURSubfile": "",
-"CUR_Entry": "",
-"DBDF": "",
-"DBDFEntry": "",
-"DBPF": "",
-"DBPFPlugin": "",
-"DBPFSubfile": "",
-"ExemplarSubfile": "",
-"FSHSubfile": "",
-"FSH_Entry": "",
-"GZWin": "",
-"GZWinBMP": "",
-"GZWinBtn": "",
-"GZWinFlatRect": "",
-"GZWinGen": "",
-"GZWinText": "",
-"INI": "",
-"INISubfile": "",
-"ImageSubfile": "",
-"LTEXTSubfile": "",
-"NetGraphEdge": "",
-"NetGraphNode": "",
-"NetTile": "",
-"NetworkGraph": "",
-"RULSubfile": "",
-"RegionCityView": "",
-"RegionViewCityThumbnail": "",
-"S3DSubfile": "",
-"S3D_Group": "",
-"SC4ReadRegionalCity": "",
-"SC4UISubfile": "",
-"SubfileIndex": "",
-"SubfileTGI": "",
-"TransitTile": "",
-"cSTETerrain__SaveAltitudes": ""
-}
+config_version=5
 
 [application]
 
 config/name="OpenSC4"
 run/main_scene="res://BootScreen.tscn"
+config/features=PackedStringArray("4.0")
 boot_splash/image="res://splash.png"
 config/icon="res://splash.png"
 
@@ -240,16 +27,16 @@ Player="*res://CityView/Player.gd"
 
 [display]
 
-window/size/width=1280
-window/size/height=720
+window/size/viewport_width=1280
+window/size/viewport_height=720
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/dbpf/plugin.cfg" )
+enabled=PackedStringArray("res://addons/dbpf/plugin.cfg")
 
 [gdnative]
 
-singletons=[  ]
+singletons=[]
 
 [global]
 
@@ -263,34 +50,34 @@ edit=false
 
 camera_up={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777232,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 camera_down={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777234,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 camera_left={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777231,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 camera_right={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777233,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 camera_right_click={
 "deadzone": 0.5,
-"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":2,"pressed":false,"doubleclick":false,"script":null)
- ]
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"pressed":false,"double_click":false,"script":null)
+]
 }
 
 [network]
 
-limits/debugger_stdout/max_chars_per_second=20000
-limits/debugger_stdout/max_messages_per_frame=100
+limits/debugger/max_chars_per_second=20000
+limits/debugger/max_queued_messages=100
 
 [physics]
 
@@ -301,7 +88,6 @@ common/enable_pause_aware_picking=true
 2d/snapping/use_gpu_pixel_snap=true
 threads/thread_model=2
 vram_compression/import_etc=true
-vram_compression/import_etc2=false
 quality/shadow_atlas/cubemap_size=1024
 quality/shadows/filter_mode=2
 quality/filters/use_fxaa=true
