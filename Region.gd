@@ -69,7 +69,7 @@ func _ready():
 	if err != OK:
 		Logger.error('Error opening region directory \'%s\': %s' % [region_dir_full_path, err])
 		return
-	dir.list_dir_begin()
+	dir.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 	while true:
 		var file = dir.get_next()
 		if file == "":
@@ -80,7 +80,7 @@ func _ready():
 	self.read_config_bmp()
 	var anchor = []
 	for f in files:
-		var city = load("res://RegionUI/RegionCityView.tscn").instance()
+		var city = load("res://RegionUI/RegionCityView.tscn").instantiate()
 		city.init(Core.get_gamedata_path('Regions/%s/%s' % [REGION_NAME, f]))
 		var x : int = city.city_info.location[0]
 		var y : int = city.city_info.location[1]
@@ -89,7 +89,7 @@ func _ready():
 		self.total_population += city.city_info.population_residential
 		var vert_comp = (x+width) + (y+height) - width
 		anchor.append([vert_comp, city, width])
-	anchor.sort_custom(self, "anchror_sort")
+	anchor.sort_custom(Callable(self,"anchror_sort"))
 	
 	for anch in anchor:
 		var city = anch[1]
@@ -107,7 +107,7 @@ func _ready():
 func read_config_bmp():
 	var region_config_file = File.new()
 	region_config_file.open(Core.get_gamedata_path("Regions/%s/config.bmp" % REGION_NAME), File.READ)
-	var data = region_config_file.get_buffer(region_config_file.get_len())
+	var data = region_config_file.get_buffer(region_config_file.get_length())
 	var region_config = Image.new()
 	region_config.load_bmp_from_buffer(data)
 
@@ -115,7 +115,7 @@ func read_config_bmp():
 	$BaseGrid.init_cities_array(region_config.get_width(), region_config.get_height())
 	region_w = region_config.get_width()
 	region_h = region_config.get_height()
-	region_config.lock()	
+	false # region_config.lock() # TODOConverter40, Image no longer requires locking, `false` helps to not break one line if/else, so it can freely be removed	
 	for i in range(region_config.get_width()):
 		for j in range(region_config.get_height()):
 			# Get the pixel at i,j

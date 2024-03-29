@@ -9,7 +9,7 @@ var location:int
 var size:int
 var dbpf
 
-func _init(dbpf, buffer):
+func _init(dbpf,buffer):
 	type_id = buffer.get_u32()
 	group_id = buffer.get_u32()
 	instance_id = buffer.get_u32()

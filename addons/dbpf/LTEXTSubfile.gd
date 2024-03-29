@@ -20,11 +20,11 @@ class_name LTEXTSubfile
 
 var text : String
 
-func _init(index).(index):
+func _init(index):
 	pass
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	text = ""
 	var n_characters = stream.get_u16() # (2-byte unicode characters)
 	# Check that we have the correct amount of characters

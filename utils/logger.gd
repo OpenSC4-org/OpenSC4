@@ -21,10 +21,10 @@ class ExternalSink:
 
 	var name
 	var queue_mode
-	var buffer = PoolStringArray()
+	var buffer = PackedStringArray()
 	var buffer_idx = 0
 
-	func _init(_name, _queue_mode = QUEUE_MODES.NONE) -> void:
+	func _init(_name,_queue_mode = QUEUE_MODES.NONE):
 		name = _name
 		queue_mode = _queue_mode
 
@@ -60,7 +60,7 @@ class Logfile:
 	var file = null
 	var path = ""
 
-	func _init(_path, _queue_mode = QUEUE_MODES.NONE).(_path, _queue_mode):
+	func _init(_path,_queue_mode = QUEUE_MODES.NONE,_path,_queue_mode):
 		file = File.new()
 		if validate_path(_path):
 			path = _path
@@ -78,7 +78,7 @@ class Logfile:
 	func validate_path(path):
 		"""Validate the path given as argument, making it possible to write to
 		the designated file or folder. Returns whether the path is valid."""
-		if not (path.is_abs_path() or path.is_rel_path()):
+		if not (path.is_absolute_path() or path.is_rel_path()):
 			print("[ERROR] [logger] The given path '%s' is not valid." % path)
 			return false
 		var dir = Directory.new()
@@ -147,7 +147,7 @@ class Module:
 	var output_strategies = []
 	var external_sink = null
 
-	func _init(_name, _output_level, _output_strategies, _external_sink):
+	func _init(_name,_output_level,_output_strategies,_external_sink):
 		name = _name
 		set_output_level(_output_level)
 
@@ -557,7 +557,7 @@ func get_default_output_level():
 # * mm = Minutes
 # * ss = Seconds
 func get_formatted_datetime():
-	var datetime = OS.get_datetime()
+	var datetime = Time.get_datetime_dict_from_system()
 	var result = time_format
 	result = result.replace("YYYY", "%04d" % [datetime.year])
 	result = result.replace("MM", "%02d" % [datetime.month])
