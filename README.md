@@ -1,6 +1,8 @@
 # OpenSC4
 > Open source reimplementation of SimCity 4.
 
+[![](https://dcbadge.vercel.app/api/server/53yN9BjA54)](https://discord.gg/53yN9BjA54)
+
 This project aims to create a working open source "clone" of
 SimCity 4 that would be able to take advantage of modern hardware
 and run on other platforms.
