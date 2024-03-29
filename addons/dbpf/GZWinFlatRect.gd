@@ -5,7 +5,8 @@ var color : Color = Color(1, 1, 1)
 
 var nofill = false
 
-func _init(attributes : Dictionary).(attributes):
+func _init(attributes : Dictionary):
+	super(attributes)
 	print(attributes)
 	if attributes.get("style", "") == "nofill":
 		nofill = true

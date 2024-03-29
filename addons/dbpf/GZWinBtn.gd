@@ -40,7 +40,8 @@ var is_pressed : bool = false
 var is_checked : bool = false
 var is_disabled : bool = false
 
-func _init(attributes : Dictionary).(attributes):
+func _init(attributes : Dictionary):
+	super(attributes)
 	var style = attributes.get('style', 'standard')
 	match style:
 		"standard":
@@ -58,15 +59,15 @@ func _init(attributes : Dictionary).(attributes):
 		print("Imagerect", attributes['imagerect'])
 	update_state()
 
-func set_texture(texture : Texture):
+func set_texture(texture : Texture2D):
 	set_size(Vector2(texture.get_width() / N_SUBTEXTURES, texture.get_height()))
 	for i in N_SUBTEXTURES:
 		textures[i] = get_cropped_texture(texture, Rect2(i * texture.get_width() / N_SUBTEXTURES, 0, texture.get_width() / N_SUBTEXTURES, texture.get_height()))
 
-func get_cropped_texture(texture : Texture, region : Rect2):
+func get_cropped_texture(texture : Texture2D, region : Rect2):
 	var atlas_texture = AtlasTexture.new()
 	atlas_texture.set_atlas(texture)
-	atlas_texture.set_region(region)
+	atlas_texture.set_region_enabled(region)
 	return atlas_texture
 
 func get_minimum_size():
@@ -100,7 +101,7 @@ func update_state():
 func _gui_input(event):
 	if is_disabled:
 		return
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			is_pressed = true
 			if self.style == ButtonStyle.RADIOCHECK:

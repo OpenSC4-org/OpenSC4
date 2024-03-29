@@ -5,11 +5,12 @@ var sections = {}
 var file_path
 var cfgFile : ConfigFile
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	file.seek(index.location)
 
 #	var current_section = ""

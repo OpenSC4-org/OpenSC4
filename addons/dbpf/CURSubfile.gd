@@ -5,11 +5,12 @@ class_name CURSubfile
 var n_images
 var entries = []
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	file.seek(index.location)
 	var ind = 0
 	assert(len(raw_data) > 0, "DBPFSubfile.load: no data")
@@ -64,7 +65,7 @@ func load(file, dbdf=null):
 			(int(bmp_size)+54), (int(bmp_size)+54)>>8, (int(bmp_size)+54)>>16, (int(bmp_size)+54)>>24, 
 			0x00, 0x00, 0x00, 0x00, 
 			0x36, 0x00, 0x00, 0x00]
-			var bmp_data = PoolByteArray(bmp_header)
+			var bmp_data = PackedByteArray(bmp_header)
 			bmp_data.append_array(raw_data.subarray(ind-40, ind-1))
 			bmp_data.append_array(raw_data.subarray(ind, ind+bmp_size-1))
 			#bmp_data[22] = bmp_data[18]
@@ -100,5 +101,5 @@ func get_int_from_bytes(bytearr):
 func get_as_texture(entry_no = 0):
 	assert(entries[entry_no].img != null)
 	var ret = ImageTexture.new()
-	ret.create_from_image(entries[entry_no].img, 0)
+	ret.create_from_image(entries[entry_no].img) #,0
 	return ret

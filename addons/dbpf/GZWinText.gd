@@ -4,7 +4,8 @@ class_name GZWinText
 var text : String 
 var font = null
 
-func _init(attributes).(attributes):
+func _init(attributes):
+	super(attributes)
 	# hack to get the default font while we can't decode the Simcity 4 ones
 	var label = Label.new()
 	self.font = label.get_font("")
@@ -29,5 +30,5 @@ func set_text(text : String):
 	self.update()
 
 func _draw():
-	draw_string(font, Vector2(0, font.get_height()), self.text, Color.white)
+	draw_string(font, Vector2(0, font.get_height()), self.text, Color.WHITE)
 

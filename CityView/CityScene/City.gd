@@ -1,4 +1,4 @@
-extends Spatial
+extends Node3D
 
 var size_w : int = 4
 var size_h : int = 4
@@ -25,9 +25,9 @@ func _ready():
 
 func gen_random_terrain(width : int, height : int) -> Array:
 	var heightmap : Array = []
-	var noise = OpenSimplexNoise.new()
+	var noise = FastNoiseLite.new()
 	noise.seed = randi()
-	noise.octaves = 1
+	noise.fractal_octaves = 1
 	noise.period = 20
 	noise.persistence = 0.8
 	for i in range(width):
@@ -51,7 +51,7 @@ func load_city_terrain(svfile : DBPF):
 		heightmap.append([])
 		for j in range(self.height):
 			heightmap[i].append(terrain_info.get_altitude(i, j))
-	self.get_node("Spatial/Terrain").heightmap = heightmap
+	self.get_node("Node3D/Terrain").heightmap = heightmap
 	return heightmap
 
 #(0, 0)       (1, 0)
@@ -93,9 +93,9 @@ func create_face(v0 : Vector3, v1 : Vector3, v2 : Vector3, v3 : Vector3, heightm
 		else:
 			normalz.append(Vector3(0.0, 1.0, 0.0))
 	
-	var vertices = PoolVector3Array()
-	var normals = PoolVector3Array()
-	var UVs = PoolVector2Array()
+	var vertices = PackedVector3Array()
+	var normals = PackedVector3Array()
+	var UVs = PackedVector2Array()
 	
 	# this if-else is my attempt to make the terrain diagonals smart, sometimes they still don't cooperate
 	if min(normal1.y, normal2.y) >= min(normal3.y, normal4.y):
@@ -248,25 +248,25 @@ func create_edge(vert, n1, n2, normal):
 	return [vertices, normals, UVs]
 
 func create_terrain():
-	self.ind_layer = $Spatial/Terrain.load_textures_to_uv_dict()
-	var vertices : PoolVector3Array = PoolVector3Array()
-	var normals : PoolVector3Array = PoolVector3Array()
-	var UVs : PoolVector2Array = PoolVector2Array()
-	var col_layer_weights : PoolColorArray = PoolColorArray()
-	var uv2_layer_ind : PoolVector2Array = PoolVector2Array()
-	var e_vertices : PoolVector3Array = PoolVector3Array()
-	var e_normals : PoolVector3Array = PoolVector3Array()
-	var e_UVs : PoolVector2Array = PoolVector2Array()
-	var w_vertices : PoolVector3Array = PoolVector3Array()
-	var w_normals : PoolVector3Array = PoolVector3Array()
-	var w_UVs : PoolVector2Array = PoolVector2Array()
+	self.ind_layer = $Node3D/Terrain.load_textures_to_uv_dict()
+	var vertices : PackedVector3Array = PackedVector3Array()
+	var normals : PackedVector3Array = PackedVector3Array()
+	var UVs : PackedVector2Array = PackedVector2Array()
+	var col_layer_weights : PackedColorArray = PackedColorArray()
+	var uv2_layer_ind : PackedVector2Array = PackedVector2Array()
+	var e_vertices : PackedVector3Array = PackedVector3Array()
+	var e_normals : PackedVector3Array = PackedVector3Array()
+	var e_UVs : PackedVector2Array = PackedVector2Array()
+	var w_vertices : PackedVector3Array = PackedVector3Array()
+	var w_normals : PackedVector3Array = PackedVector3Array()
+	var w_UVs : PackedVector2Array = PackedVector2Array()
 	# Random heightmap (for now)
 	var heightmap : Array
 	if savefile != null:
 		heightmap = load_city_terrain(savefile)
 	else:
 		heightmap = gen_random_terrain(size_w * 64 + 1, size_h * 64 + 1)
-	$Spatial/WaterPlane.generate_wateredges(heightmap)
+	$Node3D/WaterPlane.generate_wateredges(heightmap)
 	var tiles_w = size_w * 64
 	var tiles_h = size_h * 64
 	
@@ -361,8 +361,8 @@ func create_terrain():
 	arrays[ArrayMesh.ARRAY_TEX_UV2] = uv2_layer_ind
 	arrays[ArrayMesh.ARRAY_COLOR] = col_layer_weights
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	$Spatial/Terrain.mesh = array_mesh
-	$Spatial/Terrain.create_trimesh_collision()
+	$Node3D/Terrain.mesh = array_mesh
+	$Node3D/Terrain.create_trimesh_collision()
 	
 	#var layer_img = Image.new()
 	#var layer_flat = PoolByteArray([])
@@ -382,7 +382,7 @@ func create_terrain():
 	e_rrays[ArrayMesh.ARRAY_NORMAL] = e_normals 
 	e_rrays[ArrayMesh.ARRAY_TEX_UV] = e_UVs 
 	e_rray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, e_rrays)
-	$Spatial/Border.mesh = e_rray_mesh
+	$Node3D/Border.mesh = e_rray_mesh
 	
 	var warray_mesh : ArrayMesh = ArrayMesh.new()
 	var warrays : Array = []
@@ -391,7 +391,7 @@ func create_terrain():
 	warrays[ArrayMesh.ARRAY_NORMAL] = w_normals 
 	warrays[ArrayMesh.ARRAY_TEX_UV] = w_UVs 
 	warray_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, warrays)
-	$Spatial/WaterPlane.mesh = warray_mesh
+	$Node3D/WaterPlane.mesh = warray_mesh
 	
 	"test s3d"
 	var TGI_s3d = {"T": 0x5ad0e817, "G": 0xbadb57f1, "I":0x16620430}
@@ -402,11 +402,11 @@ func create_terrain():
 			var x_rand = (x-2.5) + randf()
 			var z_rand = (z-2.5) + randf()
 			var loc_rand = location + Vector3(x_rand, 0, z_rand)
-			s3dobj.add_to_mesh($Spatial/TestS3D, loc_rand)
+			s3dobj.add_to_mesh($Node3D/TestS3D, loc_rand)
 	test_exemplar()
-	var s3dmat = $Spatial/TestS3D.get_material_override()
-	s3dmat.set_shader_param("nois_texture", $Spatial/WaterPlane/NoiseTexture.texture)
-	$Spatial/TestS3D.set_material_override(s3dmat)
+	var s3dmat = $Node3D/TestS3D.get_material_override()
+	s3dmat.set_shader_parameter("nois_texture", $Node3D/WaterPlane/NoiseTexture.texture)
+	$Node3D/TestS3D.set_material_override(s3dmat)
 	print("DEBUG")
 	
 func set_cursor():
@@ -422,7 +422,7 @@ func coord_to_uv(x, y, z):
 	var temp = max(min(32-int((y-15.0) * 1.312), 31),0) # 0x6534284a,0x7a4a8458,0x1a2fdb6b describes AltitudeTemperatureFactor of 0.082, i multiplied this by 16
 	
 	var moist = 6
-	var inst_key = $Spatial/Terrain.tm_table[temp][moist]
+	var inst_key = $Node3D/Terrain.tm_table[temp][moist]
 	return [Vector2(x_factored, y_factored), self.ind_layer[inst_key]]
 	
 func get_normal(vert : Vector3, heightmap):

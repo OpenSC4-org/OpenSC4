@@ -85,7 +85,8 @@ from the wiki:
 var RUL_wnes = {}
 var num_ids = 0
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbdf=null):
@@ -104,7 +105,7 @@ func load(file, dbdf=null):
 			24	8	7	6	18
 			23	22	21	20	19
 	"""
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	file.seek(index.location)
 	var ind = 0
 	assert(len(raw_data) > 0, "DBPFSubfile.load: no data")

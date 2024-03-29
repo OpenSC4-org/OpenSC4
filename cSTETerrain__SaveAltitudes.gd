@@ -5,11 +5,12 @@ var width : int
 var height : int
 var altitudes : Array
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbpf=null):
-	.load(file, dbpf)
+	super.load(file, dbpf)
 	stream.data_array = raw_data
 	var major = stream.get_16()
 	print("major: %08x" % major)

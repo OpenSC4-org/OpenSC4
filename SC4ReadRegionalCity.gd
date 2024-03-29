@@ -14,11 +14,12 @@ var tutorial_flag : bool = false
 var guid : int = 0
 var mode : String = "god"
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = raw_data
 	self.version = [stream.get_16(), stream.get_16()];

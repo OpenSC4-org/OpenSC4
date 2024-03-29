@@ -6,13 +6,14 @@ var file_path
 
 func _init(path):
 	file_path = path
-	var file = File.new() 
-	var err = file.open(file_path, File.READ)
+	var file = FileAccess.open(file_path, FileAccess.READ)
 	var current_section = ""
-	if err != OK:
-		Logger.error("Couldn't load file %s. Error: %s " % [file_path, err] )
-		return err
-	while ! file.eof_reached():
+	if file == null:
+		var err = FileAccess.get_open_error()
+		Logger.error("Couldn't load file %s. Error: %s " % [file_path, err])
+		push_error(err)
+		return
+	while file.get_position() < file.get_length():
 		var line = file.get_line()
 		line = line.strip_edges(true, true)
 		if line.length() == 0:
@@ -31,8 +32,7 @@ func _init(path):
 	
 
 func save_file():
-	var file = File.new()
-	file.open(file_path, File.WRITE)
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	for section in sections.keys():
 		file.store_line('[' + section + ']')
 		for line in sections[section].keys():

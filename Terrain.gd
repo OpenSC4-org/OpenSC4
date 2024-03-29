@@ -1,8 +1,8 @@
-extends MeshInstance
+extends MeshInstance3D
 
 var tmpMesh = ArrayMesh.new();
-var vertices = PoolVector3Array()
-var UVs = PoolVector2Array()
+var vertices = PackedVector3Array()
+var UVs = PackedVector2Array()
 var color = Color(0.9, 0.1, 0.1)
 var mat = self.get_material_override()
 var st = SurfaceTool.new()
@@ -124,12 +124,12 @@ func load_textures_to_uv_dict():
 		tot_w = len(textures) * width
 		tot_h = 5 * height
 	var uv_mipmap_offset = height / tot_h
-	var arr_data = [PoolByteArray([])]
+	var arr_data = [PackedByteArray([])]
 	while len(arr_data) < tot_h:
 		arr_data.append_array(arr_data)
 	arr_data = arr_data.slice(0, tot_h)
 	var format_decomp
-	var textarr = TextureArray.new()
+	var textarr = Texture2DArray.new()
 	textarr.create (width, height, len(textures) * 5, formats[0], 2)
 	var layer = 0
 	var ind_to_layer = {}
@@ -153,15 +153,15 @@ func load_textures_to_uv_dict():
 			print("failed to load layer", layer, "with image", im_ind)
 		layer += 1
 	
-	self.mat.set_shader_param("cliff_ind", float(cliff_index))
-	self.mat.set_shader_param("beach_ind", float(beach_index))
-	self.mat.set_shader_param("terrain", textarr)
+	self.mat.set_shader_parameter("cliff_ind", float(cliff_index))
+	self.mat.set_shader_parameter("beach_ind", float(beach_index))
+	self.mat.set_shader_parameter("terrain", textarr)
 	self.set_material_override(self.mat)
 	var mat_e = self.get_parent().get_node("Border").get_material_override()
-	mat_e.set_shader_param("terrain", textarr)
-	mat_e.set_shader_param("top_ind", float(top_edge))
-	mat_e.set_shader_param("mid_ind", float(mid_edge))
-	mat_e.set_shader_param("bot_ind", float(bot_edge))
+	mat_e.set_shader_parameter("terrain", textarr)
+	mat_e.set_shader_parameter("top_ind", float(top_edge))
+	mat_e.set_shader_parameter("mid_ind", float(mid_edge))
+	mat_e.set_shader_parameter("bot_ind", float(bot_edge))
 	return ind_to_layer
 		
 		

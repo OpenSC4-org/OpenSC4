@@ -1,4 +1,5 @@
 extends GZWinBtn
 
-func _init(attributes : Dictionary).(attributes):
+func _init(attributes : Dictionary):
+	super(attributes)
 	self.name = "BrowseRegionsButton"

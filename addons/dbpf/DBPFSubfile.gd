@@ -1,14 +1,14 @@
-extends Reference 
+extends RefCounted 
 class_name DBPFSubfile
 
 var index:SubfileIndex
-var raw_data:PoolByteArray
+var raw_data:PackedByteArray
 var stream:StreamPeerBuffer
 
 func _init(idx:SubfileIndex):
 	self.index = idx
 
-func load(file:File, dbdf:DBDFEntry=null):
+func load(file: FileAccess, dbdf: DBDFEntry = null):
 	file.seek(index.location)
 	if dbdf != null:
 		raw_data = decompress(file, index.size - 9, dbdf)
@@ -17,9 +17,9 @@ func load(file:File, dbdf:DBDFEntry=null):
 	stream = StreamPeerBuffer.new()
 	stream.data_array = raw_data
 
-func decompress(file : File, length : int, dbdf : DBDFEntry) -> PoolByteArray:
-	var buf:PoolByteArray
-	var answer:PoolByteArray = PoolByteArray()
+func decompress(file: FileAccess, length: int, dbdf: DBDFEntry) -> PackedByteArray:
+	var buf:PackedByteArray
+	var answer:PackedByteArray = PackedByteArray()
 	var numplain:int
 	var numcopy:int
 	var offset:int

@@ -1,8 +1,8 @@
-extends Reference
+extends RefCounted
 
 # See details: https://wiki.sc4devotion.com/index.php?title=DBDF
 
-class_name DBDF #Database Directory Files
+class_name DBDF #Database DirAccess Files
 
 var entries = []
 

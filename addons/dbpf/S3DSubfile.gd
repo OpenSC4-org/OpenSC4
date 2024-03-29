@@ -7,11 +7,12 @@ var max_text_width = 0
 var max_text_height = 0
 var formats = []
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	file.seek(index.location)
 	var ind = 0
 	assert(len(raw_data) > 0, "DBPFSubfile.load: no data")
@@ -41,8 +42,8 @@ func load(file, dbdf=null):
 	ind += 4
 	var v_grpcnt = self.get_int_from_bytes(raw_data.subarray(ind, ind+3))
 	ind += 4
-	var vertices = PoolVector3Array([])
-	var UVs = PoolVector2Array([])
+	var vertices = PackedVector3Array([])
+	var UVs = PackedVector2Array([])
 	for _grpind in range(v_grpcnt):
 		var group = S3D_Group.new()
 		self.groups.append(group)
@@ -164,14 +165,14 @@ func load(file, dbdf=null):
 		"-PROP block- TODO"
 		"-REGP block- TODO"
 		
-func add_to_mesh(mesh: MeshInstance, location: Vector3):
+func add_to_mesh(mesh: MeshInstance3D, location: Vector3):
 	"""this is temporary to test if it loads and how its size is compared to regulater terrain"""
-	var vertices = PoolVector3Array([])
-	var UVs = PoolVector2Array([])
+	var vertices = PackedVector3Array([])
+	var UVs = PackedVector2Array([])
 	var images = []
 	for group in self.groups:
-		var loc_vert = PoolVector3Array([])
-		var loc_UV = PoolVector2Array([])
+		var loc_vert = PackedVector3Array([])
+		var loc_UV = PackedVector2Array([])
 		for vertind in range(group.vertices.size()-1, -1, -1):
 			loc_vert.append(location + group.vertices[vertind])
 			loc_UV.append(group.UVs[vertind])
@@ -179,7 +180,7 @@ func add_to_mesh(mesh: MeshInstance, location: Vector3):
 		UVs.append_array(loc_UV)
 		var image = get_texture_from_mat_id(group.mat_id)
 		images.append(image)
-	var textarr = TextureArray.new()
+	var textarr = Texture2DArray.new()
 	textarr.create (self.max_text_width, self.max_text_height, len(self.groups), self.formats[0], 2)
 	for imgind in range(len(images)):
 		textarr.set_layer_data(images[imgind], imgind)
@@ -192,7 +193,7 @@ func add_to_mesh(mesh: MeshInstance, location: Vector3):
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh.mesh = array_mesh
 	var mat = mesh.get_material_override()
-	mat.set_shader_param("s3dtexture", textarr)
+	mat.set_shader_parameter("s3dtexture", textarr)
 	mesh.set_material_override(mat)
 	
 func get_texture_from_mat_id(iid):

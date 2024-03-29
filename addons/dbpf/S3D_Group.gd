@@ -2,8 +2,8 @@ extends Node
 
 class_name S3D_Group
 
-var vertices =  PoolVector3Array([])
-var UVs = PoolVector2Array([])
+var vertices =  PackedVector3Array([])
+var UVs = PackedVector2Array([])
 var	mat_id: int
 
 # shader mat index, should handle picking the texturearray and layer that hold the mat

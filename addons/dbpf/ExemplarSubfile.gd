@@ -8,11 +8,12 @@ var properties = {}
 var ind
 var keys_dict = {}
 
-func _init(index).(index):
+func _init(index):
+	super(index)
 	pass
 
 func load(file, dbdf=null):
-	.load(file, dbdf)
+	super.load(file, dbdf)
 	file.seek(index.location)
 	ind = 0
 	assert(len(raw_data) > 0, "DBPFSubfile.load: no data")
@@ -123,7 +124,7 @@ func key_description(key):
 	if len(self.keys_dict) == 0:
 		var file = File.new()
 		file.open("res://exemplar_types.dict", File.READ)
-		self.keys_dict = str2var(file.get_as_text())
+		self.keys_dict = str_to_var(file.get_as_text())
 		file.close()
 	var ret = null
 	if self.keys_dict.keys().has(key):

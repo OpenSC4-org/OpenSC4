@@ -1,8 +1,8 @@
-extends MeshInstance
+extends MeshInstance3D
 
 var tmpMesh = ArrayMesh.new();
-var vertices = PoolVector3Array()
-var UVs = PoolVector2Array()
+var vertices = PackedVector3Array()
+var UVs = PackedVector2Array()
 var color = Color(0.9, 0.1, 0.1)
 var mat = self.get_material_override()
 var st = SurfaceTool.new()
@@ -104,7 +104,7 @@ func build_image_dict_and_texture_array(textures):
 				max_width = fsh_subfile.width
 				height = fsh_subfile.height
 	
-	var texture_array = TextureArray.new()
+	var texture_array = Texture2DArray.new()
 	texture_array.create (max_width, height, len(textures) * 5, list_texture_format[0], 2)
 	return {
 		"texture_array":texture_array,
@@ -140,16 +140,16 @@ func create_ind_to_layer(config, images_dict, texture_array):
 			Logger.error("failed to load layer %s with image %s" % [layer, key])
 		layer += 1
 	
-	self.mat.set_shader_param("cliff_ind", float(cliff_index))
-	self.mat.set_shader_param("beach_ind", float(beach_index))
-	self.mat.set_shader_param("terrain", texture_array)
+	self.mat.set_shader_parameter("cliff_ind", float(cliff_index))
+	self.mat.set_shader_parameter("beach_ind", float(beach_index))
+	self.mat.set_shader_parameter("terrain", texture_array)
 	self.set_material_override(self.mat)
 	var mat_e = self.get_parent().get_node("Border").get_material_override()
-	mat_e.set_shader_param("terrain", texture_array)
+	mat_e.set_shader_parameter("terrain", texture_array)
 		
-	mat_e.set_shader_param("top_ind", float(top_edge))
-	mat_e.set_shader_param("mid_ind", float(mid_edge))
-	mat_e.set_shader_param("bot_ind", float(bot_edge))
+	mat_e.set_shader_parameter("top_ind", float(top_edge))
+	mat_e.set_shader_parameter("mid_ind", float(mid_edge))
+	mat_e.set_shader_parameter("bot_ind", float(bot_edge))
 	
 	return dict
 
@@ -185,7 +185,7 @@ func load_textures_to_uv_dict():
 	
 	return ind_to_layer
 	
-func update_terrain(locations : PoolVector3Array, rot_flipped_UVs : PoolVector2Array):
+func update_terrain(locations : PackedVector3Array, rot_flipped_UVs : PackedVector2Array):
 	var neighbours = [
 		Vector3(-1, 0, -1),Vector3(0, 0, -1),Vector3(1, 0, -1),
 		Vector3(-1, 0, 0),Vector3(0, 0, 0),Vector3(1, 0, 0),

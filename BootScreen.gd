@@ -21,22 +21,22 @@ var dat_files : Array = [
 						
 func _ready():
 	#_generate_types_dict_from_XML()
-	config = INI.new("user://config.ini")
-	if config.sections.size() > 0:
-		Core.game_dir = config.sections["paths"]["sc4_files"]
-	else:
+	var config = ConfigFile.new()
+	var err = config.load("user://config.cfg")
+	if err != OK:
 		$dialog.popup_centered(get_viewport_rect().size / 2)
-		yield($dialog, "popup_hide")
-		config.sections["paths"] = {}
-		config.sections["paths"]["sc4_files"] = Core.game_dir
-		config.save_file()
+		Core.game_dir = await $dialog.dir_selected
+		config.set_value("paths", "sc4_files", Core.game_dir)
+		config.save("user://config.cfg")
+	else:
+		Core.game_dir = config.get_value("paths", "sc4_files")
 	
 	#TODO check if files exist in current Core.game_dir
-	var dir = Directory.new()
+	var dir = DirAccess.open(Core.game_dir)
 	var dir_complete = true
 	while not dir_complete:
-		if dir.open(Core.game_dir) == OK:
-			dir.list_dir_begin()
+		if dir:
+			dir.list_dir_begin() # TODOConverter3To4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 			var files = []
 			var file_name = dir.get_next()
 			while file_name != "":
@@ -49,10 +49,10 @@ func _ready():
 					for folder in range(len(folders)-1):
 						folder_dir += ("/" + folders[folder])
 					var file_n = folders[-1]
-					var subdir = Directory.new()
+					var subdir = DirAccess.open(Core.game_dir+folder_dir)
 					print(Core.game_dir+folder_dir)
-					if subdir.open(Core.game_dir+folder_dir) == OK:
-						subdir.list_dir_begin()
+					if subdir:
+						subdir.list_dir_begin() # TODOConverter3To4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 						var subfile_name = subdir.get_next()
 						var found = false
 						while subfile_name != "":
@@ -75,18 +75,18 @@ func _ready():
 		if not dir_complete:
 			$dialog.window_title = "dir was incomplete, select the SC4 installation folder"
 			$dialog.popup_centered(get_viewport_rect().size / 2)
-			yield($dialog, "popup_hide")
+			await $dialog.popup_hide
 			print("todo: store path in cfg.ini")
 			config.sections["paths"] = {}
 			config.sections["paths"]["sc4_files"] = Core.game_dir
 			config.save_file()
-	$dialog.deselect_items()
+	$dialog.deselect_all()
 	$LoadProgress.value = 0
 	loading_thread = Thread.new()
 	Logger.info("Loading OpenSC4...")
 	Logger.info("Using %s as game data folder" % Core.game_dir)
 	# Would be nice to start multiple threads here not only one
-	var err = loading_thread.start(self, 'load_DATs')
+	err = loading_thread.start(Callable(self, 'load_DATs'))
 	if err != OK:
 		Logger.error("Error starting thread: " % err)
 		return
@@ -117,12 +117,12 @@ func _on_dialog_confirmed():
 
 func _on_DATExplorerButton_pressed():
 	print("here")
-	var err = get_tree().change_scene("res://DATExplorer/DATExplorer.tscn")
+	var err = get_tree().change_scene_to_file("res://DATExplorer/DATExplorer.tscn")
 	if err != OK:
 		Logger.error("Error: %s" % err)
 
 func _on_GameButton_pressed():
-	var err = get_tree().change_scene("res://Region.tscn")
+	var err = get_tree().change_scene_to_file("res://Region.tscn")
 	if err != OK:
 		Logger.error("Error: %s" % err)
 	

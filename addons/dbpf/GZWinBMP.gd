@@ -17,9 +17,10 @@
 extends GZWin 
 class_name GZWinBMP
 
-var texture : Texture = null
+var texture : Texture2D = null
 
-func _init(attributes).(attributes):
+func _init(attributes):
+	super(attributes)
 	if not 'image' in attributes:
 		print(attributes)
 	else:
@@ -28,7 +29,7 @@ func _init(attributes).(attributes):
 		else:
 			set_texture(attributes['image'].get_as_texture())
 
-func set_texture(texture : Texture):
+func set_texture(texture : Texture2D):
 	self.texture = texture
 	update()
 
